@@ -1,0 +1,136 @@
+﻿@model IEnumerable<Core.ViewModels.StaffDocumentationViewModel>
+
+@{
+    ViewData["Title"] = "Subjects";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Dashboard</h1>
+        <nav class="mt-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active"> Pending Applications </li>
+            </ol>
+        </nav>
+    </div>
+    <!-- End Page Title -->
+
+    <section class="section dashboard">
+        <div class="row">
+            <!-- Left side columns -->
+            <div class="col-lg-12">
+                <div class="row">
+
+                    <!-- Start Button -->
+                   @* <div class="col-lg-12 col-sm-12 mb-5">
+                        <button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addSubject" style=" float: right; margin-right: 20px;">
+                            Add Subjects
+                        </button>
+                    </div>*@
+                    <!-- End Button -->
+
+                </div>
+            </div><!-- End Left side columns -->
+        </div>
+    </section>
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped custom-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            @*<th> S/N</th>*@
+                            <th> Name </th>
+                            <th> Staff Position </th>
+                            <th> Course Chosen </th>
+                            <th> Cover Letter </th>
+                           @* <th> Resume </th>*@
+                            <th> ID </th>
+                            <th> Date Applied</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    @if (Model.Count() > 0 && Model != null)
+                    {
+                        <tbody>
+                            @foreach (var staff in Model)
+                            {
+                                <tr>
+                                    @*<td></td>*@
+                                    <td>@staff.Name </td>
+                                    <td>@staff?.StaffPosition </td>
+                                    <td>@staff?.CourseName </td>
+                                    <td>
+                                        <a class="btn btn-outline-success"style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#coverLetter" onclick="viewCoverLetter('@staff.Id')">
+                                           View
+                                        </a>
+                                    </td>
+                                    @*<td>@staff?.Resume </td>*@
+                                    <td>
+                                        <a class="btn btn-outline-success" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#IDimage" onclick="viewIDImage('@staff.Identification')">
+                                            <i class="bi bi-eye-fill" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                    <td>@staff?.DateCreated.ToString("D") </td>
+                                    <td class="text-center w-25">
+                                        <a class="btn btn-outline-success rounded-pill" onclick="approveApplication('@staff.Id')">
+                                           Approve
+                                        </a>
+                                        <a class="btn btn-outline-success rounded-pill" onclick="declineApplication('@staff.Id')">
+                                           Decline
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
+
+                </table>
+            </div>
+        </div>
+    </div>
+</main><!-- End #main -->
+<!-- Add subject modal start -->
+<div class="modal fade" id="coverLetter" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> <b> View Cover Letter </b> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-lg-12">
+                        <textarea rows="8" cols="5" class="form-control" type="text" id="viewCoverLetter" disabled> </textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="IDimage" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> <b> Valid Identity </b> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-lg-12 m-auto">
+                       <img src="" height="100%" width="100%" class="rounded" alt="img" id="ImageId">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

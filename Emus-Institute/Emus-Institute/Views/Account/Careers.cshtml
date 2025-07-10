@@ -1,0 +1,239 @@
+﻿@{
+    ViewData["Title"] = "Staff Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 mb-4">
+    <div class=" col-md-6 m-auto">
+        <form id="multiSectionForm">
+            <h2 class="text-center">Staff Details </h2>
+            <p class="text-center"> Fill the Staff Career form below. <small> (All fields marked <span class="text-danger">*</span> are compulsory)</small></p>
+            <!-- Section 1 -->
+            <div class="section mt-3" id="section1">
+                <h4>Section 1</h4>
+                <div class="form-group mb-2">
+                    <label>Username <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="username" required>
+                    <div id="usernameError" class="error"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" required>
+                    <div id="emailError" class="error"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Password <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" id="password" required>
+                    <div id="passwordError" class="error"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Confirm Password <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" id="confirmPassword" required>
+                    <div id="confirmPasswordError" class="error"></div>
+                </div>
+                <button id="submit-btn" type="button" style="float: right;" class="btn btn-primary px-5 py-3 mt-3" onclick="nextSection(2)">
+                    Next
+                    <i class="fa fa-arrow-right ms-3"> </i>
+                </button>
+            </div>
+
+            <!-- Section 2 -->
+            <div class="section mt-3" id="section2" style="display: none;">
+                <h4>Section 2</h4>
+                <div class="form-group mb-2">
+                    <label>Firstname <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="firstname" required>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Lastname <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="lastname" required>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Othername (Optional)</label>
+                    <input type="text" class="form-control" id="othername" required>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Phonenumber <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="phonenumber" required>
+                </div>
+                <div class="form-group mb-2">
+                    <label>State of Residence <span class="text-danger">*</span> </label>
+                    <input type="text" class="form-control" id="state" required>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Country of Residence <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="country" required>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Date of Birth <span class="text-danger">*</span> </label>
+                    <input type="date" class="form-control" id="dateOfBirth" required>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Residential Address <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="address" required>
+                </div>
+                <button type="button" class="btn btn-outline-secondary px-5 py-3 mt-3" onclick="previousSection(1)">
+                    Previous
+                </button>
+                <button type="button" style="float: right;" class="btn btn-primary px-5 py-3 mt-3" onclick="nextSection(3)">
+                    Next
+                    <i class="fa fa-arrow-right ms-3"> </i>
+                </button>
+            </div>
+
+            <!-- Section 3 -->
+            <div class="section mt-3" id="section3" style="display: none;">
+                <h4>Section 3</h4>
+                <div class="form-group mb-2">
+                    <label> Include your Cover Letter <span class="text-danger">*</span></label>
+                    <textarea type="text" class="form-control" cols="4" rows="4" id="appLetter" required> </textarea>
+                </div>
+               @* <div class="form-group mb-2">
+                    <label> Attach your Resume (pdf) <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control" id="resume" required>
+                </div>*@
+                <div class="form-group mb-2">
+                    <label class="custom-file-label"> Attach a copy of your valid Identification approved by law (jpeg) <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control custom-file-input" id="validId" required style="background-color:transparent !important;">
+                </div>
+                <div class="form-group" id="academic">
+                    <p> Post of Academic Staff:  <span class="text-danger">*</span></p>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="toggleCheckbox" onchange="toggleTextbox()">
+                        <label class="form-check-label" for="toggleCheckbox">Academic Staff </label>
+                    </div>
+                </div>
+                <div class="form-group" id="textboxContainer" style="display: none;">
+                    <select id="subjectId" style="background-color:transparent !important;" asp-items="@(new SelectList(ViewBag.Subjects,"Id","Name"))" class="form-control custom-select" required>
+                    </select>
+                </div>
+
+                <div class="form-group mt-3" id="staff">
+                    <p> Post of Non-Academic Staff (Please select only one post) <span class="text-danger">*</span></p>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="admissionofficer" required>
+                        <label class="form-check-label"> Admission Officer</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="librarianofficer" required>
+                        <label class="form-check-label">Librarian Officer</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="accountofficer" required>
+                        <label class="form-check-label">Account Officer</label>
+                    </div>
+                    <div class="form-check">
+                        
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="examsofficer" required>
+                        <label class="form-check-label"> Exams and Record Officer  </label>
+                    </div>
+                    <div class="form-check">
+                       
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="vicechancelloracademics" required>
+                        <label class="form-check-label"> Vice Chancellor Academic  </label>
+                    </div>
+                    <div class="form-check">
+                        
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="vicechancellorstudentaffairs" required>
+                        <label class="form-check-label"> Vice Chancellor Students Affairs </label>
+                    </div>
+                    <div class="form-check">
+                        
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="humanresource" required>
+                        <label class="form-check-label"> Human Resource Officer </label>
+                    </div>
+                    <div class="form-check">
+                        
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="businessdevofficer" required>
+                        <label class="form-check-label"> Business Development Officers </label>
+                    </div>
+                    <div class="form-check">
+                       
+                        <input type="radio" class="form-check-input user-radio" name="nonAcademicStaff" data-user-id="publicrelofficer" required>
+                        <label class="form-check-label">Public Relation Officer </label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-outline-secondary px-5 py-3 mt-3" onclick="previousSection(2)">
+                    Previous
+                </button>
+                <button type="submit" id="submit_btn" style="float: right;"
+                        class="btn btn-primary px-5 py-3 mt-3" onclick="RegisterStaff()">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    function nextSection(nextSectionNumber) {
+        var currentSectionNumber = nextSectionNumber - 1;
+        var currentSection = document.getElementById('section' + currentSectionNumber);
+        var nextSection = document.getElementById('section' + nextSectionNumber);
+
+        var data = {};
+        data.Username = $("#username").val();
+        data.Email = $("#email").val();
+        data.Password = $("#password").val();
+        data.ConfirmPassword = $("#confirmPassword").val();
+
+        if (currentSection && nextSection) {
+            if (data.Username == "" || data.Username == undefined && data.Email == "" || data.Email == undefined && data.Password == "" ||
+                data.Password == undefined && data.ConfirmPassword == "" || data.ConfirmPassword == undefined) {
+                validateForm("username", "Username cannnot be empty");
+                validateForm("email", "Email cannnot be empty");
+                validateForm("password", "Password cannnot be empty");
+                validateForm("confirmPassword", "Confirm Password cannnot be empty");
+            }
+            else {
+                currentSection.style.display = 'none';
+                nextSection.style.display = 'block';
+            }
+
+        }
+    }
+    function previousSection(previousSectionNumber) {
+        var currentSectionNumber = previousSectionNumber + 1;
+        var currentSection = document.getElementById('section' + currentSectionNumber);
+        var previousSection = document.getElementById('section' + previousSectionNumber);
+
+        if (currentSection && previousSection) {
+            currentSection.style.display = 'none';
+            previousSection.style.display = 'block';
+        }
+    }
+
+    function validateForm(id, message) {
+        $("#" + id + "Error").text(message).css({ color: "red" });
+        $("#" + id).css({ border: "2px solid red" });
+    }
+</script>
+
+<script>
+    function toggleTextbox() {
+        var checkbox = document.getElementById('toggleCheckbox');
+        var textboxContainer = document.getElementById('textboxContainer');
+
+        if (checkbox.checked) {
+            textboxContainer.style.display = 'block';
+        } else {
+            textboxContainer.style.display = 'none';
+        }
+    }
+
+    //$(document).ready(function () {
+    //    debugger
+    //    $("#academic").click(function () {
+    //        $("#staff").hide()
+    //    })
+    //},
+
+    //$(document).ready(function () {
+    //    debugger
+    //    $("#staff").click(function () {
+    //        $("#academic").hide()
+    //    })
+    //}
+</script>

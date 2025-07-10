@@ -1,0 +1,84 @@
+﻿@model Core.ViewModels.ApplicationUserViewModel
+
+@{
+    ViewData["Title"] = "DashBoard";
+    Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1> Welcome! <small> Super Admin </small> </h1>
+        @*<h1>Dashboard</h1>*@
+        <nav>
+        <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="">Home</a></li>
+            <li class="breadcrumb-item active"> <small> Dashboard </small> </li>
+        </ol>
+        </nav>
+    </div>
+    <!-- End Page Title -->
+
+    <section class="section dashboard">
+        <div class="row">
+            <!-- Left side columns -->
+            <div class="col-lg-12">
+                <div class="row">
+                    <!-- Card -->
+                    <div class="col-lg-4 col-md-4">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Staff</h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-people-fill"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>@Model.TotalStaff</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Card -->
+                    <!-- Start Card -->
+                    <div class="col-lg-4 col-md-4">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Students</h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-people-fill"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>@Model.TotalStudents</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Card -->
+                    <!-- End Card -->
+                    <div class="col-lg-4 col-md-4">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Departments Created </h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-book"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>@Model.TotalDepartments</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Card -->
+
+                </div>
+            </div><!-- End Left side columns -->
+
+        </div>
+    </section>
+
+</main><!-- End #main -->

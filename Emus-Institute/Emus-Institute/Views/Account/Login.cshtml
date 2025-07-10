@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Student Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 mb-4">
+    <div class=" col-md-6 m-auto">
+        <form id="multiSectionForm">
+            <h2 class="text-center">Login </h2>
+            <p class="text-center"> Please login with your details </p>
+            <!-- Login Section -->
+            <div class="section mt-3">
+                <div class="form-group mb-3">
+                    <label>Email </label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Password </label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <label class="form-check-label"> Remember Me  </label>
+                        <input type="checkbox" class="form-check-input" id="remember">
+                    </div>
+                </div>
+                <button type="submit" id="submit_btn" style="float: right;"
+                        class="btn btn-primary px-5 py-3 mt-3" onclick="login()">
+                    Submit
+                </button>
+            </div>
+            <small class="text-center mb-4"> Don't have an account with us yet,
+                <a asp-controller="Account" asp-action="StudentRegistration" class="text-success"><b><i> Please Register </i></b></a>
+            </small>
+        </form>
+    </div>
+</div>

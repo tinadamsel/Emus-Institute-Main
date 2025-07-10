@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/Emus-Institute-Main/v17
+/Emus-Institute/.vs/ProjectEvaluation
+/Emus-Institute/Core/obj
+/Emus-Institute/Emus-Institute/bin/Debug/net9.0
+/Emus-Institute/Logic/bin/Debug/net9.0
+/Emus-Institute/Logic/obj
+/Emus-Institute/Emus-Institute/obj/Debug/net9.0
