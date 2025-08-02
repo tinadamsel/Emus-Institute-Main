@@ -4,6 +4,7 @@ using Core.Models;
 using Core.ViewModels;
 using Logic.IHelpers;
 using Logic.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -61,7 +62,10 @@ namespace e_college.Controllers
                     {
                         return Json(new { isError = true, msg = "Password must be from 8 characters" });
                     }
-                    var createStudent = await _userHelper.RegisterStudent(appUserViewModel).ConfigureAwait(false);
+                    string linkToClick = HttpContext.Request.Scheme.ToString() + "://" +
+                    HttpContext.Request.Host.ToString() + "/Account/EvaluateCredentials?userId=";
+
+                    var createStudent = await _userHelper.RegisterStudent(appUserViewModel, linkToClick).ConfigureAwait(false);
                     if (createStudent)
                     {
                         return Json(new { isError = false, msg = "Registration Successful, Login to continue" });
@@ -72,6 +76,25 @@ namespace e_college.Controllers
             return Json(new { isError = true, msg = "Network Error" });
         }
 
+        //public IActionResult EvaluateCredentials(string userId)
+        //{
+        //    if (userId != null)
+        //    {
+        //        var model = new ApplicationUserViewModel
+        //        {
+        //            Id = userId,
+        //        };
+        //        return View(model);
+        //    }
+        //    return RedirectToAction("Error", "Home");
+        //}
+        [HttpGet]
+        public IActionResult EvaluateCredentials()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult Careers()
         {
             ViewBag.Departments = _dropdownHelper.DropdownOfDepartments();
@@ -115,15 +138,23 @@ namespace e_college.Controllers
         //    return Json(new { isError = true, msg = "Network Error" });
         //}
         //[HttpGet]
+
+        [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
-        //[HttpPost]
+        [HttpPost]
         //public async Task<JsonResult> Login(string email, string password)
         //{
         //    if (email != null && password != null)
         //    {
+        //        var checkIfUserIsStudent = _userHelper.CheckIfUserIsStudent(email);
+        //        if (!checkIfUserIsStudent)
+        //        {
+        //            return Json(new { isError = true, msg = "You are not yet a student. Please, log into the evaluation page to make your payment." });
+        //        }
+
         //        var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
         //        if (checkIfSuspended)
         //        {

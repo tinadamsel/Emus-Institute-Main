@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<Core.ViewModels.DepartmentViewModel>
+
+@{
     ViewData["Title"] = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -15,7 +17,8 @@
                             <h5 class="text-primary text-uppercase mb-3 animated slideInDown">Best Online Courses</h5>
                             <h1 class="display-3 text-white animated slideInDown">The Best Online Learning Platform</h1>
                             <p class="fs-5 text-white mb-4 pb-2">Welcome to Emus-Institute where you get to learn from the very best in the world.</p>
-                            <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Join Now</a>
+                            <a asp-action="StudentRegistration" asp-controller="Account" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Join Now</a>
+
                         </div>
                     </div>
                 </div>
@@ -30,7 +33,7 @@
                             <h5 class="text-primary text-uppercase mb-3 animated slideInDown">Best Online Courses</h5>
                             <h1 class="display-3 text-white animated slideInDown">Get Educated Online from your home </h1>
                             <p class="fs-5 text-white mb-4 pb-2"> We will help you build from scratch, stage by stage until you can stand alone.</p>
-                            <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Join Now</a>
+                            <a asp-action="StudentRegistration" asp-controller="Account" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Join Now</a>
                         </div>
                     </div>
                 </div>
@@ -95,8 +98,11 @@
             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
                 <h6 class="section-title bg-white text-start text-primary pe-3">About Us</h6>
                 <h1 class="mb-4">Welcome to Emus-Institute</h1>
-                <p class="mb-4"> EMUS INSTITUTE is an initiative of ENGINEER CHARLES C.N., who is a Financial Trustee Member of EMPOWER MORE UNDEVELOPED SOCIETY FOUNDATION.</p>
-                <p class="mb-4"> EMPOWER MORE UNDEVELOPED SOCIETY FOUNDATION is aimed at training skilled professionals. The Foundation which began as a voluntary organization that helps persons in career building, life coaching, care giving, pet and community care services and more, decided to reach out to more member community. The foundation is hoping to be fully approved by Charity Commission with its application as a Charity Incorporated Organization (CIO), that can enable them employ staff and go into business contracts with individuals or organizations that will promote the core value of the foundation. </p>
+                <p class="mb-4">
+                    Emus Institute, an innovative online learning platform that empowers students to achieve their academic and professional goals
+                    from anywhere in the world. We offer flexible, high-quality degree programs and courses designed to fit the needs of busy adults and aspiring learners.
+                    Join our diverse community of learners and experience the convenience and flexibility of online education that fits your lifestyle.
+                </p>
                 <div class="row gy-2 gx-4 mb-4">
                     <div class="col-sm-6">
                         <p class="mb-0 text-start"><i class="fa fa-arrow-right text-primary me-2"></i>Skilled Instructors</p>
@@ -128,83 +134,48 @@
     <div class="container">
         <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
             <h6 class="section-title bg-white text-center text-primary px-3">Courses</h6>
-            <h1 class="mb-5">Popular Courses</h1>
+            <h1 class="mb-5">Available Courses</h1>
         </div>
-        <div class="row g-4 justify-content-center">
-            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="course-item bg-light">
-                    <div class="position-relative overflow-hidden">
-                        <img class="img-fluid" src="~/img/course-1.jpg" alt="">
-                        <div class="w-100 d-flex justify-content-center position-absolute bottom-0 start-0 mb-4">
-                            <a href="#" class="flex-shrink-0 btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px 0 0 30px;">Read More</a>
-                            <a href="#" class="flex-shrink-0 btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;">Join Now</a>
+        @if (Model.Count() > 0 && Model != null)
+        {
+            <div class="row g-4 justify-content-center">
+                @foreach (var depts in Model)
+                {
+                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="course-item bg-light">
+                            <div class="position-relative overflow-hidden">
+                                <img class="img-fluid" src="~/assets/img/grad.jpg" alt="img">
+                                <div class="w-100 d-flex justify-content-center position-absolute bottom-0 start-0 mb-4">
+                                    <a asp-action="About" asp-controller="Home" class="flex-shrink-0 btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px 0 0 30px;">Read More</a>
+                                    <a asp-action="StudentRegistration" asp-controller="Account" class="flex-shrink-0 btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;">Join Now</a>
+                                </div>
+                            </div>
+                            <div class="text-center p-4 pb-0">
+                                <div class="mb-3">
+                                    <small class="fa fa-star text-primary"></small>
+                                    <small class="fa fa-star text-primary"></small>
+                                    <small class="fa fa-star text-primary"></small>
+                                    <small class="fa fa-star text-primary"></small>
+                                    <small class="fa fa-star text-primary"></small>
+                                </div>
+                                <h5 class="mb-4">@depts.Name</h5>
+                                <p class="mb-4"> @depts.Description</p>
+                            </div>
+                            <div class="d-flex border-top">
+                                <small class="flex-fill text-center py-2"><i class="fa fa-user text-primary me-2"></i>50 Students</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="text-center p-4 pb-0">
-                        <div class="mb-3">
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                        </div>
-                        <h5 class="mb-4">Web Design & Development Course for Beginners</h5>
-                    </div>
-                    @* <div class="d-flex border-top"> *@
-                    @*     <small class="flex-fill text-center py-2"><i class="fa fa-user text-primary me-2"></i>50 Students</small> *@
-                    @* </div> *@
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                <div class="course-item bg-light">
-                    <div class="position-relative overflow-hidden">
-                        <img class="img-fluid" src="~/img/course-2.jpg" alt="">
-                        <div class="w-100 d-flex justify-content-center position-absolute bottom-0 start-0 mb-4">
-                            <a href="#" class="flex-shrink-0 btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px 0 0 30px;">Read More</a>
-                            <a href="#" class="flex-shrink-0 btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;">Join Now</a>
-                        </div>
-                    </div>
-                    <div class="text-center p-4 pb-0">
-                        <div class="mb-3">
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                        </div>
-                        <h5 class="mb-4">Networking Courses for Beginners</h5>
-                    </div>
-                    @* <div class="d-flex border-top"> *@
-                    @*     <small class="flex-fill text-center py-2"><i class="fa fa-user text-primary me-2"></i>10 Students</small> *@
-                    @* </div> *@
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-                <div class="course-item bg-light">
-                    <div class="position-relative overflow-hidden">
-                        <img class="img-fluid" src="~/img/course-3.jpg" alt="">
-                        <div class="w-100 d-flex justify-content-center position-absolute bottom-0 start-0 mb-4">
-                            <a href="#" class="flex-shrink-0 btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px 0 0 30px;">Read More</a>
-                            <a href="#" class="flex-shrink-0 btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;">Join Now</a>
-                        </div>
-                    </div>
-                    <div class="text-center p-4 pb-0">
-                        <div class="mb-3">
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                            <small class="fa fa-star text-primary"></small>
-                        </div>
-                        <h5 class="mb-4">CyberSecurity Courses for Beginners</h5>
-                    </div>
-                    @* <div class="d-flex border-top"> *@
 
-                    @*     <small class="flex-fill text-center py-2"><i class="fa fa-user text-primary me-2"></i>30 Students</small> *@
-                    @* </div> *@
-                </div>
+                }
             </div>
-        </div>
+        }
     </div>
+    <div class="d-flex justify-content-center mt-4">
+        <a class="btn btn-primary py-3 px-5" asp-controller="Home" asp-action="Courses">
+            See All Available Courses <i class="fa fa-arrow-right ms-3"></i>
+        </a>
+    </div>
+
 </div>
 <!-- Courses End -->

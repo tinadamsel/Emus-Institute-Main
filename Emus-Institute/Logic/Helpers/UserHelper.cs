@@ -126,28 +126,28 @@ namespace Logic.Helpers
         //}
 
 
-        //public bool CheckIfStaffIsApproved(string email)
-        //{
-        //    if (email != null)
-        //    {
-        //        var getUser = _context.ApplicationUser.Where(x => x.Email == email && x.Id != null && x.IsStudent == false).FirstOrDefault();
-        //        if (getUser == null)
-        //        {
-        //            return true;
-        //        }
-        //        else
-        //        {
-        //            var documentation = _context.StaffDocuments.Where(x => x.UserId == getUser.Id && (bool)x.IsApproved).FirstOrDefault();
-        //            if (documentation != null)
-        //            {
-        //                return true;
-        //            }
-        //        }
-        //    }
-        //    return false;
-        //}
+        public bool CheckIfStaffIsApproved(string email)
+        {
+            if (email != null)
+            {
+                var getUser = _context.ApplicationUser.Where(x => x.Email == email && x.Id != null && x.IsStudent == false && x.IsAdmin == true).FirstOrDefault();
+                if (getUser == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    var documentation = _context.StaffDocuments.Where(x => x.UserId == getUser.Id && (bool)x.IsApproved).FirstOrDefault();
+                    if (documentation != null)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
-        public async Task<bool> RegisterStudent(ApplicationUserViewModel userDetails)
+        public async Task<bool> RegisterStudent(ApplicationUserViewModel userDetails, string linkToClick)
         {
             try
             {
@@ -169,6 +169,7 @@ namespace Logic.Helpers
                     user.DOB = userDetails.DOB;
                     user.OtherName = userDetails.OtherName;
                     user.IsStudent = false;
+                    user.IsAdmin = false;
                     user.AcademicLevel = AcademicLevel.Tertiary;
                     user.CurrentSession = CurrentSession.YearOne;
                     user.StudentId = studentId;
@@ -176,6 +177,7 @@ namespace Logic.Helpers
                     if (createUser.Succeeded)
                     {
                         await _userManager.AddToRoleAsync(user, "TertiaryStudent").ConfigureAwait(false);
+                        var url = linkToClick + user.Id;
                         if (user.Email != null)
                         {
                             string toEmail = user.Email;
@@ -183,8 +185,9 @@ namespace Logic.Helpers
                             string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
                                 "<br> Your application into Emus Institute was successful and you Student ID is " + "<b>" + user?.StudentId + ".</b>" +
                                 "<br/> <br/> However, you need to complete the evaluation form to be fully admitted into the school." +
-                                ". <br/> <br/> Please, click on the botton to log into the evaluation page and make the necessary payment of &euro;200 " +
+                                ". <br/> <br/> Please, click on the button below to log into the evaluation page and make the necessary payment of &euro;200 " +
                                 "(which covers application, transcript review and certificate evaluation)" +
+                                "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + url + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
                                 "<br/> <br/> Thank you  " +
                                 "<br/> <br/> Emus Institute Team";
                             _emailService.SendEmail(toEmail, subject, message);
@@ -200,6 +203,21 @@ namespace Logic.Helpers
                 throw ex;
             }
         }
+
+
+        public bool CheckIfUserIsStudent(string email)
+        {
+            if (email != null)
+            {
+                var checkIfStudent = _context.ApplicationUser.Where(x => x.Email == email && x.IsStudent && !x.Deactivated).FirstOrDefault();
+                if (checkIfStudent != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         //public async Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId)
         //{
         //    try

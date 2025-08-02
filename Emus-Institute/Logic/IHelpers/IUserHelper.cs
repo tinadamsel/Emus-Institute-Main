@@ -10,6 +10,7 @@ namespace Logic.IHelpers
 {
     public interface IUserHelper
     {
+        bool CheckIfUserIsStudent(string email);
 
 
         //bool CheckForUserName(string userName);
@@ -46,6 +47,6 @@ namespace Logic.IHelpers
         //this 1 not included:
         //Task<bool> RegisterUniStudent(ApplicationUserViewModel userDetails, string edulevel);
         string GetCurrentUserId(string username);
-        Task<bool> RegisterStudent(ApplicationUserViewModel userDetails);
+        Task<bool> RegisterStudent(ApplicationUserViewModel userDetails, string linkToClick);
     }
 }
