@@ -10,7 +10,7 @@ namespace Logic.IHelpers
 {
     public interface IUserHelper
     {
-       
+
 
         //bool CheckForUserName(string userName);
         //bool CheckIfUserIsSuspended(string email);

@@ -1,13 +1,13 @@
 ﻿@model Core.ViewModels.ApplicationUserViewModel
 
 @{
-    ViewData["Title"] ="Staff Dashboard";
+    ViewData["Title"] = "Staff Dashboard";
     Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
 }
 
 <main id="main" class="main">
     <div class="pagetitle">
-        <h1> Welcome! @User.Identity.Name </h1>
+        <h1> Welcome! @User?.Identity?.Name </h1>
         @*<h1>Dashboard</h1>*@
         <nav>
             <ol class="breadcrumb">

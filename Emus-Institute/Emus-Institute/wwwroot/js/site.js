@@ -5,10 +5,10 @@ function RegisterStudent() {
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
 
-    var selectedUserId = [];
-    $('.user-checkbox:checked').each(function () {
-        selectedUserId.push($(this).data('user-id'));
-    });
+    //var selectedUserId = [];
+    //$('.user-checkbox:checked').each(function () {
+    //    selectedUserId.push($(this).data('user-id'));
+    //});
 
     var data = {};
     data.DepartmentId = $('#deptId').val();
@@ -26,49 +26,71 @@ function RegisterStudent() {
     if (data.DOB == "") {
         data.DOB = "0001-01-01T00:00:00"
     };
-    //var edulevel = $('.user-checkbox').data('user-id');
-    //var eduLevel = $(this).data('user-id');
 
-    if (data.DepartmentId != "" && data.FirstName != "" && data.LastName != "" && data.Phonenumber != ""
-        && data.Email != "" && data.Password != "" && data.ConfirmPassword != "" && data.State != "" && data.Country != ""
-        && data.Address != "") {
-        let userDetails = JSON.stringify(data);
-        $.ajax({
-            type: 'Post',
-            url: '/Account/StudentRegistration',
-            dataType: 'json',
-            data:
-            {
-                userDetails: userDetails,
-                //edulevel: edulevel,
-            },
-            success: function (result) {
-                debugger;
-                if (!result.isError) {
-                    var url = '/Account/Login';
-                    successAlertWithRedirect(result.msg, url);
-                    $('#submit_btn').html(defaultBtnValue);
-                }
-                else {
-                    debugger
-                    $('#submit_btn').html(defaultBtnValue);
-                    $('#submit_btn').attr("disabled", false);
-                    errorAlert(result.msg);
-                }
-            },
-            error: function (ex) {
-                $('#submit_btn').html(defaultBtnValue);
-                $('#submit_btn').attr("disabled", false);
-                errorAlert("Please check and try again. Contact Admin if issue persists..");
-            },
-        })
-    } else {
+    debugger
+    if (data.Phonenumber == "" || data.Phonenumber == undefined) {
         $('#submit_btn').html(defaultBtnValue);
         $('#submit_btn').attr("disabled", false);
-        errorAlert("Please fill the form Correctly");
-    };
+        errorAlert("Please fill in the phonenumber");
+        return;
+    }
+
+    if (data.State == "" || data.State == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in the State of Residence");
+        return;
+    }
+    if (data.Country == "" || data.Country == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in the Country of Residence");
+        return;
+    }
+    if (data.Address == "" || data.Address == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in the Residential Address");
+        return;
+    }
+
+    let userDetails = JSON.stringify(data);
+    $.ajax({
+        type: 'Post',
+        url: '/Account/StudentRegistration',
+        dataType: 'json',
+        data:
+        {
+            userDetails: userDetails,
+        },
+        success: function (result) {
+            debugger;
+            if (!result.isError) {
+                var url = '/Account/Login';
+                successAlertWithRedirect(result.msg, url);
+                $('#submit_btn').html(defaultBtnValue);
+            }
+            else {
+                debugger
+                $('#submit_btn').html(defaultBtnValue);
+                $('#submit_btn').attr("disabled", false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function (ex) {
+            $('#submit_btn').html(defaultBtnValue);
+            $('#submit_btn').attr("disabled", false);
+            errorAlert("Please check and try again. Contact Admin if issue persists..");
+        },
+    })
+
 }
 
+//function validateForm(id, message) {
+//    debugger;
+//    $("#" + id + "Error").text(message).css({ color: "red" });
+//    $("#" + id).css({ border: "1px solid red" });
+//}
 function login() {
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
@@ -286,8 +308,8 @@ function RegisterStaff() {
     data.Country = $('#country').val();
     data.Address = $('#address').val();
     data.DOB = $('#dateOfBirth').val();
-    
-   /* data.Identification = $('#validId').val();*/
+
+    /* data.Identification = $('#validId').val();*/
     data.SubjectId = $('#subjectId').val();
     if (data.DOB == "") {
         data.DOB = "0001-01-01T00:00:00"
@@ -342,7 +364,7 @@ function RegisterStaff() {
 
             }
         }
-        
+
     } else {
         $('#submit_btn').html(defaultBtnValue);
         $('#submit_btn').attr("disabled", false);

@@ -17,12 +17,12 @@
                 @*     <input type="text" class="form-control" id="username" > *@
                 @*     <div id="usernameError" class="error"></div> *@
                 @* </div> *@
-                
+
                 <div class="form-group mb-2">
                     <label>Department <span class="text-danger">*</span></label>
                     <select id="deptId" style="background-color:transparent !important;" asp-items="@(new SelectList(ViewBag.Departments,"Id","Name"))" class="form-control custom-select" required>
                     </select>
-                    <div id="deptError" class="error"></div>
+                    <div id="deptIdError" class="error"></div>
                 </div>
                 <div class="form-group mb-2">
                     <label>Email <span class="text-danger">*</span></label>
@@ -30,7 +30,7 @@
                     <div id="emailError" class="error"></div>
                 </div>
                 <div class="form-group mb-2">
-                    <label>Password <small> Password should be from 8 characters </small> <span class="text-danger">*</span></label>
+                    <label>Password <span class="text-danger">*</span></label>
                     <input type="password" class="form-control" id="password" required>
                     <div id="passwordError" class="error"></div>
                 </div>
@@ -39,65 +39,71 @@
                     <input type="password" class="form-control" id="confirmPassword" required>
                     <div id="confirmPasswordError" class="error"></div>
                 </div>
-                <button id="submit-btn" type="button" style="float: right;" class="btn btn-primary px-5 py-3 mt-3" onclick="nextSection(2)">Next 
-                    <i class="fa fa-arrow-right ms-3"> </i></button>
+                <div class="form-group mb-2">
+                    <label>Firstname <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="firstname" required>
+                    <div id="firstnameError" class="error"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Lastname <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="lastname" required>
+                    <div id="lastnameError" class="error"></div>
+                </div>
+
+                <button id="submit-btn" type="button" style="float: right;" class="btn btn-primary px-5 py-3 mt-3" onclick="nextSection(2)">
+                    Next
+                    <i class="fa fa-arrow-right ms-3"> </i>
+                </button>
             </div>
 
             <!-- Section 2 -->
             <div class="section mt-3" id="section2" style="display: none;">
                 <h4>Section 2</h4>
                 <div class="form-group mb-2">
-                    <label>Firstname <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="firstname" required>
-                </div>
-                <div class="form-group mb-2">
-                    <label>Lastname <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="lastname" required>
-                </div>
-                <div class="form-group mb-2">
-                    <label >Othername (Optional)</label>
-                    <input type="text" class="form-control" id="othername" >
+                    <label>Othername (Optional)</label>
+                    <input type="text" class="form-control" id="othername">
                 </div>
                 <div class="form-group mb-2">
                     <label>Phonenumber <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="phonenumber" required>
+                    <input type="number" class="form-control" id="phonenumber">
+                </div>
+                <div class="form-group mb-2">
+                    <label>State of Residence <span class="text-danger">*</span> </label>
+                    <input type="text" class="form-control" id="state">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Country of Residence <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="country">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Date of Birth <span class="text-danger">*</span> </label>
+                    <input type="date" class="form-control" id="dateOfBirth">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Residential Address <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="address">
                 </div>
                 <button type="button" class="btn btn-outline-secondary px-5 py-3 mt-3" onclick="previousSection(1)">
                     <i class="fa fa-arrow-left ms-3"> </i>
                     Previous
                 </button>
-                <button type="button" style="float: right;" class="btn btn-primary px-5 py-3 mt-3" onclick="nextSection(3)">
-                    Next
-                    <i class="fa fa-arrow-right ms-3"> </i>
+                <button type="button" id="submit_btn" style="float: right;"
+                        class="btn btn-primary px-5 py-3 mt-3 approve" onclick="RegisterStudent()">
+                    Submit
                 </button>
             </div>
-            
+
             <!-- Section 3 -->
             <div class="section mt-3" id="section3" style="display: none;">
                 <h4>Section 3</h4>
-                <div class="form-group mb-2">
-                    <label>State of Residence <span class="text-danger">*</span> </label>
-                    <input type="text" class="form-control" id="state" required>
-                </div>
-                <div class="form-group mb-2">
-                    <label>Country of Residence <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="country" required>
-                </div>
-                <div class="form-group mb-2">
-                    <label>Date of Birth <span class="text-danger">*</span> </label>
-                    <input type="date" class="form-control" id="dateOfBirth" required>
-                </div>
-                <div class="form-group mb-2">
-                    <label>Residential Address <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="address" required>
-                </div>
-
                 <button type="button" class="btn btn-outline-secondary px-5 py-3 mt-3" onclick="previousSection(2)">
                     <i class="fa fa-arrow-left ms-3"> </i>
                     Previous
                 </button>
-                <button type="submit" id="submit_btn" style="float: right;" 
-                class="btn btn-primary px-5 py-3 mt-3 approve" onclick="RegisterStudent()">Submit</button>
+                <button type="button" id="submit_btn" style="float: right;"
+                        class="btn btn-primary px-5 py-3 mt-3 approve" onclick="RegisterStudent()">
+                    Submit
+                </button>
             </div>
         </form>
     </div>
@@ -111,20 +117,41 @@
         var nextSection = document.getElementById('section' + nextSectionNumber);
 
         var data = {};
-        // data.Username = $("#username").val();
+
         data.Department = $("#deptId").val();
         data.Email = $("#email").val();
         data.Password = $("#password").val();
         data.ConfirmPassword = $("#confirmPassword").val();
+        data.Firstname = $("#firstname").val();
+        data.Lastname = $("#lastname").val();
 
         if (currentSection && nextSection) {
-            if (data.Department == "" || data.Department == undefined && data.Email == "" || data.Email == undefined && data.Password == "" || 
-                data.Password == undefined && data.ConfirmPassword == "" || data.ConfirmPassword == undefined) {
-                validateForm("username", "Username cannnot be empty");
-                validateForm("email", "Email cannnot be empty");
-                validateForm("password", "Password cannnot be empty");
+            if (data.Department == 0 || data.Department == undefined) {
+                validateForm("deptId", "Department cannnot be empty");
+                return;
+            }
+             if (data.Email == "" || data.Email == undefined) {
+                 validateForm("email", "Email cannnot be empty");
+                 return;
+             }
+             if (data.Password == "" || data.Password == undefined) {
+                 validateForm("password", "Password cannnot be empty");
+                 return;
+             }
+
+             if (data.ConfirmPassword == "" || data.ConfirmPassword == undefined) {
                 validateForm("confirmPassword", "Confirm Password cannnot be empty");
-            } 
+                return;
+             }
+
+             if (data.Firstname == "" || data.Firstname == undefined) {
+                validateForm("firstname", "Firstname cannnot be empty");
+                return;
+             }
+             if (data.Lastname == "" || data.Lastname == undefined) {
+                validateForm("lastname", "Lastname cannnot be empty");
+                return;
+             }
             else
             {
                 currentSection.style.display = 'none';
@@ -133,6 +160,7 @@
         }
     }
     function previousSection(previousSectionNumber) {
+
         var currentSectionNumber = previousSectionNumber + 1;
         var currentSection = document.getElementById('section' + currentSectionNumber);
         var previousSection = document.getElementById('section' + previousSectionNumber);
@@ -144,6 +172,7 @@
     }
 
     function validateForm(id, message) {
+        debugger;
         $("#" + id + "Error").text(message).css({ color: "red" });
         $("#" + id).css({ border: "1px solid red" });
     }

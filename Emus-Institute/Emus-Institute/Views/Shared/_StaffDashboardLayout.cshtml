@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta content="" name="keywords">
     <meta content="" name="description">
-    <title>@ViewData["Title"] - E-College</title>
+    <title>@ViewData["Title"] - Emus-Insitute</title>
     @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />*@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
@@ -192,70 +192,70 @@
         <ul class="sidebar-nav" id="sidebar-nav">
             @* @if (userRole.ToLower().Contains("humanresource")) *@
             @* { *@
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="HumanResource" asp-action="Index">
-                        <i class="bi bi-grid"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li><!-- End Dashboard Nav -->
-                <li class="nav-item">
-                    <a class="nav-link collapsed" asp-controller="HumanResource" asp-action="PendingApplication">
-                        <i class="bi bi-journal"></i>
-                        <span> Pending Applications </span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" asp-controller="HumanResource" asp-action="">
-                        <i class="bi bi-people-fill"></i>
-                        <span> Suspend Academic Staff </span>
-                    </a>
-                </li>
-                 <li class="nav-item">
-                    <a class="nav-link collapsed" asp-controller="HumanResource" asp-action="">
-                        <i class="bi bi-people-fill"></i>
-                        <span> Suspend Non-Academic Staff </span>
-                    </a>
-                </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="HumanResource" asp-action="Index">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="HumanResource" asp-action="PendingApplication">
+                    <i class="bi bi-journal"></i>
+                    <span> Pending Applications </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="HumanResource" asp-action="">
+                    <i class="bi bi-people-fill"></i>
+                    <span> Suspend Academic Staff </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="HumanResource" asp-action="">
+                    <i class="bi bi-people-fill"></i>
+                    <span> Suspend Non-Academic Staff </span>
+                </a>
+            </li>
             @* } *@
             @* @if (userRole.ToLower().Contains("staff")) *@
             @* { *@
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Staff" asp-action="Index">
-                        <i class="bi bi-grid"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Staff" asp-action="Index">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
-                <!-- End Dashboard Nav -->
-                <li>
-                    <a class="nav-link collapsed" asp-controller="Staff" asp-action="">
-                        <i class="bi bi-book"></i>
-                        <span> Add Textbooks </span>
-                    </a>
-                </li>
+            <!-- End Dashboard Nav -->
+            <li>
+                <a class="nav-link collapsed" asp-controller="Staff" asp-action="">
+                    <i class="bi bi-book"></i>
+                    <span> Add Textbooks </span>
+                </a>
+            </li>
 
-                <li class="nav-item">
-                    <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-                        <i class="bi bi-layout-text-window-reverse"></i><span> Class </span><i class="bi bi-chevron-down ms-auto"></i>
-                    </a>
-                    <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link collapsed" asp-controller="" asp-action="">
-                                <i class="bi bi-circle"></i>
-                                <span> Start Virtual Class </span>
-                            </a>
-                        </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-layout-text-window-reverse"></i><span> Class </span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" asp-controller="" asp-action="">
+                            <i class="bi bi-circle"></i>
+                            <span> Start Virtual Class </span>
+                        </a>
+                    </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link collapsed" asp-controller="" asp-action="">
-                                <i class="bi bi-circle"></i>
-                                <span> Create Class Assignments </span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" asp-controller="" asp-action="">
+                            <i class="bi bi-circle"></i>
+                            <span> Create Class Assignments </span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-                @*<li class="nav-item">
+            @*<li class="nav-item">
                     <a class="nav-link collapsed" asp-controller="" asp-action="">
                         <i class="bi bi-journal"></i>
                         <span> Create Class Assignments </span>
@@ -341,37 +341,37 @@
             </li>
             </ul>
             </li># *@
-            
-            
-             <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
-            <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-            <li>
-            <a href="forms-elements.html">
-            <i class="bi bi-circle"></i><span>Form Elements</span>
-            </a>
-            </li>
-            <li>
-            <a href="forms-layouts.html">
-            <i class="bi bi-circle"></i><span>Form Layouts</span>
-            </a>
-            </li>
-            <li>
-            <a href="forms-editors.html">
-            <i class="bi bi-circle"></i><span>Form Editors</span>
-            </a>
-            </li>
-            <li>
-            <a href="forms-validation.html">
-            <i class="bi bi-circle"></i><span>Form Validation</span>
-            </a>
-            </li>
-            </ul>
+
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="forms-elements.html">
+                            <i class="bi bi-circle"></i><span>Form Elements</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-layouts.html">
+                            <i class="bi bi-circle"></i><span>Form Layouts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-editors.html">
+                            <i class="bi bi-circle"></i><span>Form Editors</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-validation.html">
+                            <i class="bi bi-circle"></i><span>Form Validation</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
-           @* <li class="nav-item">
+            @* <li class="nav-item">
             <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
             <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
@@ -389,7 +389,7 @@
             </ul>
             </li>*@
 
-           @* <li class="nav-item">
+            @* <li class="nav-item">
             <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
             <i class="bi bi-bar-chart"></i><span>Charts</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
@@ -412,7 +412,7 @@
             </ul>
             </li>*@
 
-           @* <li class="nav-item">
+            @* <li class="nav-item">
             <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
             <i class="bi bi-gem"></i><span>Icons</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>

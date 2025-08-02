@@ -89,37 +89,47 @@ namespace Logic.Services
         //compiled on its own: 
         public void Send(EmailMessage emailMessage)
         {
-            var message = new MimeMessage();
-            if (emailMessage.FromAddresses.Count() > 0 && emailMessage.ToAddresses.Count > 0)
+            try
             {
-                message.To.AddRange(emailMessage.ToAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
-                message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
-
-                message.Subject = emailMessage.Subject;
-                //We will say we are sending HTML. But there are options for plaintext etc. 
-                message.Body = new TextPart(TextFormat.Html)
+                var message = new MimeMessage();
+                if (emailMessage.FromAddresses.Count() > 0 && emailMessage.ToAddresses.Count > 0)
                 {
-                    Text = emailMessage.Content
-                };
+                    message.To.AddRange(emailMessage.ToAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
+                    message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
 
-                //Be careful that the SmtpClient class is the one from Mailkit not the framework!
-                using (var emailClient = new MailKit.Net.Smtp.SmtpClient())
-                {
-                    emailClient.ServerCertificateValidationCallback = (s, c, h, e) => true;
-                    //The last parameter here is to use SSL (Which you should!)
-                    emailClient.Connect(_emailConfiguration.SmtpServer, _emailConfiguration.SmtpPort, SecureSocketOptions.Auto);
+                    message.Subject = emailMessage.Subject;
+                    //We will say we are sending HTML. But there are options for plaintext etc. 
+                    message.Body = new TextPart(TextFormat.Html)
+                    {
+                        Text = emailMessage.Content
+                    };
 
-                    //Remove any OAuth functionality as we won't be using it. 
-                    emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
-                    emailClient.Authenticate(_emailConfiguration.SmtpUsername, _emailConfiguration.SmtpPassword);
+                    //Be careful that the SmtpClient class is the one from Mailkit not the framework!
+                    using (var emailClient = new MailKit.Net.Smtp.SmtpClient())
+                    {
+                        emailClient.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                        //The last parameter here is to use SSL (Which you should!)
+                        emailClient.Connect(_emailConfiguration.SmtpServer, _emailConfiguration.SmtpPort, SecureSocketOptions.SslOnConnect);
 
-                    emailClient.Send(message);
+                        //Remove any OAuth functionality as we won't be using it. 
+                        emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
+                        emailClient.Authenticate(_emailConfiguration.SmtpUsername, _emailConfiguration.SmtpPassword);
 
-                    emailClient.Disconnect(true);
+                        emailClient.Send(message);
+
+                        emailClient.Disconnect(true);
+                    }
                 }
             }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SMTP Error: {ex.Message}");
+                throw;
+            }
         }
+
+
+
 
     }
 }

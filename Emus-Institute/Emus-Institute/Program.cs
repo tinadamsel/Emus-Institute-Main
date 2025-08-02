@@ -1,13 +1,18 @@
 using Core.Config;
 using Core.DB;
 using Core.Models;
+using Hangfire;
+using Hangfire.Common;
+using Hangfire.Dashboard;
+using Hangfire.SqlServer;
+using Hangfire.States;
+using Hangfire.Storage;
 using Logic.Helpers;
 using Logic.IHelpers;
 using Logic.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
 
 builder.Services.AddSingleton<IEmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>());
 builder.Services.AddSingleton<IGeneralConfiguration>(builder.Configuration.GetSection("GeneralConfiguration").Get<GeneralConfiguration>());
-//builder.Services.AddHangfire(x => x.UseSqlServerStorage(builder.Configuration.GetConnectionString("ECollegeHangFire")));
+builder.Services.AddHangfire(x => x.UseSqlServerStorage(builder.Configuration.GetConnectionString("ECollegeHangFire")));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -63,9 +68,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-	app.UseExceptionHandler("/Home/Error");
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
 }
 
 app.UseForwardedHeaders();
@@ -77,8 +82,8 @@ app.UseSession();
 //UpdateDatabase(app);
 app.UseAuthentication();
 app.MapControllerRoute(
-	name: "default",
-	pattern: "{controller=Home}/{action=Index}/{id?}");
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 using (var scope = app.Services.CreateScope())
 {
@@ -123,19 +128,19 @@ app.Run();
 //void HangFireConfiguration(IApplicationBuilder app)
 //{
 //    //var robotDashboardOptions = new DashboardOptions { Authorization = new[] { new MyAuthorizationFilter() } };
-    //dont add: //Enable Session.
+//dont add: //Enable Session.
 
-    //var robotOptions = new BackgroundJobServerOptions
-    //{
-    //    ServerName = String.Format(
-    //    "{0}.{1}",
-    //    Environment.MachineName,
-    //    Guid.NewGuid().ToString())
-    //};
-    //app.UseHangfireServer(robotOptions);
-    //var RobotStorage = new SqlServerStorage(builder.Configuration.GetConnectionString("ECollegeHangFire"));
-    //JobStorage.Current = RobotStorage;
-    //app.UseHangfireDashboard("/ECollegeEmails", robotDashboardOptions, RobotStorage);
+//var robotOptions = new BackgroundJobServerOptions
+//{
+//    ServerName = String.Format(
+//    "{0}.{1}",
+//    Environment.MachineName,
+//    Guid.NewGuid().ToString())
+//};
+//app.UseHangfireServer(robotOptions);
+//var RobotStorage = new SqlServerStorage(builder.Configuration.GetConnectionString("ECollegeHangFire"));
+//JobStorage.Current = RobotStorage;
+//app.UseHangfireDashboard("/ECollegeEmails", robotDashboardOptions, RobotStorage);
 //}
 
 // This method delays successful and failed jobs on the hangfire dashboard  for 1 month(30 Days) 

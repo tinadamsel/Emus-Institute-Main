@@ -12,8 +12,8 @@ namespace Core.Models
         public string Description { get; set; }
         public bool? IsSubmitted { get; set; }
         public DateTime ValidUntilDate { get; set; }
-        public int CourseId { get; set; }
-        [ForeignKey("CourseId")]
-        public virtual Department? Courses { get; set; }
+        public int DepartmentId { get; set; }
+        [ForeignKey("DepartmentId")]
+        public virtual Department? Departments { get; set; }
     }
 }

@@ -180,10 +180,11 @@ namespace Logic.Helpers
                         {
                             string toEmail = user.Email;
                             string subject = "Student Application Submission";
-                            string message = "Hello," + "<b>" + user?.FirstName + user?.LastName + ",</b> " +
-                                "<br> your application into Emus Institute was successful and you studentId is" + "<b>" + user?.StudentId + ".</b>" +
-                                "However, you need to complete the evaluation form to be fully addmited into the school." + 
-                                ". <br/> <br/> Please, click on the botton to log into the evaluation page and make the necessary payments. " +
+                            string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
+                                "<br> Your application into Emus Institute was successful and you Student ID is " + "<b>" + user?.StudentId + ".</b>" +
+                                "<br/> <br/> However, you need to complete the evaluation form to be fully admitted into the school." +
+                                ". <br/> <br/> Please, click on the botton to log into the evaluation page and make the necessary payment of &euro;200 " +
+                                "(which covers application, transcript review and certificate evaluation)" +
                                 "<br/> <br/> Thank you  " +
                                 "<br/> <br/> Emus Institute Team";
                             _emailService.SendEmail(toEmail, subject, message);
