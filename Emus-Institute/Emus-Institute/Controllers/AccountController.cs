@@ -68,7 +68,7 @@ namespace e_college.Controllers
                     var createStudent = await _userHelper.RegisterStudent(appUserViewModel, linkToClick).ConfigureAwait(false);
                     if (createStudent)
                     {
-                        return Json(new { isError = false, msg = "Registration Successful, Login to continue" });
+                        return Json(new { isError = false, msg = "Registration Successful, Login to your email and follow the instructions" });
                     }
                     return Json(new { isError = true, msg = "Unable to register" });
                 }
