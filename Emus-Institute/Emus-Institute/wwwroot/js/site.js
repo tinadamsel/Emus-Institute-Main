@@ -100,7 +100,6 @@ function Evaluate() {
     data.LastName = $('#lastname').val();
     data.OtherName = $('#othername').val();
     
-    debugger
     let evaluationDetails = JSON.stringify(data);
     $.ajax({
         type: 'Post',
@@ -111,14 +110,12 @@ function Evaluate() {
             evaluationDetails: evaluationDetails,
         },
         success: function (result) {
-            debugger;
             if (!result.isError) {
                 var url = '/Account/Login';
                 successAlertWithRedirect(result.msg, url);
                 $('#submit_btn').html(defaultBtnValue);
             }
             else {
-                debugger
                 $('#submit_btn').html(defaultBtnValue);
                 $('#submit_btn').attr("disabled", false);
                 errorAlert(result.msg);
@@ -134,7 +131,6 @@ function Evaluate() {
 }
 
 function login() {
-    debugger;
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
