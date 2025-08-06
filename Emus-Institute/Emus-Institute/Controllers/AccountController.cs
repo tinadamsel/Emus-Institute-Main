@@ -145,91 +145,96 @@ namespace e_college.Controllers
             return View();
         }
         [HttpPost]
-        //public async Task<JsonResult> Login(string email, string password)
-        //{
-        //    if (email != null && password != null)
-        //    {
-        //        var checkIfUserIsStudent = _userHelper.CheckIfUserIsStudent(email);
-        //        if (!checkIfUserIsStudent)
-        //        {
-        //            return Json(new { isError = true, msg = "You are not yet a student. Please, log into the evaluation page to make your payment." });
-        //        }
+        public async Task<JsonResult> Login(string email, string password)
+        {
+            if (email != null && password != null)
+            {
+                var filterSpace = email.Replace(" ", "");
+                var url = "";
+                var existingUser = _userHelper.FindByEmailAsync(filterSpace).Result;
+                if (existingUser != null) 
+                {
+                    var userRole = await _userManager.GetRolesAsync(existingUser).ConfigureAwait(false);
+                    if (userRole.FirstOrDefault().ToLower().Contains("superadmi"))
+                    {
+                        var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
+                        if (PasswordSignIn.Succeeded)
+                        {
+                            url = "/SuperAdmin/Index";
+                            return Json(new { isError = false, dashboard = url });
+                        }
+                    }
+                    if (userRole.FirstOrDefault().ToLower().Contains("academicstaff"))
+                    {
+                        var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
+                        if (!staffIsApproved)
+                        {
+                            return Json(new { isError = true, msg = "Your application has not been approved yet" });
+                        }
+                        var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
+                        if (checkIfSuspended)
+                        {
+                            return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
+                        }
+                        var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
+                        if (PasswordSignIn.Succeeded)
+                        {
+                            url = "/AcademicStaff/Index";
+                            return Json(new { isError = false, dashboard = url });
+                        }
+                    }
+                    if (userRole.FirstOrDefault().ToLower().Contains("tertiarystudent"))
+                    {
+                        var checkIfUserIsStudent = _userHelper.CheckIfUserIsStudent(email);
+                        if (!checkIfUserIsStudent)
+                        {
+                            return Json(new { isError = true, msg = "You application has not been approved yet" });
+                        }
+                        var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
+                        if (checkIfSuspended)
+                        {
+                            return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
+                        }
+                        var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
+                        if (PasswordSignIn.Succeeded)
+                        {
+                            url = "/Student/Index";
+                            return Json(new { isError = false, dashboard = url });
+                        }
+                    }
+                }
+                return Json(new { isError = true, msg = "Account does not exist, contact admin" });
 
-        //        var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
-        //        if (checkIfSuspended)
-        //        {
-        //            return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
-        //        }
-        //        var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
-        //        if (!staffIsApproved)
-        //        {
-        //            return Json(new { isError = true, msg = "Your application has not been approved yet" });
-        //        }
-        //        var filterSpace = email.Replace(" ", "");
-        //        var existingUser = _userHelper.FindByEmailAsync(filterSpace).Result;
-        //        if (existingUser != null)
-        //        {
-        //            var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
-
-        //            if (PasswordSignIn.Succeeded)
-        //            {
-        //                var url = "";
-        //                var userRole = await _userManager.GetRolesAsync(existingUser).ConfigureAwait(false);
-        //                if (userRole.FirstOrDefault().ToLower().Contains("primary"))
-        //                {
-        //                    url = "/Student/Index";
-        //                }
-        //                if (userRole.FirstOrDefault().ToLower().Contains("secondary"))
-        //                {
-        //                    url = "/Student/Index";
-        //                }
-        //                if (userRole.FirstOrDefault().ToLower().Contains("tertiary"))
-        //                {
-        //                    url = "/Student/Index";
-        //                }
-        //                if (userRole.FirstOrDefault().ToLower().Contains("superadmin"))
-        //                {
-        //                    url = "/SuperAdmin/Index";
-        //                }
-        //                if (userRole.FirstOrDefault().ToLower().Contains("humanresource"))
-        //                {
-        //                    url = "/HumanResource/Index";
-        //                }
-        //                if (userRole.FirstOrDefault().ToLower().Contains("staff"))
-        //                {
-        //                    url = "/AcademicStaff/Index";
-        //                }
-        //                //if (userRole.FirstOrDefault().ToLower().Contains("admissionofficer"))
-        //                //{
-        //                //    url = "/AdmissionOAfficer/Index";
-        //                //}
-        //                //if (userRole.FirstOrDefault().ToLower().Contains("librarianofficer"))
-        //                //{
-        //                //    url = "/LibrarianOfficer/Index";
-        //                //}
-        //                //if (userRole.FirstOrDefault().ToLower().Contains("accountofficer"))
-        //                //{
-        //                //    url = "/AccountOfficer/Index";
-        //                //}
-        //                //if (userRole.FirstOrDefault().ToLower().Contains("examsofficer"))
-        //                //{
-        //                //    url = "/ExamsOfficer/Index";
-        //                //}
-        //                //if (userRole.FirstOrDefault().ToLower().Contains("academics"))
-        //                //{
-        //                //    url = "/VCAcademics/Index";
-        //                //}
-        //                //if (userRole.FirstOrDefault().ToLower().Contains("studentaffairs"))
-        //                //{
-        //                //    url = "/VCStudentsAffairs/Index";
-        //                //}
-        //                return Json(new { isError = false, dashboard = url });
-        //            }
-        //        }
-        //        return Json(new { isError = true, msg = "Account does not exist,Contact your Admin" });
-        //    }
-        //    return Json(new { isError = true, msg = "Username and Password Required" });
-        //}
+                //this was the previous login logic
+                //var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
+                //if (PasswordSignIn.Succeeded)
+                //{
+                //    var userRole = await _userManager.GetRolesAsync(existingUser).ConfigureAwait(false);
+                //    if (userRole.FirstOrDefault().ToLower().Contains("TertiaryStudent"))
+                //    {
+                //        url = "/Student/Index";
+                //    }
+                //    if (userRole.FirstOrDefault().ToLower().Contains("SuperAdmin"))
+                //    {
+                //        url = "/SuperAdmin/Index";
+                //    }
+                //    if (userRole.FirstOrDefault().ToLower().Contains("humanresource"))
+                //    {
+                //        url = "/HumanResource/Index";
+                //    }
+                //    if (userRole.FirstOrDefault().ToLower().Contains("staff"))
+                //    {
+                //        url = "/AcademicStaff/Index";
+                //    }
+                //    if (userRole.FirstOrDefault().ToLower().Contains("admissionofficer"))
+                //    {
+                //        url = "/AdmissionOAfficer/Index";
+                //    }
+                //    return Json(new { isError = false, dashboard = url });
+                //}
+            }
+            return Json(new { isError = true, msg = "Username and Password Required" });
+        }
 
         [HttpPost]
         public async Task<IActionResult> LogOut()

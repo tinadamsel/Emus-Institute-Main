@@ -1,6 +1,5 @@
 ﻿
 function RegisterStudent() {
-    debugger;
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
@@ -27,7 +26,6 @@ function RegisterStudent() {
         data.DOB = "0001-01-01T00:00:00"
     };
 
-    debugger
     if (data.Phonenumber == "" || data.Phonenumber == undefined) {
         $('#submit_btn').html(defaultBtnValue);
         $('#submit_btn').attr("disabled", false);
@@ -64,14 +62,12 @@ function RegisterStudent() {
             userDetails: userDetails,
         },
         success: function (result) {
-            debugger;
             if (!result.isError) {
                 var url = '/Account/Login';
                 successAlertWithRedirect(result.msg, url);
                 $('#submit_btn').html(defaultBtnValue);
             }
             else {
-                debugger
                 $('#submit_btn').html(defaultBtnValue);
                 $('#submit_btn').attr("disabled", false);
                 errorAlert(result.msg);
@@ -93,7 +89,6 @@ function RegisterStudent() {
 //}
 
 function Evaluate() {
-    debugger;
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
@@ -139,6 +134,7 @@ function Evaluate() {
 }
 
 function login() {
+    debugger;
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
@@ -260,7 +256,6 @@ function deptToBeEdited(id) {
 }
 
 function SaveEditedDept() {
-    debugger
     var defaultBtnValue = $('#submit_Btn').html();
     $('#submit_Btn').html("Please wait...");
     $('#submit_Btn').attr("disabled", true);
@@ -305,7 +300,6 @@ function SaveEditedDept() {
 }
 
 function DeleteDept() {
-    debugger
     var id = $('#dept_id').val();
     $.ajax({
         type: 'Post',
@@ -315,7 +309,6 @@ function DeleteDept() {
             id: id
         },
         success: function (result) {
-            debugger
             if (!result.isError) {
                 var url = '/SuperAdmin/Departments'
                 successAlertWithRedirect(result.msg, url)
@@ -332,7 +325,6 @@ function DeleteDept() {
 }
 
 function deptToDelete(id) {
-    debugger
     $('#dept_id').val(id);
     $('#delete_dept').modal('show');
 }

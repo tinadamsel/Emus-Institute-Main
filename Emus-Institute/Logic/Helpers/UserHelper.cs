@@ -45,22 +45,22 @@ namespace Logic.Helpers
         //{
         //    return _userManager.Users.Where(x => !x.Deactivated).Count();
         //}
-        //public string GetUserRole(string userId)
-        //{
-        //    if (userId != null)
-        //    {
-        //        var userRole = _context.UserRoles.Where(x => x.UserId == userId).FirstOrDefault();
-        //        if (userRole != null)
-        //        {
-        //            var roles = _context.Roles.Where(x => x.Id == userRole.RoleId).FirstOrDefault();
-        //            if (roles != null)
-        //            {
-        //                return roles.Name;
-        //            }
-        //        }
-        //    }
-        //    return null;
-        //}
+        public string GetUserRole(string userId)
+        {
+            if (userId != null)
+            {
+                var userRole = _context.UserRoles.Where(x => x.UserId == userId).FirstOrDefault();
+                if (userRole != null)
+                {
+                    var roles = _context.Roles.Where(x => x.Id == userRole.RoleId).FirstOrDefault();
+                    if (roles != null)
+                    {
+                        return roles.Name;
+                    }
+                }
+            }
+            return null;
+        }
         public string GetUserId(string username)
         {
             return _userManager.Users.Where(s => s.UserName == username)?.FirstOrDefaultAsync().Result.Id?.ToString();
@@ -95,35 +95,35 @@ namespace Logic.Helpers
             return studentId;
         }
 
-        //public bool CheckForUserName(string userName)
-        //{
-        //    if (userName != null)
-        //    {
-        //        var checkUserName = _context.ApplicationUser.Where(x => x.UserName == userName && !x.Deactivated).FirstOrDefault();
-        //        if (checkUserName != null)
-        //        {
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
+        public bool CheckForUserName(string userName)
+        {
+            if (userName != null)
+            {
+                var checkUserName = _context.ApplicationUser.Where(x => x.UserName == userName && !x.Deactivated).FirstOrDefault();
+                if (checkUserName != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
-        //public bool CheckIfUserIsSuspended(string email)
-        //{
-        //    if (email != null)
-        //    {
-        //        var getUser = _context.ApplicationUser.Where(x => x.Email == email && x.Id != null && !x.Deactivated).FirstOrDefault();
-        //        if (getUser != null)
-        //        {
-        //            var checkForSuspension = _context.Suspensions.Where(x => x.UserId == getUser.Id && x.IsSuspended).FirstOrDefault();
-        //            if (checkForSuspension != null)
-        //            {
-        //                return true;
-        //            }
-        //        }
-        //    }
-        //    return false;
-        //}
+        public bool CheckIfUserIsSuspended(string email)
+        {
+            if (email != null)
+            {
+                var getUser = _context.ApplicationUser.Where(x => x.Email == email && x.Id != null && !x.Deactivated).FirstOrDefault();
+                if (getUser != null)
+                {
+                    var checkForSuspension = _context.Suspensions.Where(x => x.UserId == getUser.Id && x.IsSuspended).FirstOrDefault();
+                    if (checkForSuspension != null)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
 
         public bool CheckIfStaffIsApproved(string email)
@@ -172,6 +172,7 @@ namespace Logic.Helpers
                     user.IsAdmin = false;
                     user.AcademicLevel = AcademicLevel.Tertiary;
                     user.CurrentSession = CurrentSession.YearOne;
+                    user.DepartmentId = userDetails.DepartmentId;
                     user.StudentId = studentId;
                     var createUser = await _userManager.CreateAsync(user, userDetails.Password).ConfigureAwait(false);
                     if (createUser.Succeeded)
@@ -200,7 +201,7 @@ namespace Logic.Helpers
                             string subject = "Student Application Submission";
                             string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
                                 "<br> Your application into Emus Institute was successful and you Student ID is " + "<b>" + user?.StudentId + ".</b>" +
-                                "<br/> You will receive a notification from the school with further details." +
+                                "<br/> You will receive a notification from the school with further details when your application has been approved." +
                                 "<br/> <br/> Once again, Congratulations! " +
                                 "<br/> <br/> Thank you " +
                                 "<br/> <br/> Emus Institute Team";
@@ -431,22 +432,22 @@ namespace Logic.Helpers
         //    }
         //    return null;
         //}
-        //public bool CheckIfApproved(int id)
-        //{
-        //    if (id > 0)
-        //    {
-        //        return _context.StaffDocuments.Where(x => x.Id == id && x.StaffStatus == StaffStatus.Approved).Any();
-        //    }
-        //    return false;
-        //}
-        //public bool CheckIfDeclined(int id)
-        //{
-        //    if (id > 0)
-        //    {
-        //        return _context.StaffDocuments.Where(x => x.Id == id && x.StaffStatus == StaffStatus.Rejected).Any();
-        //    }
-        //    return false;
-        //}
+        public bool CheckIfApproved(int id)
+        {
+            if (id > 0)
+            {
+                return _context.StaffDocuments.Where(x => x.Id == id && x.StaffStatus == StaffStatus.Approved).Any();
+            }
+            return false;
+        }
+        public bool CheckIfDeclined(int id)
+        {
+            if (id > 0)
+            {
+                return _context.StaffDocuments.Where(x => x.Id == id && x.StaffStatus == StaffStatus.Rejected).Any();
+            }
+            return false;
+        }
         //public bool ApproveApplication(int id)
         //{
         //    string toEmailBug = _generalConfiguration.DeveloperEmail;

@@ -11,15 +11,13 @@ namespace Logic.IHelpers
     public interface IUserHelper
     {
         bool CheckIfUserIsStudent(string email);
-
-
-        //bool CheckForUserName(string userName);
-        //bool CheckIfUserIsSuspended(string email);
+        bool CheckForUserName(string userName);
+        bool CheckIfUserIsSuspended(string email);
         Task<ApplicationUser> FindByEmailAsync(string email);
-        //ApplicationUser FindById(string Id);
-        //ApplicationUser FindByUserName(string username);
-        //string GetCurrentUserId(string username);
-        //string GetUserId(string username);
+        ApplicationUser FindById(string Id);
+        ApplicationUser FindByUserName(string username);
+       
+        string GetUserId(string username);
         //Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId);
 
 
@@ -29,16 +27,16 @@ namespace Logic.IHelpers
 
 
         //Task<bool> RegisterStudent(ApplicationUserViewModel userDetails, string edulevel);
-        //string GetUserRole(string userId);
+        string GetUserRole(string userId);
 
         //this 1 not included:
         //List<Subject> GetAllSubjects();
 
-        //bool CheckIfStaffIsApproved(string email);
+        bool CheckIfStaffIsApproved(string email);
         //List<StaffDocumentationViewModel> GetPendingApplications();
         //StaffDocumentation GetCoverLetter(int id);
-        //bool CheckIfApproved(int id);
-        //bool CheckIfDeclined(int id);
+        bool CheckIfApproved(int id);
+        bool CheckIfDeclined(int id);
         //bool ApproveApplication(int id);
         //bool RejectApplication(int id);
         //int GetTotalAcademicStaff();
