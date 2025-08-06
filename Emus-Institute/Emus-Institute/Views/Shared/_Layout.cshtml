@@ -126,6 +126,7 @@
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
         <a asp-action="Index" asp-controller="Home" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
+            <img src="/assets/img/emus-logo.jpeg" width="100" height="40" alt="">
             <h2 class="m-0 text-primary"><i class="fa fa-book me-3"></i>Emus Institute</h2>
         </a>
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -137,7 +138,7 @@
                 <a asp-controller="Home" asp-action="About" class="nav-item nav-link">About</a>
                 <a asp-controller="Home" asp-action="Courses" class="nav-item nav-link">Courses</a>
                 <a asp-controller="Home" asp-action="Contact" class="nav-item nav-link">Contact</a>
-                <a asp-controller="Account" asp-action="Careers" class="nav-item nav-link">Careers</a>
+                @* <a asp-controller="Account" asp-action="Careers" class="nav-item nav-link">Careers</a> *@
             </div>
             @if (!User.Identity.IsAuthenticated)
             {

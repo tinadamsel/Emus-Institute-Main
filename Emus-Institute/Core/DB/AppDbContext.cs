@@ -24,6 +24,7 @@ namespace Core.DB
         public DbSet<EnquiryMessage> Enquiries { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PayStack> PayStackpayments { get; set; }
+        public DbSet<EvaluationDetails> EvaluationDetails { get; set; }
 
 
         //public DbSet<PaymentForm> PaymentForms { get; set; }

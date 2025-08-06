@@ -136,7 +136,7 @@
             <h6 class="section-title bg-white text-center text-primary px-3">Courses</h6>
             <h1 class="mb-5">Available Courses</h1>
         </div>
-        @if (Model.Count() > 0 && Model != null)
+        @if (Model?.Count() > 0 && Model != null)
         {
             <div class="row g-4 justify-content-center">
                 @foreach (var depts in Model)

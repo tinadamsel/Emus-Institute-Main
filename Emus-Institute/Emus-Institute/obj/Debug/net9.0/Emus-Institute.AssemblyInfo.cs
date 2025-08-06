@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Emus-Institute")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aeaec0a91146ee45bebdcf950496ac6b06aaa1cb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f55dced6c68277ab2586822ff49c8c518212930a")]
 [assembly: System.Reflection.AssemblyProductAttribute("Emus-Institute")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Emus-Institute")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

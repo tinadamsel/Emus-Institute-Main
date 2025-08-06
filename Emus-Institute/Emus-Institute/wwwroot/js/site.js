@@ -91,6 +91,53 @@ function RegisterStudent() {
 //    $("#" + id + "Error").text(message).css({ color: "red" });
 //    $("#" + id).css({ border: "1px solid red" });
 //}
+
+function Evaluate() {
+    debugger;
+    var defaultBtnValue = $('#submit_btn').html();
+    $('#submit_btn').html("Please wait...");
+    $('#submit_btn').attr("disabled", true);
+
+
+    var data = {};
+    data.DepartmentId = $('#deptId').val();
+    data.FirstName = $('#firstname').val();
+    data.LastName = $('#lastname').val();
+    data.OtherName = $('#othername').val();
+    
+    debugger
+    let evaluationDetails = JSON.stringify(data);
+    $.ajax({
+        type: 'Post',
+        url: '/Account/EvaluateStudentDetails',
+        dataType: 'json',
+        data:
+        {
+            evaluationDetails: evaluationDetails,
+        },
+        success: function (result) {
+            debugger;
+            if (!result.isError) {
+                var url = '/Account/Login';
+                successAlertWithRedirect(result.msg, url);
+                $('#submit_btn').html(defaultBtnValue);
+            }
+            else {
+                debugger
+                $('#submit_btn').html(defaultBtnValue);
+                $('#submit_btn').attr("disabled", false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function (ex) {
+            $('#submit_btn').html(defaultBtnValue);
+            $('#submit_btn').attr("disabled", false);
+            errorAlert("Please check and try again. Contact Admin if issue persists..");
+        },
+    })
+
+}
+
 function login() {
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");

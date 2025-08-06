@@ -178,17 +178,31 @@ namespace Logic.Helpers
                     {
                         await _userManager.AddToRoleAsync(user, "TertiaryStudent").ConfigureAwait(false);
                         var url = linkToClick + user.Id;
+                        //if (user.Email != null)
+                        //{
+                        //    string toEmail = user.Email;
+                        //    string subject = "Student Application Submission";
+                        //    string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
+                        //        "<br> Your application into Emus Institute was successful and you Student ID is " + "<b>" + user?.StudentId + ".</b>" +
+                        //        "<br/> <br/> However, you need to complete the evaluation form to be fully admitted into the school." +
+                        //        ". <br/> <br/> Please, click on the button below to log into the evaluation page and make the necessary payment of &euro;200 " +
+                        //        "(which covers application, transcript review and certificate evaluation)" +
+                        //        "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + url + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
+                        //        "<br/> <br/> Thank you  " +
+                        //        "<br/> <br/> Emus Institute Team";
+                        //    _emailService.SendEmail(toEmail, subject, message);
+                        //    return true;
+                        //}
+
                         if (user.Email != null)
                         {
                             string toEmail = user.Email;
                             string subject = "Student Application Submission";
                             string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
                                 "<br> Your application into Emus Institute was successful and you Student ID is " + "<b>" + user?.StudentId + ".</b>" +
-                                "<br/> <br/> However, you need to complete the evaluation form to be fully admitted into the school." +
-                                ". <br/> <br/> Please, click on the button below to log into the evaluation page and make the necessary payment of &euro;200 " +
-                                "(which covers application, transcript review and certificate evaluation)" +
-                                "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + url + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
-                                "<br/> <br/> Thank you  " +
+                                "<br/> You will receive a notification from the school with further details." +
+                                "<br/> <br/> Once again, Congratulations! " +
+                                "<br/> <br/> Thank you " +
                                 "<br/> <br/> Emus Institute Team";
                             _emailService.SendEmail(toEmail, subject, message);
                             return true;
