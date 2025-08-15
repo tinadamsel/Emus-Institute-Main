@@ -371,11 +371,24 @@
         </a>
       </li>
         <li class="nav-item">
-            <a class="nav-link collapsed" asp-controller="HumanResource" asp-action="PendingApplication">
-                    <i class="bi bi-journal"></i>
-                <span> Pending Applications </span>
+            <a class="nav-link collapsed" asp-controller="SuperAdmin" asp-action="RegisteredStudents">
+                <i class="bi bi-people"></i>
+                <span>Registered Students </span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link collapsed" asp-controller="SuperAdmin" asp-action="ApprovedStudents">
+                <i class="bi bi-people"></i>
+                <span>Approved Students </span>
+            </a>
+        </li>
+
+        @* <li class="nav-item"> *@
+        @*     <a class="nav-link collapsed" asp-controller="HumanResource" asp-action="PendingApplication"> *@
+        @*             <i class="bi bi-journal"></i> *@
+        @*         <span> Pending Applications </span> *@
+        @*     </a> *@
+        @* </li> *@
 
      @* <li class="nav-item">
         <a class="nav-link collapsed" href="pages-register.html">
@@ -417,7 +430,7 @@
     <!-- ======= Footer ======= -->
     <footer id="footer" class="footer">
         <div class="copyright">
-           &copy; Copyright @DateTime.Now.Year <a href="#"> Advanced E-College </a>. All right reserved.
+           &copy; Copyright @DateTime.Now.Year <a href="#"> Emus-Institute </a>. All right reserved.
         </div>
     </footer>
     <!-- End Footer -->

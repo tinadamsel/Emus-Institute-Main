@@ -20,9 +20,10 @@ namespace Core.ViewModels
         public virtual string Username { get; set; }
         public virtual string Email { get; set; }
         public virtual string Phonenumber { get; set; }
-        public string FullName => FirstName + " " + LastName + "" + OtherName;
+        public string FullName { get; set; }
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
+        public string DepartmentName { get; set; }
         public int? DepartmentId { get; set; }
         public DateTime DateRegistered { get; set; }
         public string? Country { get; set; }
@@ -33,10 +34,13 @@ namespace Core.ViewModels
         public CurrentSession? CurrentSession { get; set; }
         public StaffType? StaffType { get; set; }
         public bool Deactivated { get; set; }
-        public bool? IsStudent { get; set; }
+        public bool IsStudent { get; set; }
+        public bool IsAdmin { get; set; }
+        public string StudentId { get; set; }
         public DateTime? DateOfApproval { get; set; }
         public DateTime? DateModified { get; set; }
-        public int TotalStudents { get; set; }
+        public int TotalApprovedStudents { get; set; }
+        public int TotalRegisteredStudents { get; set; }
         public int TotalStaff { get; set; }
         public int TotalDepartments { get; set; }
         public int TotalAcademicStaff { get; set; }

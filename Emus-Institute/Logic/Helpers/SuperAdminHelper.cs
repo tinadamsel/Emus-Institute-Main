@@ -2,6 +2,7 @@
 using Core.Models;
 using Core.ViewModels;
 using Logic.IHelpers;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,9 +66,13 @@ namespace Logic.Helpers
             return departmentViewModel;
         }
 
-        public int GetTotalStudents()
+        public int GetTotalApprovedStudents()
         {
-            return _context.ApplicationUser.Where(a => a.Id != null && !a.Deactivated && a.IsStudent == true).Count();
+            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.Deactivated && a.IsStudent == true).Count();
+        }
+        public int GetTotalRegisteredStudents()
+        {
+            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == false).Count();
         }
         public int GetTotalDepartments()
         {
@@ -125,6 +130,62 @@ namespace Logic.Helpers
             }
             return false;
         }
+
+        public List<ApplicationUserViewModel> GetAllRegisteredStudents()
+        {
+            var appUserViewModel = new List<ApplicationUserViewModel>();
+            appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && !x.IsStudent && !x.IsAdmin && !x.Deactivated).Include(x => x.Department)
+                .Select(x => new ApplicationUserViewModel()
+                {
+                    Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName, 
+                    OtherName = x.OtherName,
+                    DepartmentId = x.DepartmentId,
+                    DepartmentName = x.Department.Name,
+                    FullName = x.FirstName + " " + x.LastName,
+                    DateRegistered = x.DateRegistered,
+                    DOB = x.DOB,
+                    Address = x.Address,
+                    Country = x.Country,
+                    Email = x.Email,
+                    State = x.State,
+                    StudentId = x.StudentId,
+                    CurrentSession = x.CurrentSession,
+                    AcademicLevel = x.AcademicLevel,
+                    Phonenumber = x.PhoneNumber,
+                }).ToList();
+            return appUserViewModel;
+        }
+        public List<ApplicationUserViewModel> GetAllApprovedStudents()
+        {
+            var appUserViewModel = new List<ApplicationUserViewModel>();
+            appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated).Include(x => x.Department)
+                .Select(x => new ApplicationUserViewModel()
+                {
+                    Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    OtherName = x.OtherName,
+                    DepartmentId = x.DepartmentId,
+                    DepartmentName = x.Department.Name,
+                    FullName = x.FirstName + " " + x.LastName,
+                    DateRegistered = x.DateRegistered,
+                    DOB = x.DOB,
+                    Address = x.Address,
+                    Country = x.Country,
+                    Email = x.Email,
+                    State = x.State,
+                    StudentId = x.StudentId,
+                    CurrentSession = x.CurrentSession,
+                    AcademicLevel = x.AcademicLevel,
+                    Phonenumber = x.PhoneNumber,
+                }).ToList();
+            return appUserViewModel;
+        }
+
+
+
 
     }
 }

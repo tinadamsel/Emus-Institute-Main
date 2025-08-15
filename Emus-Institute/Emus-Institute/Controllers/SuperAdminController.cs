@@ -30,15 +30,17 @@ namespace e_college.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var user = _userHelper.GetCurrentUserId(User.Identity.Name);
-            var students = _superAdminHelper.GetTotalStudents();
+            var user = _userHelper.GetCurrentUserId(User?.Identity?.Name);
+            var approvedStudents = _superAdminHelper.GetTotalApprovedStudents();
+            var registeredStudents = _superAdminHelper.GetTotalRegisteredStudents();
             var staff = _superAdminHelper.GetTotalStaff();
             var departments = _superAdminHelper.GetTotalDepartments();
             var model = new ApplicationUserViewModel()
             {
                 TotalStaff = staff,
-                TotalStudents = students,
+                TotalApprovedStudents = approvedStudents,
                 TotalDepartments = departments,
+                TotalRegisteredStudents = registeredStudents,
             };
             return View(model);
         }
@@ -132,6 +134,19 @@ namespace e_college.Controllers
         //    }
         //    return Json(new { isError = true, msg = "Unable To Get test" });
         //}
+
+        public IActionResult RegisteredStudents()
+        {
+            var regStudents = _superAdminHelper.GetAllRegisteredStudents();
+            return View(regStudents);
+
+        }
+        public IActionResult ApprovedStudents()
+        {
+            var approvedStudents = _superAdminHelper.GetAllApprovedStudents();
+            return View(approvedStudents);
+
+        }
 
     }
 }

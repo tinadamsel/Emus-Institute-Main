@@ -17,8 +17,11 @@ namespace Logic.IHelpers
         DepartmentViewModel GetDeptToEdit(int id);
         int GetTotalDepartments();
         int GetTotalStaff();
-        int GetTotalStudents();
+        int GetTotalApprovedStudents();
         bool SaveEditedDept(DepartmentViewModel departmentViewModel);
+        int GetTotalRegisteredStudents();
+        List<ApplicationUserViewModel> GetAllRegisteredStudents();
+        List<ApplicationUserViewModel> GetAllApprovedStudents();
         //bool CheckExistingSubjectName(string name);
         //bool CreateSubject(SubjectViewModel subjectViewModel);
         //List<SubjectViewModel> GetSubjects();
