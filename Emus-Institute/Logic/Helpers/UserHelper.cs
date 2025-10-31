@@ -20,15 +20,15 @@ namespace Logic.Helpers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IGeneralConfiguration _generalConfiguration;
+        //private readonly IGeneralConfiguration _generalConfiguration;
         private readonly IEmailService _emailService;
 
-        public UserHelper(AppDbContext context, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IGeneralConfiguration generalConfiguration, IEmailService emailService)
+        public UserHelper(AppDbContext context, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IEmailService emailService)
         {
             _signInManager = signInManager;
             _context = context;
             _userManager = userManager;
-            _generalConfiguration = generalConfiguration;
+            //_generalConfiguration = generalConfiguration;
             _emailService = emailService;
         }
 
@@ -39,6 +39,10 @@ namespace Logic.Helpers
         public ApplicationUser FindByUserName(string username)
         {
             return _userManager.Users.Where(s => s.UserName == username).FirstOrDefault();
+        }
+        public async Task<ApplicationUser> FindByUserNameAsync(string username)
+        {
+            return await _userManager.Users.Where(s => s.UserName == username).FirstOrDefaultAsync();
         }
 
         //public int GetAllUser()
@@ -125,7 +129,6 @@ namespace Logic.Helpers
             return false;
         }
 
-
         public bool CheckIfStaffIsApproved(string email)
         {
             if (email != null)
@@ -170,6 +173,7 @@ namespace Logic.Helpers
                     user.OtherName = userDetails.OtherName;
                     user.IsStudent = false;
                     user.IsAdmin = false;
+                    user.Paid = false;
                     user.AcademicLevel = AcademicLevel.Tertiary;
                     user.CurrentSession = CurrentSession.YearOne;
                     user.DepartmentId = userDetails.DepartmentId;
@@ -179,35 +183,35 @@ namespace Logic.Helpers
                     {
                         await _userManager.AddToRoleAsync(user, "TertiaryStudent").ConfigureAwait(false);
                         var url = linkToClick + user.Id;
+                        if (user.Email != null)
+                        {
+                            string toEmail = user.Email;
+                            string subject = "Student Application Submission";
+                            string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
+                                "<br> Your application into Emus Institute was successful and your Student ID is " + "<b>" + user?.StudentId + ".</b>" +
+                                "<br/> <br/> However, you need to complete the evaluation form to be fully admitted into the school." +
+                                ". <br/> <br/> Please, click on the button below to log into the evaluation page and make the necessary payment of &euro;200 " +
+                                "(which covers application, transcript review and certificate evaluation)" +
+                                "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + url + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
+                                "<br/> <br/> Thank you  " +
+                                "<br/> <br/> Emus Institute Team";
+                            _emailService.SendEmail(toEmail, subject, message);
+                            return true;
+                        }
+
                         //if (user.Email != null)
                         //{
                         //    string toEmail = user.Email;
                         //    string subject = "Student Application Submission";
                         //    string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
                         //        "<br> Your application into Emus Institute was successful and you Student ID is " + "<b>" + user?.StudentId + ".</b>" +
-                        //        "<br/> <br/> However, you need to complete the evaluation form to be fully admitted into the school." +
-                        //        ". <br/> <br/> Please, click on the button below to log into the evaluation page and make the necessary payment of &euro;200 " +
-                        //        "(which covers application, transcript review and certificate evaluation)" +
-                        //        "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + url + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
-                        //        "<br/> <br/> Thank you  " +
+                        //        "<br/> You will receive a notification from the school with further details when your application has been approved." +
+                        //        "<br/> <br/> Once again, Congratulations! " +
+                        //        "<br/> <br/> Thank you " +
                         //        "<br/> <br/> Emus Institute Team";
                         //    _emailService.SendEmail(toEmail, subject, message);
                         //    return true;
                         //}
-
-                        if (user.Email != null)
-                        {
-                            string toEmail = user.Email;
-                            string subject = "Student Application Submission";
-                            string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
-                                "<br> Your application into Emus Institute was successful and you Student ID is " + "<b>" + user?.StudentId + ".</b>" +
-                                "<br/> You will receive a notification from the school with further details when your application has been approved." +
-                                "<br/> <br/> Once again, Congratulations! " +
-                                "<br/> <br/> Thank you " +
-                                "<br/> <br/> Emus Institute Team";
-                            _emailService.SendEmail(toEmail, subject, message);
-                            return true;
-                        }
                         return true;
                     }
                 }
@@ -218,7 +222,6 @@ namespace Logic.Helpers
                 throw ex;
             }
         }
-
 
         public bool CheckIfUserIsStudent(string email)
         {
@@ -231,6 +234,81 @@ namespace Logic.Helpers
                 }
             }
             return false;
+        }
+
+        public async Task<EvaluationDetails> SaveStudentEvaluationDetails(string UserId, string passport, string transcript, 
+            string highSchCert, string waecScratchCard, string anyRelevantCert)
+        {
+            try
+            {
+                if (UserId != null)
+                {
+                    //check if userId exists in evaluation table, if it does, move to payment
+                    var checkIfUserEvaluationDetailsIsSaved = _context.EvaluationDetails.Where(x => x.UserId == UserId).FirstOrDefault();
+                    if (checkIfUserEvaluationDetailsIsSaved != null)
+                    {
+                        checkIfUserEvaluationDetailsIsSaved.Passport = passport;
+                        checkIfUserEvaluationDetailsIsSaved.SchoolTranscript = transcript;
+                        checkIfUserEvaluationDetailsIsSaved.HighSchoolCompletionCertificate = highSchCert;
+                        checkIfUserEvaluationDetailsIsSaved.WAECScratchCard = waecScratchCard;
+                        checkIfUserEvaluationDetailsIsSaved.OtherCertificate = anyRelevantCert;
+                        checkIfUserEvaluationDetailsIsSaved.DateAdded = DateTime.Now;
+
+                        _context.Update(checkIfUserEvaluationDetailsIsSaved);
+                        _context.SaveChanges();
+                        return checkIfUserEvaluationDetailsIsSaved;
+                    }
+                    else
+                    {
+                        var evaluationDetails = new EvaluationDetails();
+                        evaluationDetails.UserId = UserId;
+                        evaluationDetails.Passport = passport;
+                        evaluationDetails.SchoolTranscript = transcript;
+                        evaluationDetails.HighSchoolCompletionCertificate = highSchCert;
+                        evaluationDetails.WAECScratchCard = waecScratchCard;
+                        evaluationDetails.OtherCertificate = anyRelevantCert;
+                        evaluationDetails.DateAdded = DateTime.Now;
+
+                        _context.EvaluationDetails.Add(evaluationDetails);
+                        _context.SaveChanges();
+                        return evaluationDetails;
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool SendPaymentCompletionEmail(string email)
+        {
+            if (email != null)
+            {
+                var getUser = FindByEmailAsync(email).Result;
+                string toEmail = email;
+                string subject = "Payment Successful";
+                string message = "Dear " + getUser.FirstName + "<b>" + " " + ",</b> " +
+                    ". <br/> <br/> Your school and course payment fee was successful. " +
+                    "Please, login with your details and continue to class. " +
+                    "<br/> <br/> Thank you  " +
+                    "<br/> <br/> Emus Institute Team";
+                _emailService.SendEmail(toEmail, subject, message);
+                return true;
+            }
+            return false;
+        }
+
+        public ApplicationUser GetStudentDetails(string userId)
+        {
+            var studentDetail = _context.ApplicationUser.Where(x => x.Id == userId && x.IsStudent && !x.Deactivated)
+                .Include(a => a.Department).FirstOrDefault();
+            if (studentDetail != null)
+            {
+                return studentDetail;
+            }
+            return null;
         }
 
         //public async Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId)
@@ -253,6 +331,8 @@ namespace Logic.Helpers
         //            user.DOB = userDetails.DOB;
         //            user.OtherName = userDetails.OtherName;
         //            user.IsStudent = false;
+        //            user.Paid = false;
+        //            user.IsAdmin = true;
         //            if (userDetails.CourseId > 0)
         //            {
         //                user.StaffType = StaffType.AcademicStaff;

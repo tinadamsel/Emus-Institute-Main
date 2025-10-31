@@ -59,6 +59,8 @@ builder.Services.AddScoped<ITemplate, Template>();
 builder.Services.AddScoped<ISuperAdminHelper, SuperAdminHelper>();
 builder.Services.AddScoped<IDropDownHelper, DropdownHelper>();
 builder.Services.AddScoped<IAccountHelper, AccountHelper>();
+builder.Services.AddScoped<IPaymentHelper, PaymentHelper>();
+builder.Services.AddScoped<IPaystackHelper, PaystackHelper>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

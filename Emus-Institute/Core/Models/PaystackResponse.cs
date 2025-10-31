@@ -9,33 +9,35 @@ namespace Core.Models
 {
     public class PaystackResponse
     {
+        
         public bool status { get; set; }
         public string message { get; set; }
-        public Data data { get; set; }
+        public PaystackData data { get; set; }
         public PayStack Paystacks { get; set; }
-        public class Metadata
+
+        public class PaystackData
         {
-            public string referrer { get; set; }
-        }
-        public class History
-        {
-            public string type { get; set; }
+            public string id { get; set; }
+            public int amount { get; set; }
+            public string currency { get; set; }
+            public DateTime transaction_date { get; set; }
+            public string status { get; set; }
+            public string reference { get; set; }
+            public string domain { get; set; }
+            public string gateway_response { get; set; }
             public string message { get; set; }
-            public int time { get; set; }
+            public string channel { get; set; }
+            public string ip_address { get; set; }
+            public int? fees { get; set; }
+            public string authorization_url { get; set; }
+            public string access_code { get; set; }
+            public PaystackLog log { get; set; }
+            public PaystackAuthorization authorization { get; set; }
+            public PaystackCustomer customer { get; set; }
+            public PaystackMetadata metadata { get; set; }
         }
-        public class Log
-        {
-            public int time_spent { get; set; }
-            public int attempts { get; set; }
-            public object authentication { get; set; }
-            public int errors { get; set; }
-            public bool success { get; set; }
-            public bool mobile { get; set; }
-            public List<object> input { get; set; }
-            public object channel { get; set; }
-            public List<History> history { get; set; }
-        }
-        public class Authorization
+
+        public class PaystackAuthorization
         {
             public string authorization_code { get; set; }
             public string bin { get; set; }
@@ -50,44 +52,50 @@ namespace Core.Models
             public bool reusable { get; set; }
             public string signature { get; set; }
         }
-        public class Customer
+
+        public class PaystackCustomer
         {
             public int id { get; set; }
-            public object first_name { get; set; }
-            public object last_name { get; set; }
+            public string first_name { get; set; }
+            public string last_name { get; set; }
             public string email { get; set; }
             public string customer_code { get; set; }
-            public object phone { get; set; }
-            public object metadata { get; set; }
+            public string phone { get; set; }
             public string risk_action { get; set; }
         }
-        public class Data
+
+        public class PaystackLog
         {
-            public string? id { get; set; }
-            public int amount { get; set; }
-            public string? currency { get; set; }
-            public DateTime transaction_date { get; set; }
-            public string? status { get; set; }
-            public string? reference { get; set; }
-            public string? domain { get; set; }
-            public Metadata metadata { get; set; }
-            public string? gateway_response { get; set; }
-            public object? message { get; set; }
+            public int time_spent { get; set; }
+            public int attempts { get; set; }
+            public object authentication { get; set; }
+            public int errors { get; set; }
+            public bool success { get; set; }
+            public bool mobile { get; set; }
+            public List<object> input { get; set; }
             public string channel { get; set; }
-            public string ip_address { get; set; }
-            public Log log { get; set; }
-            public int? fees { get; set; }
-            public Authorization authorization { get; set; }
-            public Customer customer { get; set; }
-            public object plan { get; set; }
-            public string authorization_url { get; set; }
-            public string access_code { get; set; }
+            public List<PaystackHistory> history { get; set; }
         }
-        public class CustomerField
+
+        public class PaystackHistory
+        {
+            public string type { get; set; }
+            public string message { get; set; }
+            public int time { get; set; }
+        }
+
+        public class PaystackMetadata
+        {
+            public string referrer { get; set; }
+            public List<PaystackCustomField> custom_fields { get; set; }
+        }
+
+        public class PaystackCustomField
         {
             public string display_name { get; set; }
             public string variable_name { get; set; }
             public string value { get; set; }
         }
+
     }
 }

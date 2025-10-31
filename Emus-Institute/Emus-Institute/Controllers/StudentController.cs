@@ -1,6 +1,8 @@
 ﻿
 using Core.DB;
 using Core.Models;
+using Core.ViewModels;
+using Logic.Helpers;
 using Logic.IHelpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -25,7 +27,20 @@ namespace e_college.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            var userId = _userHelper.GetCurrentUserId(User?.Identity?.Name);
+            var getStudentDetails = _userHelper.GetStudentDetails(userId);
+            //var departments = _superAdminHelper.GetTotalDepartments();
+            var model = new ApplicationUserViewModel()
+            {
+                CurrentSession = getStudentDetails.CurrentSession,
+                FirstName = getStudentDetails.FirstName,
+                LastName = getStudentDetails.LastName,
+                AcademicLevel = getStudentDetails.AcademicLevel,
+                DepartmentName = getStudentDetails?.Department?.Name
+
+                //TotalDepartments = departments,
+            };
+            return View(model);
         }
     }
 }

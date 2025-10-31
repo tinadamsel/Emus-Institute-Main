@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAApwzTmX3UsUqrbq2BP0wnFAAAAAACAAAAAAAQZgAAAAEAACAAAABgY53aXsEZjHaodo+enBmFUcBncs/T+9RCkLqloM+pUAAAAAAOgAAAAAIAACAAAACkXClqxcxxQ2oiimVKv35hpoKPG/Od6c7oUDsr8DTKriAAAAC2BNTXooWKv0lGvRfEy642BGH3xs0cL+B3yL9TzmAaTUAAAAADEBfF3tghWoFjzqe+dzObmt/PGO2iO33AQs9cn8rOcgvwo2cH2M1TFZCYDKnVl4jy4bcr+6b9AoWCKq+1Z5Ju</EncryptedPassword>
+    <History>True|2025-11-01T20:57:26.1588626Z||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="ECollegeHangFire">
+      <Value>Server=DESKTOP-85B8U4T\SQLEXPRESS%3bDatabase=ECollege%3bTrusted_Connection=True%3bMultipleActiveResultSets=True%3bTrustServerCertificate=True </Value>
+    </DestinationConnectionStrings>
+    <DestinationConnectionStrings Include="ECollegeProject">
+      <Value>Server=DESKTOP-85B8U4T\SQLEXPRESS%3bDatabase=ECollege%3bTrusted_Connection=True%3bMultipleActiveResultSets=True%3bTrustServerCertificate=True </Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>

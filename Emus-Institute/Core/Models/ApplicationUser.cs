@@ -32,10 +32,11 @@ namespace Core.Models
         public StaffType? StaffType { get; set; }
         public bool Deactivated { get; set; }
         public bool IsStudent { get; set; }
+        public bool Paid { get; set; }
         public bool IsAdmin { get; set; }
         public DateTime? DateOfApproval { get; set; }
         public DateTime? DateModified { get; set; }
-        public int? DepartmentId { get; set; }
+        public int DepartmentId { get; set; }
         [ForeignKey("DepartmentId")]
         public virtual Department? Department { get; set; }
     }

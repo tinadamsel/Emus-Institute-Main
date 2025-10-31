@@ -88,47 +88,248 @@ function RegisterStudent() {
 //    $("#" + id).css({ border: "1px solid red" });
 //}
 
-function Evaluate() {
-    var defaultBtnValue = $('#submit_btn').html();
+//function Evaluate() {
+//    debugger
+//    var defaultBtnValue = $('#submit_btn').html();
+//    $('#submit_btn').html("Please wait...");
+//    $('#submit_btn').attr("disabled", true);
+
+
+//    var data = {};
+//    data.DepartmentId = $('#deptId').val();
+//    data.FirstName = $('#firstname').val();
+//    data.LastName = $('#lastname').val();
+//    data.OtherName = $('#othername').val();
+
+//    let evaluationDetails = JSON.stringify(data);
+//    $.ajax({
+//        type: 'Post',
+//        url: '/Account/EvaluateStudentDetails',
+//        dataType: 'json',
+//        data:
+//        {
+//            evaluationDetails: evaluationDetails,
+//        },
+//        success: function (result) {
+//            if (!result.isError) {
+//                var url = '/Account/Login';
+//                successAlertWithRedirect(result.msg, url);
+//                $('#submit_btn').html(defaultBtnValue);
+//            }
+//            else {
+//                $('#submit_btn').html(defaultBtnValue);
+//                $('#submit_btn').attr("disabled", false);
+//                errorAlert(result.msg);
+//            }
+//        },
+//        error: function (ex) {
+//            $('#submit_btn').html(defaultBtnValue);
+//            $('#submit_btn').attr("disabled", false);
+//            errorAlert("Please check and try again. Contact Admin if issue persists..");
+//        },
+//    })
+
+//}
+
+async function Evaluate() {
+    const defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
 
+    const UserId = $('#userId').val();
 
-    var data = {};
-    data.DepartmentId = $('#deptId').val();
-    data.FirstName = $('#firstname').val();
-    data.LastName = $('#lastname').val();
-    data.OtherName = $('#othername').val();
-    
-    let evaluationDetails = JSON.stringify(data);
-    $.ajax({
-        type: 'Post',
-        url: '/Account/EvaluateStudentDetails',
-        dataType: 'json',
-        data:
-        {
-            evaluationDetails: evaluationDetails,
-        },
-        success: function (result) {
-            if (!result.isError) {
-                var url = '/Account/Login';
-                successAlertWithRedirect(result.msg, url);
-                $('#submit_btn').html(defaultBtnValue);
-            }
-            else {
-                $('#submit_btn').html(defaultBtnValue);
-                $('#submit_btn').attr("disabled", false);
-                errorAlert(result.msg);
-            }
-        },
-        error: function (ex) {
+    // Helper: convert file to Base64
+    function toBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    try {
+        const passportFile = document.getElementById("passport").files[0];
+        const transcriptFile = document.getElementById("transcript").files[0];
+        const highSchCertFile = document.getElementById("highSchCert").files[0];
+        const waecScratchCardFile = document.getElementById("waecScratchCard").files[0];
+        const anyRelevantCertFile = document.getElementById("anyRelevantCert").files[0];
+
+        if (!passportFile || !transcriptFile || !highSchCertFile || !waecScratchCardFile || !anyRelevantCertFile) {
+            errorAlert("Please attach all required files before submitting.");
             $('#submit_btn').html(defaultBtnValue);
             $('#submit_btn').attr("disabled", false);
-            errorAlert("Please check and try again. Contact Admin if issue persists..");
-        },
-    })
+            return;
+        }
 
+        // Wait for all files to convert
+      
+        const [passport, transcript, highSchCert, waecScratchCard, anyRelevantCert] = await Promise.all([
+            toBase64(passportFile),
+            toBase64(transcriptFile),
+            toBase64(highSchCertFile),
+            toBase64(waecScratchCardFile),
+            toBase64(anyRelevantCertFile)
+        ]);
+
+        // Now safely call your endpoint
+      
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/Account/EvaluateUserDetails',
+            data: {
+                UserId,
+                passport,
+                transcript,
+                highSchCert,
+                waecScratchCard,
+                anyRelevantCert
+            },
+            success: function (result) {
+              
+                if (!result.isError) {
+                    successAlertWithRedirect(result.msg, result.data);
+                   
+                } else if (result.isError && result.url) {
+                    
+                    window.location.href = result.url;
+                } else {
+                    
+                    $('#submit_btn').html(defaultBtnValue);
+                    $('#submit_btn').attr("disabled", false);
+                    errorAlert(result.msg);
+                }
+            },
+            error: function (ex) {
+                $('#submit_btn').html(defaultBtnValue);
+                $('#submit_btn').attr("disabled", false);
+                errorAlert("An error occurred. Please contact admin if issue persists.");
+            },
+        });
+    } catch (error) {
+        console.error("File reading error:", error);
+        errorAlert("Error reading files. Please try again.");
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+    }
 }
+
+
+//async function Evaluate() {
+//    debugger
+//    var defaultBtnValue = $('#submit_btn').html();
+//    $('#submit_btn').html("Please wait...");
+//    $('#submit_btn').attr("disabled", true);
+
+//    //var data = {}
+//    var UserId = $('#userId').val();
+
+//    var passport = document.getElementById("passport").files;
+//    debugger
+//    if (passport.length > 0 || passport[0] != null) {
+//        const reader = new FileReader();
+//        reader.readAsDataURL(passport[0]);
+//        reader.onload = function () {
+//        passport = reader.result;
+//        }
+//    } else {
+//        $('#submit_btn').html(defaultBtnValue);
+//        $('#submit_btn').attr("disabled", false);
+//        errorAlert("Please attach your transcript");
+//        return;
+//    }
+
+//    var transcript = document.getElementById("transcript").files;
+//    debugger
+//    if (transcript.length > 0 || transcript[0] != null) {
+//        const reader = new FileReader();
+//        reader.readAsDataURL(transcript[0]);
+//        reader.onload = function () {
+//        transcript = reader.result;
+//        }
+//    } else {
+//        $('#submit_btn').html(defaultBtnValue);
+//        $('#submit_btn').attr("disabled", false);
+//        errorAlert("Please attach your transcript");
+//        return;
+//    }
+//    var highSchCert = document.getElementById("highSchCert").files;
+//    debugger
+//    if (highSchCert.length > 0 || highSchCert[0] != null) {
+//        const reader = new FileReader();
+//        reader.readAsDataURL(highSchCert[0]);
+//        reader.onload = function () {
+//            highSchCert = reader.result;
+//        }
+//    } else {
+//        $('#submit_btn').html(defaultBtnValue);
+//        $('#submit_btn').attr("disabled", false);
+//        errorAlert("Please attach your High School Certificate");
+//        return;
+//    }
+//    var waecScratchCard = document.getElementById("waecScratchCard").files;
+//    debugger
+//    if (waecScratchCard.length > 0 || waecScratchCard[0] != null) {
+//        const reader = new FileReader();
+//        reader.readAsDataURL(waecScratchCard[0]);
+//        reader.onload = function () {
+//            waecScratchCard = reader.result;
+//        }
+//    } else {
+//        $('#submit_btn').html(defaultBtnValue);
+//        $('#submit_btn').attr("disabled", false);
+//        errorAlert("Please attach your WAEC ScratchCard");
+//        return;
+//    }
+//    var anyRelevantCert = document.getElementById("anyRelevantCert").files;
+//    debugger
+//    if (anyRelevantCert.length > 0 || anyRelevantCert[0] != null) {
+//        const reader = new FileReader();
+//        reader.readAsDataURL(anyRelevantCert[0]);
+//        reader.onload = function () {
+//            anyRelevantCert = reader.result;
+//        }
+//    } else {
+//        $('#submit_btn').html(defaultBtnValue);
+//        $('#submit_btn').attr("disabled", false);
+//        errorAlert("Please attach any other relevant certificate");
+//        return;
+//    }
+//    debugger
+//    $.ajax({
+//        type: 'Post',
+//        dataType: 'Json',
+//        url: '/Account/EvaluateUserDetails',
+//        data: {
+//            UserId: UserId,
+//            passport: passport,
+//            transcript: transcript,
+//            highSchCert: highSchCert,
+//            waecScratchCard: waecScratchCard,
+//            anyRelevantCert: anyRelevantCert
+//        },
+
+//        success: function (result)
+//        {
+//            if (!result.isError) {
+//                var url = result.data;
+//                SuccessAlert(result.msg, url)
+//            }
+//            else if (result.isError == true && result.url != null) {
+
+//                window.location.href = result.url;  
+//            }
+//            else {
+//                ErrorAlert(result.msg)
+//            }
+//        },
+//        error: function (ex) {
+//            errorAlert("An error occured, please check and try again. Please contact admin if issue persists..");
+//        }
+//    })
+     
+//}
 
 function login() {
     var defaultBtnValue = $('#submit_btn').html();
@@ -324,6 +525,57 @@ function deptToDelete(id) {
     $('#dept_id').val(id);
     $('#delete_dept').modal('show');
 }
+
+
+function approveStudent(id) {
+    $.ajax({
+        type: 'POST',
+        url: '/SuperAdmin/StudentApproval',
+        dataType: 'json',
+        data: {
+            userId: id
+        },
+        success: function (result) {
+            if (!result.isError) {
+                var url = '/SuperAdmin/RegisteredStudents';
+                successAlertWithRedirect(result.msg, url);
+                $('#submit_btn').html(defaultBtnValue);
+            }
+            else {
+                errorAlert(result.msg);
+            }
+        },
+        error: function (ex) {
+            "Something went wrong, contact the support - " + errorAlert(ex);
+        }
+    });
+}
+
+function declineStudent(id) {
+    $.ajax({
+        type: 'POST',
+        url: '/SuperAdmin/DeclineStudent', // we are calling json method
+        dataType: 'json',
+        data:
+        {
+            userId: id
+        },
+        success: function (result) {
+            if (!result.isError) {
+                var url = '/SuperAdmin/RegisteredStudents';
+                successAlertWithRedirect(result.msg, url);
+                $('#submit_btn').html(defaultBtnValue);
+            }
+            else {
+                errorAlert(result.msg);
+            }
+        },
+        error: function (ex) {
+            errorAlert("Please, Contact the Support for --- " + ex);
+        }
+    });
+}
+
 
 function RegisterStaff() {
     var defaultBtnValue = $('#submit_btn').html();

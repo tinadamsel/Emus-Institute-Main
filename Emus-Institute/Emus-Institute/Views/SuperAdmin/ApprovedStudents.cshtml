@@ -54,7 +54,7 @@
                             <th> Email </th>
                             <th> Phone Number </th>
                             <th> StudentID </th>
-                            
+                            <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     @if (Model.Count() > 0 && Model != null)
@@ -74,7 +74,16 @@
                                     <td>@user.Email</td>
                                     <td>@user.Phonenumber</td>
                                     <td>@user.StudentId</td>
-
+                                    <td class="text-right">
+                                        <div style="display: flex" class="my-2">
+                                            <a class="btn btn-outline-success mx-1" onclick="studentToSuspend('@user.Id')">
+                                                Suspend
+                                            </a>
+                                            <a class="btn btn-outline-success mx-1" onclick="studentToDeactivate('@user.Id')">
+                                                Deactivate
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                             }
                         </tbody>

@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Core.Models;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Models
+namespace Core.ViewModels
 {
-    public class EvaluationDetails
+    public class EvaluationDetailsViewModel
     {
         public int Id { get; set; }
         public string? Passport { get; set; }
@@ -17,8 +18,6 @@ namespace Core.Models
         public string? OtherCertificate { get; set; }
         public string? WAECScratchCard { get; set; }
         public string UserId { get; set; }
-        [Display(Name = "User")]
-        [ForeignKey("UserId")]
         public virtual ApplicationUser? Users { get; set; }
         public DateTime? DateAdded { get; set; }
         public bool? isApproved { get; set; }

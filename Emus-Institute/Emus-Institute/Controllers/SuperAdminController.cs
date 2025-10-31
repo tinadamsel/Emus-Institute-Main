@@ -32,6 +32,7 @@ namespace e_college.Controllers
         {
             var user = _userHelper.GetCurrentUserId(User?.Identity?.Name);
             var approvedStudents = _superAdminHelper.GetTotalApprovedStudents();
+            var paidStudents = _superAdminHelper.GetTotalPaidStudents();
             var registeredStudents = _superAdminHelper.GetTotalRegisteredStudents();
             var staff = _superAdminHelper.GetTotalStaff();
             var departments = _superAdminHelper.GetTotalDepartments();
@@ -41,6 +42,7 @@ namespace e_college.Controllers
                 TotalApprovedStudents = approvedStudents,
                 TotalDepartments = departments,
                 TotalRegisteredStudents = registeredStudents,
+                TotalPaidStudents = paidStudents,
             };
             return View(model);
         }
@@ -146,6 +148,61 @@ namespace e_college.Controllers
             var approvedStudents = _superAdminHelper.GetAllApprovedStudents();
             return View(approvedStudents);
 
+        }
+
+        public IActionResult PaidStudents()
+        {
+            var approvedStudents = _superAdminHelper.GetAllPaidStudents();
+            return View(approvedStudents);
+
+        }
+
+        public JsonResult StudentApproval(string userId)
+        {
+            try
+            {
+                if (userId != null)
+                {
+                    //var user = _userHelper.GetCurrentUserId(User.Identity.Name);
+                    var checkifStudentIsApproved = _superAdminHelper.CheckIfStudentIsApproved(userId);
+                    if (checkifStudentIsApproved)
+                    {
+                        return Json(new { isError = true, msg = "This student has been approved before" });
+                    }
+                    var approveStudent = _superAdminHelper.ApproveStudent(userId);
+                    if (approveStudent)
+                    {
+                        return Json(new { isError = false, msg = "Student has been approved successfully" });
+                    }
+                    return Json(new { isError = true, msg = "Could not approve" });
+                }
+                return Json(new { isError = true, msg = "Network Failure" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+
+        public JsonResult DeclineStudent(string userId)
+        {
+            try
+            {
+                if (userId != null)
+                {
+                    var declineStudent = _superAdminHelper.DeclineStudent(userId);
+                    if (declineStudent)
+                    {
+                        return Json(new { isError = false, msg = "Student has been declined" });
+                    }
+                    return Json(new { isError = true, msg = "Could not decline" });
+                }
+                return Json(new { isError = true, msg = "Network Failure" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
         }
 
     }

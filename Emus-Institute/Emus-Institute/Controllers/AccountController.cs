@@ -1,7 +1,9 @@
-﻿using Core.Config;
+﻿using Azure;
+using Core.Config;
 using Core.DB;
 using Core.Models;
 using Core.ViewModels;
+using Logic.Helpers;
 using Logic.IHelpers;
 using Logic.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -20,8 +22,10 @@ namespace e_college.Controllers
         private readonly IUserHelper _userHelper;
         private readonly IGeneralConfiguration _generalConfiguration;
         private readonly IDropDownHelper _dropdownHelper;
+        private readonly IPaymentHelper _paymentHelper;
+        private readonly IPaystackHelper _paystackHelper;
 
-        public AccountController(AppDbContext context, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IUserHelper userHelper, IGeneralConfiguration generalConfiguration, IDropDownHelper dropdownHelper)
+        public AccountController(AppDbContext context, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IUserHelper userHelper, IGeneralConfiguration generalConfiguration, IDropDownHelper dropdownHelper, IPaymentHelper paymentHelper, IPaystackHelper paystackHelper)
         {
             _signInManager = signInManager;
             _context = context;
@@ -29,6 +33,8 @@ namespace e_college.Controllers
             _userHelper = userHelper;
             _generalConfiguration = generalConfiguration;
             _dropdownHelper = dropdownHelper;
+            _paymentHelper = paymentHelper;
+            _paystackHelper = paystackHelper;
         }
         [HttpGet]
         public IActionResult StudentRegistration()
@@ -75,24 +81,59 @@ namespace e_college.Controllers
             }
             return Json(new { isError = true, msg = "Network Error" });
         }
-
-        //public IActionResult EvaluateCredentials(string userId)
-        //{
-        //    if (userId != null)
-        //    {
-        //        var model = new ApplicationUserViewModel
-        //        {
-        //            Id = userId,
-        //        };
-        //        return View(model);
-        //    }
-        //    return RedirectToAction("Error", "Home");
-        //}
         [HttpGet]
-        public IActionResult EvaluateCredentials()
+        public IActionResult EvaluateCredentials(string userId)
         {
-            return View();
+            if (userId != null)
+            {
+                var model = new ApplicationUserViewModel
+                {
+                    Id = userId,
+                };
+                return View(model);
+            }
+            return RedirectToAction("Error", "Home");
         }
+
+        [HttpPost]
+        public async Task<JsonResult> EvaluateUserDetails(string UserId, string passport, 
+            string transcript, string highSchCert, string waecScratchCard, string anyRelevantCert)
+        {
+            if (UserId != null && passport != null && transcript != null && highSchCert != null && 
+                waecScratchCard != null && anyRelevantCert != null)
+            {
+                var saveEvaluationDetails = await _userHelper.SaveStudentEvaluationDetails(UserId, passport, transcript, highSchCert, waecScratchCard, anyRelevantCert).ConfigureAwait(false);
+                if (saveEvaluationDetails != null)
+                {
+                    var response = await _paymentHelper.CreateStudentPayment(saveEvaluationDetails.UserId, saveEvaluationDetails?.Users).ConfigureAwait(false);
+                    if (response != null)
+                    {
+                        return Json(new { isError = false, data = response.data.authorization_url, msg = "Evaluation Details saved. Click ok to continue your payment" });
+                    }
+                }
+                return Json(new { isError = true, msg = "Failed to make payments. " +
+                "If issue persists, contact the admin ..." });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> PaystackResponseFeedback(PayStack paystack)
+        { 
+            var paystackResponse = await _paystackHelper.VerifyPayment(paystack).ConfigureAwait(false);
+            
+            //var user = await _userHelper.FindByUserNameAsync(User?.Identity?.Name).ConfigureAwait(false);
+            var getUserEmail = paystackResponse.data.customer.email;
+            if (paystackResponse != null && getUserEmail != null)
+            {
+                TempData["Message"] = "Payment Successful. Visit your email to see your payment confirmation and continue to login";
+
+                //_emailHelper.AfterPaymentEmailers(user);
+                _userHelper.SendPaymentCompletionEmail(getUserEmail);
+            }
+            return RedirectToAction("Login", "Account");
+        }
+
 
         [HttpGet]
         public IActionResult Careers()

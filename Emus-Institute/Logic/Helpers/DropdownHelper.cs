@@ -14,13 +14,9 @@ namespace Logic.Helpers
     public class DropdownHelper : IDropDownHelper
     {
         private readonly AppDbContext _context;
-        private readonly IUserHelper _userHelper;
-        private UserManager<ApplicationUser> _userManager;
-        public DropdownHelper(AppDbContext context, UserManager<ApplicationUser> userManager, IUserHelper userHelper)
+        public DropdownHelper(AppDbContext context)
         {
             _context = context;
-            _userHelper = userHelper;
-            _userManager = userManager;
         }
 
         public List<Department> DropdownOfDepartments()

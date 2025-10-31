@@ -1,7 +1,9 @@
-﻿using Core.DB;
+﻿using Core.Config;
+using Core.DB;
 using Core.Models;
 using Core.ViewModels;
 using Logic.IHelpers;
+using Logic.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,10 +16,14 @@ namespace Logic.Helpers
     public class SuperAdminHelper : ISuperAdminHelper
     {
         private readonly AppDbContext _context;
+        private readonly IGeneralConfiguration _generalConfiguration;
+        private readonly IEmailService _emailService;
 
-        public SuperAdminHelper(AppDbContext context)
+        public SuperAdminHelper(AppDbContext context, IGeneralConfiguration generalConfiguration, IEmailService emailService)
         {
             _context = context;
+            _generalConfiguration = generalConfiguration;
+            _emailService = emailService;
         }
 
         public bool CheckExistingDeptName(string name)
@@ -68,12 +74,17 @@ namespace Logic.Helpers
 
         public int GetTotalApprovedStudents()
         {
-            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.Deactivated && a.IsStudent == true).Count();
+            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == true).Count();
         }
         public int GetTotalRegisteredStudents()
         {
             return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == false).Count();
         }
+        public int GetTotalPaidStudents()
+        {
+            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == true && a.Paid).Count();
+        }
+        
         public int GetTotalDepartments()
         {
             return _context.Departments.Where(x => x.Id > 0 && x.Active).Count();
@@ -183,6 +194,136 @@ namespace Logic.Helpers
                 }).ToList();
             return appUserViewModel;
         }
+
+        public List<ApplicationUserViewModel> GetAllPaidStudents()
+        {
+            var appUserViewModel = new List<ApplicationUserViewModel>();
+            appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated && x.Paid).Include(x => x.Department)
+                .Select(x => new ApplicationUserViewModel()
+                {
+                    Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    OtherName = x.OtherName,
+                    DepartmentId = x.DepartmentId,
+                    DepartmentName = x.Department.Name,
+                    FullName = x.FirstName + " " + x.LastName,
+                    DateRegistered = x.DateRegistered,
+                    DOB = x.DOB,
+                    Address = x.Address,
+                    Country = x.Country,
+                    Email = x.Email,
+                    State = x.State,
+                    StudentId = x.StudentId,
+                    CurrentSession = x.CurrentSession,
+                    AcademicLevel = x.AcademicLevel,
+                    Phonenumber = x.PhoneNumber,
+                    Paid = x.Paid,
+                }).ToList();
+            return appUserViewModel;
+        }
+
+        public bool CheckIfStudentIsApproved(string userId)
+        {
+            if (userId != null)
+            {
+                var checkIfStudentIsAproved = _context.ApplicationUser.Where(x => x.Id == userId && x.IsStudent && !x.Deactivated).FirstOrDefault();
+                if (checkIfStudentIsAproved != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ApproveStudent(string userId)
+        {
+            string toEmailBug = _generalConfiguration.DeveloperEmail;
+            string subjectEmailBug = " Exception Message on Emu-Institute";
+            try
+            {
+                if (userId != null)
+                {
+                    var approveStudent = _context.ApplicationUser.Where(a => a.Id == userId && !a.Deactivated && !a.IsStudent && !a.IsAdmin).FirstOrDefault();
+                    if (approveStudent != null)
+                    {
+                        approveStudent.IsStudent = true;
+                        approveStudent.DateModified = DateTime.Now;
+                        approveStudent.DateOfApproval = DateTime.Now;
+                        _context.Update(approveStudent);
+                        _context.SaveChanges();
+
+                        if (approveStudent.Email != null)
+                        {
+                            string toEmail = approveStudent.Email;
+                            string subject = "Hooray!!!, Student Application Approved ";
+                            string message = "Hello " + "<b>" + approveStudent.FirstName + " " + approveStudent.LastName + ", </b>" + 
+                                "<br> your application into Emus Institute has been approved. You can now continue to login  <br> <br>" +
+                              " Once again, Congratulations !!! " +
+                              "<br> Emus Institute Team";
+
+                            _emailService.SendEmail(toEmail, subject, message);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                string message = "Exception " + ex.Message + " and inner exception:" + ex.InnerException.Message + "  Occured at " + DateTime.Now;
+                _emailService.SendEmail(toEmailBug, subjectEmailBug, message);
+                throw;
+            }
+        }
+
+        public bool DeclineStudent(string userId)
+        {
+            string toEmailBug = _generalConfiguration.DeveloperEmail;
+            string subjectEmailBug = "Exception Message on Emus-Institute";
+            try
+            {
+                if (userId != null)
+                {
+                    var declineStudent = _context.ApplicationUser.Where(a => a.Id == userId && !a.Deactivated && !a.IsStudent && !a.IsAdmin).FirstOrDefault();
+                    if (declineStudent != null)
+                    {
+                        declineStudent.Deactivated = true;
+                        declineStudent.DateModified = DateTime.Now;
+
+                        _context.Update(declineStudent);
+                        _context.SaveChanges();
+
+                        if (declineStudent.Email != null)
+                        {
+                            string toEmail = declineStudent.Email;
+                            string subject = "Sorry, Student Application Declined";
+                            string message = "Hello " + "<b>" + declineStudent.FirstName + " " + declineStudent.LastName + ", </b>" +
+                                "<br> We regret to announce to you that your application into Emus Institute has been declined. " + 
+                                " We thank you for your interest, but we can not move further with you. " +
+                                " <br> We wish you well in your future endeavours <br> <br> " +
+                                " Warm Regards <br> " +
+                              "Emus Institute Team";
+
+                            _emailService.SendEmail(toEmail, subject, message);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                string message = "Exception " + ex.Message + " and inner exception:" + ex.InnerException.Message + "  Occured at " + DateTime.Now;
+                _emailService.SendEmail(toEmailBug, subjectEmailBug, message);
+                throw;
+            }
+        }
+
+
+
+
+
 
 
 

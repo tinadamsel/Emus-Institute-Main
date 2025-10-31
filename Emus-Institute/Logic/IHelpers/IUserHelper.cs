@@ -19,18 +19,7 @@ namespace Logic.IHelpers
        
         string GetUserId(string username);
         //Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId);
-
-
-        //this 2 included
-        //Task<bool> RegisterPriStudent(ApplicationUserViewModel userDetails, string edulevel);
-        //Task<bool> RegisterSecStudent(ApplicationUserViewModel userDetails, string edulevel);
-
-
-        //Task<bool> RegisterStudent(ApplicationUserViewModel userDetails, string edulevel);
         string GetUserRole(string userId);
-
-        //this 1 not included:
-        //List<Subject> GetAllSubjects();
 
         bool CheckIfStaffIsApproved(string email);
         //List<StaffDocumentationViewModel> GetPendingApplications();
@@ -46,5 +35,9 @@ namespace Logic.IHelpers
         //Task<bool> RegisterUniStudent(ApplicationUserViewModel userDetails, string edulevel);
         string GetCurrentUserId(string username);
         Task<bool> RegisterStudent(ApplicationUserViewModel userDetails, string linkToClick);
+        Task<EvaluationDetails> SaveStudentEvaluationDetails(string UserId, string passport, string transcript, string highSchCert, string waecScratchCard, string anyRelevantCert);
+        bool SendPaymentCompletionEmail(string email);
+        Task<ApplicationUser> FindByUserNameAsync(string username);
+        ApplicationUser GetStudentDetails(string userId);
     }
 }
