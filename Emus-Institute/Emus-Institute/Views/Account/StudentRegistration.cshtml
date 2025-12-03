@@ -22,8 +22,10 @@
                     <label>Department <span class="text-danger">*</span></label>
                     <select id="deptId" style="background-color:transparent !important;" asp-items="@(new SelectList(ViewBag.Departments,"Id","Name"))" class="form-control custom-select" required>
                     </select>
+                    <input class="form-control" id="reflink" type="text" autocomplete="on" hidden>
                     <div id="deptIdError" class="error"></div>
                 </div>
+
                 <div class="form-group mb-2">
                     <label>Email <span class="text-danger">*</span></label>
                     <input type="email" class="form-control" id="email" required>

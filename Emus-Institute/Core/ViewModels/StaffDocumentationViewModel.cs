@@ -25,11 +25,12 @@ namespace Core.ViewModels
         public DateTime? DateOfApproval { get; set; }
         public bool? IsApproved { get; set; }
         public string? UserId { get; set; }
-        public string? CourseName { get; set; }
         public string? IDPix { get; set; }
         public virtual ApplicationUser Users { get; set; }
-        public int? CourseId { get; set; }
-        public virtual Department? Courses { get; set; }
-        public List<StaffDocumentationViewModel>? StaffDetails { get; set; } 
+        public int? DepartmentId { get; set; }
+        public virtual Department? Department { get; set; }
+        public List<StaffDocumentationViewModel>? StaffDetails { get; set; }
+        public string? RefLink { get; set; }
+        public decimal? AmountPerStudent { get; set; }
     }
 }

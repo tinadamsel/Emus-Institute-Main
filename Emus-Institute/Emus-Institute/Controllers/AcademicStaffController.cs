@@ -1,5 +1,6 @@
 ﻿using Core.DB;
 using Core.Models;
+using Logic.Helpers;
 using Logic.IHelpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -27,6 +28,27 @@ namespace e_college.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+        [HttpGet]
+        public JsonResult ReferralLink()
+        {
+            try
+            {
+                var url = "/AcademicStaff/Index"; //this url is to lead the user to the payment if he has not paid yet before getting the refId
+                var currentUser = _userHelper.FindByUserName(User.Identity.Name);
+                if (currentUser != null)
+                {
+                    var link = currentUser.Id;
+                    string referralLink = HttpContext.Request.Scheme.ToString()
+                        + "://" + HttpContext.Request.Host.ToString() + "/Account/StudentRegistration?rl=" + link; 
+                    return Json(referralLink);
+                }
+                return Json(new { isError = true, dashboard = url });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         public IActionResult Textbooks()
         {

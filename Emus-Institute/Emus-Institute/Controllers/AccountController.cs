@@ -44,7 +44,7 @@ namespace e_college.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> StudentRegistration(string userDetails)
+        public async Task<JsonResult> StudentRegistration(string userDetails, string refLink)
         {
             if (userDetails != null)
             {
@@ -71,7 +71,7 @@ namespace e_college.Controllers
                     string linkToClick = HttpContext.Request.Scheme.ToString() + "://" +
                     HttpContext.Request.Host.ToString() + "/Account/EvaluateCredentials?userId=";
 
-                    var createStudent = await _userHelper.RegisterStudent(appUserViewModel, linkToClick).ConfigureAwait(false);
+                    var createStudent = await _userHelper.RegisterStudent(appUserViewModel, linkToClick, refLink).ConfigureAwait(false);
                     if (createStudent)
                     {
                         return Json(new { isError = false, msg = "Registration Successful, Login to your email and follow the instructions" });
@@ -142,43 +142,32 @@ namespace e_college.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public async Task<JsonResult> StaffRegistration(string userDetails, string staffPosition, string appLetter, string validId)
-        //{
-        //    if (userDetails != null && appLetter != null && validId != null)
-        //    {
-        //        var appUserViewModel = JsonConvert.DeserializeObject<ApplicationUserViewModel>(userDetails);
-        //        if (appUserViewModel != null)
-        //        {
-        //            var checkUsername = _userHelper.CheckForUserName(appUserViewModel.Username);
-        //            if (checkUsername)
-        //            {
-        //                return Json(new { isError = true, msg = "UserName Already Exists" });
-        //            }
-        //            var checkEmail = await _userHelper.FindByEmailAsync(appUserViewModel.Email).ConfigureAwait(false);
-        //            if (checkEmail != null)
-        //            {
-        //                return Json(new { isError = true, msg = "Email Already Exists" });
-        //            }
-        //            if (appUserViewModel.Password != appUserViewModel.ConfirmPassword)
-        //            {
-        //                return Json(new { isError = true, msg = "Password and Confirm password do not match" });
-        //            }
-        //            if (appUserViewModel.Password.Length < 8)
-        //            {
-        //                return Json(new { isError = true, msg = "Password must be from 8 characters" });
-        //            }
-        //            var createStaff = await _userHelper.RegStaff(appUserViewModel, staffPosition, appLetter, validId).ConfigureAwait(false);
-        //            if (createStaff)
-        //            {
-        //                return Json(new { isError = false, msg = "Application successful. Thank you for your interest. You will receive a mail from us soonest", });
-        //            }
-        //        }
-        //        return Json(new { isError = true, msg = "Unable to register" });
-        //    }
-        //    return Json(new { isError = true, msg = "Network Error" });
-        //}
-        //[HttpGet]
+        [HttpPost]
+        public async Task<JsonResult> StaffRegistration(string userDetails, string staffPosition, string appLetter, string validId)
+        {
+            if (userDetails != null && appLetter != null && validId != null)
+            {
+                var appUserViewModel = JsonConvert.DeserializeObject<ApplicationUserViewModel>(userDetails);
+                if (appUserViewModel != null)
+                {
+                    var checkEmail = await _userHelper.FindByEmailAsync(appUserViewModel.Email).ConfigureAwait(false);
+                    if (checkEmail != null)
+                    {
+                        return Json(new { isError = true, msg = "Email Already Exists" });
+                    }
+                    
+                    var createStaff = await _userHelper.RegStaff(appUserViewModel, staffPosition, appLetter, validId).ConfigureAwait(false);
+                    if (createStaff)
+                    {
+                        return Json(new { isError = false, msg = "Application successful. Thank you for your interest. Our team will contact you soon", });
+                    }
+                }
+                return Json(new { isError = true, msg = "Unable to register" });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
+      
+
 
         [HttpGet]
         public IActionResult Login()
@@ -206,6 +195,82 @@ namespace e_college.Controllers
                         }
                     }
                     if (userRole.FirstOrDefault().ToLower().Contains("academicstaff"))
+                    {
+                        var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
+                        if (!staffIsApproved)
+                        {
+                            return Json(new { isError = true, msg = "Your application has not been approved yet" });
+                        }
+                        var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
+                        if (checkIfSuspended)
+                        {
+                            return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
+                        }
+                        var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
+                        if (PasswordSignIn.Succeeded)
+                        {
+                            url = "/AcademicStaff/Index";
+                            return Json(new { isError = false, dashboard = url });
+                        }
+                    }
+                    if (userRole.FirstOrDefault().ToLower().Contains("humanresource"))
+                    {
+                        var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
+                        if (!staffIsApproved)
+                        {
+                            return Json(new { isError = true, msg = "Your application has not been approved yet" });
+                        }
+                        var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
+                        if (checkIfSuspended)
+                        {
+                            return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
+                        }
+                        var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
+                        if (PasswordSignIn.Succeeded)
+                        {
+                            url = "/AcademicStaff/Index";
+                            return Json(new { isError = false, dashboard = url });
+                        }
+                    }
+                    if (userRole.FirstOrDefault().ToLower().Contains("admissionofficer"))
+                    {
+                        var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
+                        if (!staffIsApproved)
+                        {
+                            return Json(new { isError = true, msg = "Your application has not been approved yet" });
+                        }
+                        var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
+                        if (checkIfSuspended)
+                        {
+                            return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
+                        }
+                        var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
+                        if (PasswordSignIn.Succeeded)
+                        {
+                            url = "/AcademicStaff/Index";
+                            return Json(new { isError = false, dashboard = url });
+                        }
+                    }
+                    if (userRole.FirstOrDefault().ToLower().Contains("librarianofficer"))
+                    {
+                        var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
+                        if (!staffIsApproved)
+                        {
+                            return Json(new { isError = true, msg = "Your application has not been approved yet" });
+                        }
+                        var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
+                        if (checkIfSuspended)
+                        {
+                            return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
+                        }
+                        var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
+                        if (PasswordSignIn.Succeeded)
+                        {
+                            url = "/AcademicStaff/Index";
+                            return Json(new { isError = false, dashboard = url });
+                        }
+                    }
+                    if (userRole.FirstOrDefault().ToLower().Contains("accountofficer"))
                     {
                         var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
                         if (!staffIsApproved)

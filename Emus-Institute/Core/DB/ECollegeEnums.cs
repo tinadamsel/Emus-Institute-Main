@@ -143,9 +143,11 @@ namespace Core.DB
             PublicRelOfficer,
             [Description("ViceChancellor Student Affairs")]
             ViceChancellorStudentAffairs,
-            [Description("Academic Staff")]
+            [Description("AcademicStaff")]
             AcademicStaff,
+
         }
+        
         //public enum PrimaryYears
         //{
         //    [Description("For Primary One")]

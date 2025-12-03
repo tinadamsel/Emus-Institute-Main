@@ -23,6 +23,7 @@ namespace Core.Models
         [Display(Name = "Date Registered")]
         public DateTime DateRegistered { get; set; }
         public string? Country { get; set; }
+        public string? Password { get; set; }
         public string? State { get; set; }
         public string? Address { get; set; }
         public string StudentId { get; set; }
@@ -36,9 +37,10 @@ namespace Core.Models
         public bool IsAdmin { get; set; }
         public DateTime? DateOfApproval { get; set; }
         public DateTime? DateModified { get; set; }
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         [ForeignKey("DepartmentId")]
         public virtual Department? Department { get; set; }
+        public string? RefLink { get; set; }
     }
 
 }

@@ -23,5 +23,7 @@ namespace Core.Models
         public DateTime? DateAdded { get; set; }
         public bool? isApproved { get; set; }
         public DateTime? DateApproved { get; set; }
+       
+
     }
 }
