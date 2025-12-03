@@ -73,7 +73,7 @@ namespace Logic.Helpers
                                 Status = PaymentStatus.Pending,
                                 PaymentMethod = "Paystack",
                                 UserId = UserId,
-                                DepartmentId = getUser.DepartmentId,
+                                DepartmentId = (int)getUser.DepartmentId,
                                 Amount = (decimal?)400000.00,
                                 Reference = GenerateNumber(),
                             };

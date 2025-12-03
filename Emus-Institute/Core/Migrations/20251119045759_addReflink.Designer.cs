@@ -4,6 +4,7 @@ using Core.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Core.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251119045759_addReflink")]
+    partial class addReflink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -191,6 +194,9 @@ namespace Core.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("AmountPerStudent")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("DateAdded")
                         .HasColumnType("datetime2");
 
@@ -204,6 +210,9 @@ namespace Core.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Passport")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RefLink")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SchoolTranscript")
@@ -362,9 +371,6 @@ namespace Core.Migrations
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
 
-                    b.Property<decimal?>("AmountPerStudent")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("ApplicationLetter")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -386,9 +392,6 @@ namespace Core.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RefLink")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Resume")
@@ -743,7 +746,7 @@ namespace Core.Migrations
                     b.Property<bool>("Deactivated")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("DepartmentId")
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("FirstName")
@@ -765,9 +768,6 @@ namespace Core.Migrations
 
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Password")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RefLink")
                         .HasColumnType("nvarchar(max)");
@@ -938,7 +938,9 @@ namespace Core.Migrations
                 {
                     b.HasOne("Core.Models.Department", "Department")
                         .WithMany()
-                        .HasForeignKey("DepartmentId");
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Department");
                 });

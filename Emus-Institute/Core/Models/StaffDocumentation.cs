@@ -25,6 +25,8 @@ namespace Core.Models
         [Display(Name = "User")]
         [ForeignKey("UserId")]
         public virtual ApplicationUser Users { get; set; }
-        
+        public string? RefLink { get; set; }
+        public decimal? AmountPerStudent { get; set; }
+
     }
 }

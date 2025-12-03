@@ -1,8 +1,8 @@
 ﻿@model IEnumerable<Core.ViewModels.StaffDocumentationViewModel>
 
 @{
-    ViewData["Title"] = "Subjects";
-    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    ViewData["Title"] = "Pending Applications";
+    Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
 }
 
 <main id="main" class="main">
@@ -24,7 +24,7 @@
                 <div class="row">
 
                     <!-- Start Button -->
-                   @* <div class="col-lg-12 col-sm-12 mb-5">
+                    @* <div class="col-lg-12 col-sm-12 mb-5">
                         <button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addSubject" style=" float: right; margin-right: 20px;">
                             Add Subjects
                         </button>
@@ -44,9 +44,9 @@
                             @*<th> S/N</th>*@
                             <th> Name </th>
                             <th> Staff Position </th>
-                            <th> Course Chosen </th>
+                            <th> Department Chosen </th>
                             <th> Cover Letter </th>
-                           @* <th> Resume </th>*@
+                            @* <th> Resume </th>*@
                             <th> ID </th>
                             <th> Date Applied</th>
                             <th class="text-center">Action</th>
@@ -61,10 +61,17 @@
                                     @*<td></td>*@
                                     <td>@staff.Name </td>
                                     <td>@staff?.StaffPosition </td>
-                                    <td>@staff?.CourseName </td>
+                                    
+                                    @if (staff?.StaffPosition == Core.DB.ECollegeEnums.StaffPosition.AcademicStaff)
+                                    {
+                                        <td> @staff.Department </td>
+                                    }else
+                                    {
+                                        <td> None </td>
+                                    }
                                     <td>
-                                        <a class="btn btn-outline-success"style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#coverLetter" onclick="viewCoverLetter('@staff.Id')">
-                                           View
+                                        <a class="btn btn-outline-success" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#coverLetter" onclick="viewCoverLetter('@staff.Id')">
+                                            View
                                         </a>
                                     </td>
                                     @*<td>@staff?.Resume </td>*@
@@ -76,10 +83,10 @@
                                     <td>@staff?.DateCreated.ToString("D") </td>
                                     <td class="text-center w-25">
                                         <a class="btn btn-outline-success rounded-pill" onclick="approveApplication('@staff.Id')">
-                                           Approve
+                                            Approve
                                         </a>
                                         <a class="btn btn-outline-success rounded-pill" onclick="declineApplication('@staff.Id')">
-                                           Decline
+                                            Decline
                                         </a>
                                     </td>
                                 </tr>
@@ -124,7 +131,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-sm-12 col-lg-12 m-auto">
-                       <img src="" height="100%" width="100%" class="rounded" alt="img" id="ImageId">
+                        <img src="" height="100%" width="100%" class="rounded" alt="img" id="ImageId">
                     </div>
                 </div>
             </div>

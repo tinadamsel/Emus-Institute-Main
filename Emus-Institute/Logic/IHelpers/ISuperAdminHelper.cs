@@ -27,6 +27,9 @@ namespace Logic.IHelpers
         bool CheckIfStudentIsApproved(string userId);
         bool ApproveStudent(string userId);
         bool DeclineStudent(string userId);
+        List<StaffDocumentationViewModel> GetPendingApplications();
+        bool ApproveApplication(int id);
+        bool RejectApplication(int id);
         //bool CheckExistingSubjectName(string name);
         //bool CreateSubject(SubjectViewModel subjectViewModel);
         //List<SubjectViewModel> GetSubjects();

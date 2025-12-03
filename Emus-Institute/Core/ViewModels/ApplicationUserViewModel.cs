@@ -24,7 +24,7 @@ namespace Core.ViewModels
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
         public string DepartmentName { get; set; }
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         public virtual Department? Department { get; set; }
         public DateTime DateRegistered { get; set; }
         public string? Country { get; set; }
@@ -51,5 +51,6 @@ namespace Core.ViewModels
         public int TotalDepartmentTextbooks { get; set; }
         public int TotalActiveAnnouncements { get; set; }
         public int TotalComplains { get; set; }
+        public string? RefLink { get; set; }
     }
 }

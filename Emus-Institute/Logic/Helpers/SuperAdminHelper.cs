@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Core.DB.ECollegeEnums;
 
 namespace Logic.Helpers
 {
@@ -319,6 +320,115 @@ namespace Logic.Helpers
                 throw;
             }
         }
+
+        public List<StaffDocumentationViewModel> GetPendingApplications()
+        {
+            var getApplications = new List<StaffDocumentationViewModel>();
+            getApplications = _context.StaffDocuments.Where(x => x.Id > 0 && x.Active && x.StaffStatus == StaffStatus.Pending).Include(x => x.Users)
+           .Select(x => new StaffDocumentationViewModel()
+           {
+               Id = x.Id,
+               Name = x.Users.FirstName + "" + x.Users.LastName,
+               DateCreated = x.DateCreated,
+               ApplicationLetter = x.ApplicationLetter,
+               StaffPosition = x.StaffPosition,
+               UserId = x.UserId,
+               Identification = x.Identification,
+               Resume = x.Resume,
+               Active = x.Active,
+           }).ToList();
+            return getApplications;
+        }
+        public bool ApproveApplication(int id)
+        {
+            string toEmailBug = _generalConfiguration.DeveloperEmail;
+            string subjectEmailBug = " Exception Message on Ecollege";
+            try
+            {
+                if (id > 0)
+                {
+                    var appApprove = _context.StaffDocuments.Where(x => x.Id == id && x.StaffStatus == StaffStatus.Pending).Include(x => x.Users).FirstOrDefault();
+                    if (appApprove != null)
+                    {
+                        appApprove.IsApproved = true;
+                        appApprove.DateOfApproval = DateTime.Now;
+                        appApprove.StaffStatus = StaffStatus.Approved;
+                        _context.Update(appApprove);
+                        _context.SaveChanges();
+
+                        if (appApprove?.Users?.Email != null)
+                        {
+                            string toEmail = appApprove?.Users?.Email;
+                            string subject = "Hooray!!!, Application Approved ";
+                            string message = "Hello " + "<b>" + appApprove?.Users?.FirstName + " " + appApprove?.Users?.LastName + ", </b>" + 
+                                "<br> your application for the post of " + appApprove?.StaffPosition + " on our platform has been approved.  " +
+                                "You can now login with the following credentials: <br>"  +
+                                " <b> Email: " + appApprove?.Users?.Email + ", Password: " + appApprove?.Users?.Password + " </b> " +
+                                "<br> <br> We are happy to have you and we look forward to having a nice working relationship with you. " +
+                                "<br> <br>" +
+                              " Once again, Congratulations !!! " +
+                              "<br> Emus Institute Team";
+
+                            _emailService.SendEmail(toEmail, subject, message);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                string message = "Exception " + ex.Message + " and inner exception:" + ex.InnerException.Message + "  Occured at " + DateTime.Now;
+                _emailService.SendEmail(toEmailBug, subjectEmailBug, message);
+                throw;
+            }
+        }
+
+        public bool RejectApplication(int id)
+        {
+            string toEmailBug = _generalConfiguration.DeveloperEmail;
+            string subjectEmailBug = "Exception Message on Ecollege";
+            try
+            {
+                if (id > 0)
+                {
+                    var rejectApprove = _context.StaffDocuments.Where(x => x.Id == id && x.StaffStatus == StaffStatus.Pending).Include(x => x.Users).FirstOrDefault();
+                    if (rejectApprove != null)
+                    {
+                        rejectApprove.StaffStatus = StaffStatus.Rejected;
+                        _context.Update(rejectApprove);
+                        _context.SaveChanges();
+
+                        if (rejectApprove?.Users?.Email != null)
+                        {
+                            string toEmail = rejectApprove?.Users?.Email;
+                            string subject = "Sorry, Application Declined ";
+                            string message = "Hello " + "<b>" + rejectApprove?.Users?.FirstName + "" + rejectApprove?.Users?.LastName + ", </b>" + "<br> your application for the post of " + rejectApprove?.StaffPosition + " on our platform has been declined. We thank you for your interest, but we can not move further with you. Keep on visiting our platform for other available positions. " + " <br> <br> We wish you well in your future endeavours <br> " +
+                              "HR, Ecollege Team";
+
+                            _emailService.SendEmail(toEmail, subject, message);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                string message = "Exception " + ex.Message + " and inner exception:" + ex.InnerException.Message + "  Occured at " + DateTime.Now;
+                _emailService.SendEmail(toEmailBug, subjectEmailBug, message);
+                throw;
+            }
+        }
+
+        //public int GetTotalAcademicStaff()
+        //{
+        //    return _context.ApplicationUser.Where(a => a.Id != null && !a.Deactivated && a.IsStudent == false && a.StaffType == StaffType.AcademicStaff).Count();
+        //}
+        //public int GetTotalNonAcademicStaff()
+        //{
+        //    return _context.ApplicationUser.Where(a => a.Id != null && !a.Deactivated && a.IsStudent == false && a.StaffType == StaffType.NonAcademicStaff).Count();
+        //}
 
 
 

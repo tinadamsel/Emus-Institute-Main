@@ -2,6 +2,7 @@
 using Core.DB;
 using Core.Models;
 using Logic.IHelpers;
+using Logic.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -14,8 +15,8 @@ using System.Text;
 using System.Threading.Tasks;
 using static Core.DB.ECollegeEnums;
 using static Core.Models.PaystackResponse;
-using Method = RestSharp.Method;
 using Formatting = Newtonsoft.Json.Formatting;
+using Method = RestSharp.Method;
 
 
 namespace Logic.Helpers
@@ -28,13 +29,16 @@ namespace Logic.Helpers
         static string ApiEndPoint = "";
         private readonly IGeneralConfiguration _generalConfiguration;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IEmailService _emailService;
 
-        public PaystackHelper(AppDbContext context, IGeneralConfiguration generalConfiguration, UserManager<ApplicationUser> userManager)
+
+        public PaystackHelper(AppDbContext context, IGeneralConfiguration generalConfiguration, UserManager<ApplicationUser> userManager, IEmailService emailService)
         {
             _context = context;
             _generalConfiguration = generalConfiguration;
             client = new RestClient(_generalConfiguration.PayStackBase);
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         public PaystackResponse MakePayment(Payment payment)
@@ -162,7 +166,7 @@ namespace Logic.Helpers
                                 _context.Update(updateUserDetails);
                                 _context.SaveChanges();
                             }
-
+                           
                             var updateEvaluationDetails = _context.EvaluationDetails.Where(x => x.UserId == payment.UserId).FirstOrDefault();
                             if (updateEvaluationDetails != null)
                             {
@@ -171,6 +175,36 @@ namespace Logic.Helpers
 
                                 _context.Update(updateEvaluationDetails);
                                 _context.SaveChanges();
+                            }
+                            var updateStaffRefCommission = _context.StaffDocuments.Where(x => x.UserId == updateUserDetails.RefLink).FirstOrDefault();
+                            if (updateStaffRefCommission != null)
+                            {
+                                decimal refCommission = 2000;
+                                if (updateStaffRefCommission.AmountPerStudent != null)
+                                {
+                                    updateStaffRefCommission.AmountPerStudent += refCommission;
+                                    _context.Update(updateStaffRefCommission);
+                                    _context.SaveChanges();
+                                }
+                                else
+                                {
+                                    updateStaffRefCommission.AmountPerStudent = refCommission;
+                                    _context.Update(updateStaffRefCommission);
+                                    _context.SaveChanges();
+                                }
+                                var getStaffDetails = _context.ApplicationUser.Where(a => a.Id == updateStaffRefCommission.UserId && !a.Deactivated && !a.IsStudent && a.IsAdmin).FirstOrDefault();
+
+                                if (getStaffDetails != null)
+                                {
+                                    string toEmail = getStaffDetails.Email;
+                                    string subject = "Referral Commission Remited";
+                                    string message = "Dear " + getStaffDetails.FirstName + "<b>" + " " + ",</b> " +
+                                        ". <br/> <br/> Your student referral commission has been remitted successfully and your current balance is N" +updateStaffRefCommission.AmountPerStudent +
+                                        "Do continue the good work. " +
+                                        "<br> <br/> Warm Regards " +
+                                        "<br> <br/> Emus Institute Team";
+                                    _emailService.SendEmail(toEmail, subject, message);
+                                }
                             }
                         }
                     }

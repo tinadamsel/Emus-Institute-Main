@@ -4,6 +4,9 @@ function RegisterStudent() {
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
 
+    var urlParams = new URLSearchParams(window.location.search);
+    var refLink = urlParams.get('rl');
+
     //var selectedUserId = [];
     //$('.user-checkbox:checked').each(function () {
     //    selectedUserId.push($(this).data('user-id'));
@@ -60,6 +63,7 @@ function RegisterStudent() {
         data:
         {
             userDetails: userDetails,
+            refLink: refLink,
         },
         success: function (result) {
             if (!result.isError) {
@@ -88,48 +92,6 @@ function RegisterStudent() {
 //    $("#" + id).css({ border: "1px solid red" });
 //}
 
-//function Evaluate() {
-//    debugger
-//    var defaultBtnValue = $('#submit_btn').html();
-//    $('#submit_btn').html("Please wait...");
-//    $('#submit_btn').attr("disabled", true);
-
-
-//    var data = {};
-//    data.DepartmentId = $('#deptId').val();
-//    data.FirstName = $('#firstname').val();
-//    data.LastName = $('#lastname').val();
-//    data.OtherName = $('#othername').val();
-
-//    let evaluationDetails = JSON.stringify(data);
-//    $.ajax({
-//        type: 'Post',
-//        url: '/Account/EvaluateStudentDetails',
-//        dataType: 'json',
-//        data:
-//        {
-//            evaluationDetails: evaluationDetails,
-//        },
-//        success: function (result) {
-//            if (!result.isError) {
-//                var url = '/Account/Login';
-//                successAlertWithRedirect(result.msg, url);
-//                $('#submit_btn').html(defaultBtnValue);
-//            }
-//            else {
-//                $('#submit_btn').html(defaultBtnValue);
-//                $('#submit_btn').attr("disabled", false);
-//                errorAlert(result.msg);
-//            }
-//        },
-//        error: function (ex) {
-//            $('#submit_btn').html(defaultBtnValue);
-//            $('#submit_btn').attr("disabled", false);
-//            errorAlert("Please check and try again. Contact Admin if issue persists..");
-//        },
-//    })
-
-//}
 
 async function Evaluate() {
     const defaultBtnValue = $('#submit_btn').html();
@@ -526,7 +488,6 @@ function deptToDelete(id) {
     $('#delete_dept').modal('show');
 }
 
-
 function approveStudent(id) {
     $.ajax({
         type: 'POST',
@@ -550,7 +511,6 @@ function approveStudent(id) {
         }
     });
 }
-
 function declineStudent(id) {
     $.ajax({
         type: 'POST',
@@ -576,8 +536,8 @@ function declineStudent(id) {
     });
 }
 
-
 function RegisterStaff() {
+    
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
@@ -585,80 +545,118 @@ function RegisterStaff() {
     var data = {};
     data.FirstName = $('#firstname').val();
     data.LastName = $('#lastname').val();
-    data.UserName = $('#username').val();
     data.OtherName = $('#othername').val();
     data.Phonenumber = $('#phonenumber').val();
     data.Email = $('#email').val();
-    data.Password = $('#password').val();
-    data.ConfirmPassword = $('#confirmPassword').val();
     data.State = $('#state').val();
     data.Country = $('#country').val();
     data.Address = $('#address').val();
     data.DOB = $('#dateOfBirth').val();
-
-    /* data.Identification = $('#validId').val();*/
-    data.SubjectId = $('#subjectId').val();
     if (data.DOB == "") {
         data.DOB = "0001-01-01T00:00:00"
     };
     var appLetter = $('#appLetter').val();
+    data.DepartmentId = $('#deptId').val();
     var StaffPosition;
     var validId = document.getElementById("validId").files;
-    if (data.SubjectId > 0) {
+    if (data.DepartmentId > 0) {
         StaffPosition = "";
     } else {
-        StaffPosition = $('.user-checkbox').data('user-id');
+       // StaffPosition = $('.user-checkbox').data('user-id');
+        StaffPosition = $('.user-radio:checked').data('user-id');
     }
-    if (data.FirstName != "" && data.LastName != "" && data.UserName != "" && data.Phonenumber != ""
-        && data.Email != "" && data.Password != "" && data.ConfirmPassword != "" && data.State != "" && data.Country != ""
-        && data.Address != "" && validId[0] != null) {
-        if (validId[0] != null) {
-            const reader = new FileReader();
-            reader.readAsDataURL(validId[0]);
-            reader.onload = function () {
-                validId = reader.result;
-                let userDetails = JSON.stringify(data);
-                $.ajax({
-                    type: 'Post',
-                    url: '/Account/StaffRegistration',
-                    dataType: 'json',
-                    data:
-                    {
-                        userDetails: userDetails,
-                        staffPosition: StaffPosition,
-                        appLetter: appLetter,
-                        validId: validId
-                    },
-                    success: function (result) {
-                        debugger;
-                        if (!result.isError) {
-                            var url = '/Account/Login';
-                            successAlertWithRedirect(result.msg, url);
-                            $('#submit_btn').html(defaultBtnValue);
-                        }
-                        else {
-                            $('#submit_btn').html(defaultBtnValue);
-                            $('#submit_btn').attr("disabled", false);
-                            errorAlert(result.msg);
-                        }
-                    },
-                    error: function (ex) {
-                        $('#submit_btn').html(defaultBtnValue);
-                        $('#submit_btn').attr("disabled", false);
-                        errorAlert("Please check and try again. Contact Admin if issue persists..");
-                    },
-                })
-
-            }
-        }
-
-    } else {
+    
+    if (data.Phonenumber == "" || data.Phonenumber == undefined) {
         $('#submit_btn').html(defaultBtnValue);
         $('#submit_btn').attr("disabled", false);
-        errorAlert("Please fill the form Correctly");
-    };
+        errorAlert("Please fill in your phonenumber");
+        return;
+    }
+    if (data.State == "" || data.State == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in your state of Residence");
+        return;
+    }
+    if (data.Country == "" || data.Country == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in your country of residence");
+        return;
+    }
+    if (appLetter == "" || appLetter == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please add your cover letter");
+        return;
+    }
+    if (validId[0] == null) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please include a valid ID");
+        return;
+    }
+   
+    if (validId[0] != null) {
+        const reader = new FileReader();
+        reader.readAsDataURL(validId[0]);
+        reader.onload = function () {
+            validId = reader.result;
+            let userDetails = JSON.stringify(data);
+            $.ajax({
+                type: 'Post',
+                url: '/Account/StaffRegistration',
+                dataType: 'json',
+                data:
+                {
+                    userDetails: userDetails,
+                    staffPosition: StaffPosition,
+                    appLetter: appLetter,
+                    validId: validId
+                },
+                success: function (result) {
+                    debugger;
+                    if (!result.isError) {
+                        var url = '/Account/Login';
+                        successAlertWithRedirect(result.msg, url);
+                        $('#submit_btn').html(defaultBtnValue);
+                    }
+                    else {
+                        $('#submit_btn').html(defaultBtnValue);
+                        $('#submit_btn').attr("disabled", false);
+                        errorAlert(result.msg);
+                    }
+                },
+                error: function (ex) {
+                    $('#submit_btn').html(defaultBtnValue);
+                    $('#submit_btn').attr("disabled", false);
+                    errorAlert("Please check and try again. Contact Admin if issue persists..");
+                },
+            })
+
+        }
+    }
+
+    
 }
 
+function ReferralLink() {
+    
+    $.ajax({
+        type: 'GET',
+        url: '/AcademicStaff/ReferralLink',
+        success: function (data) {
+            if (!data.isError) {
+                var text = data;
+                navigator.clipboard.writeText(text)
+                successAlert("Referral link copied successfully");
+            }
+            else {
+                location.replace(data.dashboard);
+            }
+        }
+    });
+}
 function viewCoverLetter(id) {
     if (id != null) {
         $.ajax({
@@ -686,17 +684,17 @@ function viewCoverLetter(id) {
 }
 
 function approveApplication(id) {
-    debugger;
+    
     $.ajax({
         type: 'POST',
-        url: '/HumanResource/ApproveApplication',
+        url: '/SuperAdmin/ApproveApplication',
         dataType: 'json',
         data: {
             id: id
         },
         success: function (result) {
             if (!result.isError) {
-                var url = '/HumanResource/PendingApplication';
+                var url = '/SuperAdmin/PendingApplication';
                 successAlertWithRedirect(result.msg, url);
                 $('#submit_btn').html(defaultBtnValue);
             }

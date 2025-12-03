@@ -5,9 +5,11 @@ using Logic.IHelpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using System.Data;
+using static Core.DB.ECollegeEnums;
 
 namespace e_college.Controllers
 {
@@ -204,6 +206,74 @@ namespace e_college.Controllers
                 return Json(new { isError = true, msg = ex.Message });
             }
         }
+
+        [HttpGet]
+        public IActionResult PendingApplication()
+        {
+            var pendingApp = _superAdminHelper.GetPendingApplications();
+            return View(pendingApp);
+        }
+
+        public JsonResult ApproveApplication(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    //var user = _userHelper.GetCurrentUserId(User.Identity.Name);
+                    var checkifApprovedBefore = _userHelper.CheckIfApproved(id);
+                    if (checkifApprovedBefore)
+                    {
+                        return Json(new { isError = true, msg = "This application has been approved before" });
+                    }
+                    var approve = _superAdminHelper.ApproveApplication(id);
+                    if (approve)
+                    {
+                        return Json(new { isError = false, msg = "Application has been approved successfully" });
+                    }
+                    return Json(new { isError = true, msg = "Could not approve" });
+                }
+                return Json(new { isError = true, msg = "Network Failure" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+        [HttpPost]
+        public JsonResult DeclineApplication(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    var checkifApprovedBefore = _userHelper.CheckIfApproved(id);
+                    if (checkifApprovedBefore)
+                    {
+                        return Json(new { isError = true, msg = "This application has been approved before" });
+                    }
+                    var checkifRejectedBefore = _userHelper.CheckIfDeclined(id);
+                    if (checkifRejectedBefore)
+                    {
+                        return Json(new { isError = true, msg = "This token payment has been declined before" });
+                    }
+                    var rejectApplication = _superAdminHelper.RejectApplication(id);
+                    if (rejectApplication)
+                    {
+                        return Json(new { isError = false, msg = " Application declined" });
+                    }
+                    return Json(new { isError = true, msg = "Error occured while rejecting, try again." });
+
+                }
+                return Json(new { isError = true, msg = " No Application Request Found" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+
+
 
     }
 }
