@@ -328,7 +328,8 @@ namespace Logic.Helpers
            .Select(x => new StaffDocumentationViewModel()
            {
                Id = x.Id,
-               Name = x.Users.FirstName + "" + x.Users.LastName,
+               Name = x.Users.FirstName + " " + x.Users.LastName,
+               Email = x.Users.Email,
                DateCreated = x.DateCreated,
                ApplicationLetter = x.ApplicationLetter,
                StaffPosition = x.StaffPosition,

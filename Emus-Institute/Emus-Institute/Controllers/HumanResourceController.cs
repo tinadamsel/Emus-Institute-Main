@@ -43,19 +43,7 @@ namespace e_college.Controllers
         //}
 
         
-        //public JsonResult GetCoverLetter(int Id)
-        //{
-        //    if (Id > 0)
-        //    {
-        //        var coverLetter = _userHelper.GetCoverLetter(Id);
-        //        if (coverLetter != null)
-        //        {
-        //            return Json(new {isError = false, data = coverLetter});
-        //        }
-        //        return Json(new { isError = true, msg = "Unable To Get Cover Letter" });
-        //    }
-        //    return Json(new { isError = true, msg = "Network Error" });
-        //}
+       
 
 
 

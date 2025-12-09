@@ -18,7 +18,7 @@ namespace Logic.IHelpers
         ApplicationUser FindByUserName(string username);
        
         string GetUserId(string username);
-        Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId);
+        Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId, string resume);
         string GetUserRole(string userId);
 
         bool CheckIfStaffIsApproved(string email);
@@ -39,5 +39,6 @@ namespace Logic.IHelpers
         bool SendPaymentCompletionEmail(string email);
         Task<ApplicationUser> FindByUserNameAsync(string username);
         ApplicationUser GetStudentDetails(string userId);
+        StaffDocumentation GetCoverLetter(int id);
     }
 }

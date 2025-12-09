@@ -126,19 +126,19 @@
                     <label> Include your Cover Letter <span class="text-danger">*</span></label>
                     <textarea type="text" class="form-control" cols="4" rows="4" id="appLetter" required> </textarea>
                 </div>
-               @* <div class="form-group mb-2">
+                <div class="form-group mb-2">
                     <label> Attach your Resume (pdf) <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control" id="resume" required>
-                </div>*@
+                    <input type="file" accept="application/pdf" class="form-control" id="resume" required style="background-color:transparent !important;">
+                </div>
                 <div class="form-group mb-2">
                     <label class="custom-file-label"> Attach a copy of your valid Identification approved by law (jpg) <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control custom-file-input" id="validId" required style="background-color:transparent !important;">
+                    <input type="file" class="form-control custom-file-input" accept="image/jpg, image/jpeg" id="validId" required style="background-color:transparent !important;">
                 </div>
 
                 <button type="button" class="btn btn-outline-secondary px-5 py-3 mt-3" onclick="previousSection(2)">
                     Previous
                 </button>
-                <button type="submit" id="submit_btn" style="float: right;"
+                <button type="button" id="submit_btn" style="float: right;"
                         class="btn btn-primary px-5 py-3 mt-3" onclick="RegisterStaff()">
                     Submit
                 </button>

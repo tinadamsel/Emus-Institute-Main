@@ -92,8 +92,8 @@ function RegisterStudent() {
 //    $("#" + id).css({ border: "1px solid red" });
 //}
 
-
 async function Evaluate() {
+   
     const defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
@@ -125,7 +125,7 @@ async function Evaluate() {
         }
 
         // Wait for all files to convert
-      
+
         const [passport, transcript, highSchCert, waecScratchCard, anyRelevantCert] = await Promise.all([
             toBase64(passportFile),
             toBase64(transcriptFile),
@@ -135,7 +135,7 @@ async function Evaluate() {
         ]);
 
         // Now safely call your endpoint
-      
+        
         $.ajax({
             type: 'POST',
             dataType: 'json',
@@ -149,15 +149,15 @@ async function Evaluate() {
                 anyRelevantCert
             },
             success: function (result) {
-              
+
                 if (!result.isError) {
                     successAlertWithRedirect(result.msg, result.data);
-                   
+
                 } else if (result.isError && result.url) {
-                    
+
                     window.location.href = result.url;
                 } else {
-                    
+
                     $('#submit_btn').html(defaultBtnValue);
                     $('#submit_btn').attr("disabled", false);
                     errorAlert(result.msg);
@@ -176,6 +176,7 @@ async function Evaluate() {
         $('#submit_btn').attr("disabled", false);
     }
 }
+
 
 
 //async function Evaluate() {
@@ -536,8 +537,8 @@ function declineStudent(id) {
     });
 }
 
-function RegisterStaff() {
-    
+async function RegisterStaff() {
+  
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
     $('#submit_btn').attr("disabled", true);
@@ -558,7 +559,8 @@ function RegisterStaff() {
     var appLetter = $('#appLetter').val();
     data.DepartmentId = $('#deptId').val();
     var StaffPosition;
-    var validId = document.getElementById("validId").files;
+    //var validId = document.getElementById("validId").files;
+    //var resume = document.getElementById("resume").files;
     if (data.DepartmentId > 0) {
         StaffPosition = "";
     } else {
@@ -590,54 +592,66 @@ function RegisterStaff() {
         errorAlert("Please add your cover letter");
         return;
     }
-    if (validId[0] == null) {
+
+    var resumeFile = document.getElementById("resume").files[0];
+    var validIdFile = document.getElementById("validId").files[0];
+
+    if (!resumeFile) {
         $('#submit_btn').html(defaultBtnValue);
         $('#submit_btn').attr("disabled", false);
-        errorAlert("Please include a valid ID");
+        errorAlert("Please attach your resume");
         return;
     }
-   
-    if (validId[0] != null) {
-        const reader = new FileReader();
-        reader.readAsDataURL(validId[0]);
-        reader.onload = function () {
-            validId = reader.result;
-            let userDetails = JSON.stringify(data);
-            $.ajax({
-                type: 'Post',
-                url: '/Account/StaffRegistration',
-                dataType: 'json',
-                data:
-                {
-                    userDetails: userDetails,
-                    staffPosition: StaffPosition,
-                    appLetter: appLetter,
-                    validId: validId
-                },
-                success: function (result) {
-                    debugger;
-                    if (!result.isError) {
-                        var url = '/Account/Login';
-                        successAlertWithRedirect(result.msg, url);
-                        $('#submit_btn').html(defaultBtnValue);
-                    }
-                    else {
-                        $('#submit_btn').html(defaultBtnValue);
-                        $('#submit_btn').attr("disabled", false);
-                        errorAlert(result.msg);
-                    }
-                },
-                error: function (ex) {
-                    $('#submit_btn').html(defaultBtnValue);
-                    $('#submit_btn').attr("disabled", false);
-                    errorAlert("Please check and try again. Contact Admin if issue persists..");
-                },
-            })
-
-        }
+    if (!validIdFile) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please attach your valid Id");
+        return;
+    }
+    function toBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+        });
     }
 
-    
+    var resume = await toBase64(resumeFile);
+    var validId = await toBase64(validIdFile);
+
+    let userDetails = JSON.stringify(data);
+    $.ajax({
+        type: 'Post',
+        url: '/Account/StaffRegistration',
+        dataType: 'json',
+        data:
+        {
+            userDetails: userDetails,
+            staffPosition: StaffPosition,
+            appLetter: appLetter,
+            validId: validId,
+            resume: resume,
+        },
+        success: function (result) {
+          
+            if (!result.isError) {
+                var url = '/Account/Login';
+                successAlertWithRedirect(result.msg, url);
+                $('#submit_btn').html(defaultBtnValue);
+            }
+            else {
+                $('#submit_btn').html(defaultBtnValue);
+                $('#submit_btn').attr("disabled", false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function (ex) {
+            $('#submit_btn').html(defaultBtnValue);
+            $('#submit_btn').attr("disabled", false);
+            errorAlert("Please check and try again. Contact Admin if issue persists..");
+        },
+    });
 }
 
 function ReferralLink() {
@@ -662,7 +676,7 @@ function viewCoverLetter(id) {
         $.ajax({
             type: 'get',
             dataType: 'json',
-            url: '/HumanResource/GetCoverLetter',
+            url: '/Account/GetCoverLetter',
             data: {
                 Id: id,
             },
@@ -736,6 +750,17 @@ function declineApplication(id) {
 function viewIDImage(imageUrl) {
     var imageElement = document.getElementById('ImageId');
     imageElement.src = imageUrl;
+}
+
+function viewResume(base64Pdf) {
+   
+    const pdfElement = document.getElementById('resumePdfViewer');
+
+    if (base64Pdf.startsWith("data:")) {
+        pdfElement.src = base64Pdf;
+    } else {
+        pdfElement.src = "data:application/pdf;base64," + base64Pdf;
+    }
 }
 
 $(document).ready(function () {

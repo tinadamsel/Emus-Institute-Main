@@ -238,7 +238,53 @@ namespace Logic.Helpers
             return false;
         }
 
-        public async Task<EvaluationDetails> SaveStudentEvaluationDetails(string UserId, string passport, string transcript, 
+        //public async Task<EvaluationDetails> SaveStudentEvaluationDetails(EvaluationDetails model)
+        //{
+        //    try
+        //    {
+        //        if (model != null)
+        //        {
+        //            //check if userId exists in evaluation table, if it does, move to payment
+
+        //            var checkIfUserEvaluationDetailsIsSaved = _context.EvaluationDetails.Where(x => x.UserId == model.UserId).FirstOrDefault();
+        //            if (checkIfUserEvaluationDetailsIsSaved != null)
+        //            {
+        //                checkIfUserEvaluationDetailsIsSaved.Passport = model.Passport;
+        //                checkIfUserEvaluationDetailsIsSaved.SchoolTranscript = model.SchoolTranscript;
+        //                checkIfUserEvaluationDetailsIsSaved.HighSchoolCompletionCertificate = model.HighSchoolCompletionCertificate;
+        //                checkIfUserEvaluationDetailsIsSaved.WAECScratchCard = model.WAECScratchCard;
+        //                checkIfUserEvaluationDetailsIsSaved.OtherCertificate = model.OtherCertificate;
+        //                checkIfUserEvaluationDetailsIsSaved.DateAdded = DateTime.Now;
+
+        //                _context.Update(checkIfUserEvaluationDetailsIsSaved);
+        //                _context.SaveChanges();
+        //                return checkIfUserEvaluationDetailsIsSaved;
+        //            }
+        //            else
+        //            {
+        //                var evaluationDetails = new EvaluationDetails();
+        //                evaluationDetails.UserId = model.UserId;
+        //                evaluationDetails.Passport = model.Passport;
+        //                evaluationDetails.SchoolTranscript = model.SchoolTranscript;
+        //                evaluationDetails.HighSchoolCompletionCertificate = model.HighSchoolCompletionCertificate;
+        //                evaluationDetails.WAECScratchCard = model.WAECScratchCard;
+        //                evaluationDetails.OtherCertificate = model.OtherCertificate;
+        //                evaluationDetails.DateAdded = DateTime.Now;
+
+        //                _context.EvaluationDetails.Add(evaluationDetails);
+        //                _context.SaveChanges();
+        //                return evaluationDetails;
+        //            }
+        //        }
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+        public async Task<EvaluationDetails> SaveStudentEvaluationDetails(string UserId, string passport, string transcript,
             string highSchCert, string waecScratchCard, string anyRelevantCert)
         {
             try
@@ -313,7 +359,7 @@ namespace Logic.Helpers
             return null;
         }
 
-        public async Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId)
+        public async Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId, string resume)
         {
             try
             {
@@ -387,14 +433,14 @@ namespace Logic.Helpers
                             //}
                         }
                     }
-                    AddStaffDocuments(user.Id, staffPosition, user.DepartmentId, validId, appLetter);
+                    AddStaffDocuments(user.Id, staffPosition, user.DepartmentId, validId, appLetter, resume);
                     if (user.Id != null)
                     {
                         var adminEmal = "nwachukwuarinze00@gmail.com";
                         //string toEmail = _generalConfiguration.AdminEmail;
                         string toEmail = adminEmal;
                         string subject = "Staff Application Submission";
-                        string message = "Hello SuperAdmin, <br> A staff application has been submitted, by" + "<b>" + user?.FirstName + " " + user?.LastName + " </b> on " + user.DateRegistered.ToString() + ". " +
+                        string message = "Hello SuperAdmin, <br> A staff application has been submitted, by " + "<b>" + user?.FirstName + " " + user?.LastName + " </b> on " + user.DateRegistered.ToString() + ". " +
                                          "<br> Please, endeavor to review the pending application and make the necessary move. " +
                                          "<br> Thank you!!!";
 
@@ -409,9 +455,9 @@ namespace Logic.Helpers
                 throw ex;
             }
         }
-        public bool AddStaffDocuments(string userId, string staffPosition, int? deptId, string validId, string appLetter)
+        public bool AddStaffDocuments(string userId, string staffPosition, int? deptId, string validId, string appLetter, string resume)
         {
-            if (userId != null && validId != null && appLetter != null)
+            if (userId != null && validId != null && appLetter != null && resume != null)
             { 
                 var position = 0;
                 if (deptId == null)
@@ -427,7 +473,7 @@ namespace Logic.Helpers
                     StaffPosition = deptId != null ? StaffPosition.AcademicStaff : (StaffPosition)position,
                     ApplicationLetter = appLetter,
                     Identification = validId,
-                    Resume = "N/A",
+                    Resume = resume,
                 };
                 _context.Add(addStaff);
                 _context.SaveChanges();
@@ -475,24 +521,16 @@ namespace Logic.Helpers
             }
             return 0;
         }
-      
-        //public string GetValidId()
-        //{
-        //    var iD = _context.StaffDocuments.Where(x => x.Id > 0 && x.Active && x.StaffStatus == StaffStatus.Pending)
-        //    return null;
-        //}
 
-
-        //added
-        //public StaffDocumentation GetCoverLetter(int id)
-        //{
-        //    var getCoverLetter = _context.StaffDocuments.Where(x => x.Id == id && x.Active).FirstOrDefault();
-        //    if (getCoverLetter != null)
-        //    {
-        //        return getCoverLetter;
-        //    }
-        //    return null;
-        //}
+        public StaffDocumentation GetCoverLetter(int id)
+        {
+            var getCoverLetter = _context.StaffDocuments.Where(x => x.Id == id && x.Active).FirstOrDefault();
+            if (getCoverLetter != null)
+            {
+                return getCoverLetter;
+            }
+            return null;
+        }
 
         public string GenerateStaffPassword()
         {

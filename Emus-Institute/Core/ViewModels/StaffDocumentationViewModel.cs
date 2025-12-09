@@ -19,6 +19,7 @@ namespace Core.ViewModels
         public DateTime DateCreated { get; set; }
         public string ApplicationLetter { get; set; }
         public string Resume { get; set; }
+        public string Email { get; set; }
         public string Identification { get; set; }
         public StaffStatus StaffStatus { get; set; }
         public StaffPosition StaffPosition { get; set; }
