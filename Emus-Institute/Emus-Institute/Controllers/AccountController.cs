@@ -96,10 +96,10 @@ namespace e_college.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> EvaluateUserDetails(string UserId, string passport, 
+        public async Task<JsonResult> EvaluateUserDetails(string UserId, string passport,
             string transcript, string highSchCert, string waecScratchCard, string anyRelevantCert)
         {
-            if (UserId != null && passport != null && transcript != null && highSchCert != null && 
+            if (UserId != null && passport != null && transcript != null && highSchCert != null &&
                 waecScratchCard != null && anyRelevantCert != null)
             {
                 var saveEvaluationDetails = await _userHelper.SaveStudentEvaluationDetails(UserId, passport, transcript, highSchCert, waecScratchCard, anyRelevantCert).ConfigureAwait(false);
@@ -111,11 +111,41 @@ namespace e_college.Controllers
                         return Json(new { isError = false, data = response.data.authorization_url, msg = "Evaluation Details saved. Click ok to continue your payment" });
                     }
                 }
-                return Json(new { isError = true, msg = "Failed to make payments. " +
-                "If issue persists, contact the admin ..." });
+                return Json(new
+                {
+                    isError = true,
+                    msg = "Failed to make payments. " +
+                "If issue persists, contact the admin ..."
+                });
             }
             return Json(new { isError = true, msg = "Network Error" });
         }
+
+
+        //[HttpPost]
+        //public IActionResult EvaluateUserDetails([FromBody] EvaluationDetails model)
+        //{
+        //    if (model != null)
+        //    {
+        //        var saveEvaluationDetails = _userHelper.SaveStudentEvaluationDetails(model);
+        //        if (saveEvaluationDetails != null)
+        //        {
+        //            var response = _paymentHelper.CreateStudentPayment(saveEvaluationDetails.UserId, saveEvaluationDetails?.Users);
+        //            if (response != null)
+        //            {
+        //                return Json(new { isError = false, data = response.data.authorization_url, msg = "Evaluation Details saved. Click ok to continue your payment" });
+        //            }
+        //        }
+        //        return Json(new
+        //        {
+        //            isError = true,
+        //            msg = "Failed to make payments. " +
+        //        "If issue persists, contact the admin ..."
+        //        });
+        //    }
+        //    return Json(new { isError = true, msg = "Network Error" });
+        //}
+
 
         [AllowAnonymous]
         public async Task<IActionResult> PaystackResponseFeedback(PayStack paystack)
@@ -143,9 +173,9 @@ namespace e_college.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> StaffRegistration(string userDetails, string staffPosition, string appLetter, string validId)
+        public async Task<JsonResult> StaffRegistration(string userDetails, string staffPosition, string appLetter, string validId, string resume)
         {
-            if (userDetails != null && appLetter != null && validId != null)
+            if (userDetails != null && appLetter != null && validId != null && resume != null)
             {
                 var appUserViewModel = JsonConvert.DeserializeObject<ApplicationUserViewModel>(userDetails);
                 if (appUserViewModel != null)
@@ -156,7 +186,7 @@ namespace e_college.Controllers
                         return Json(new { isError = true, msg = "Email Already Exists" });
                     }
                     
-                    var createStaff = await _userHelper.RegStaff(appUserViewModel, staffPosition, appLetter, validId).ConfigureAwait(false);
+                    var createStaff = await _userHelper.RegStaff(appUserViewModel, staffPosition, appLetter, validId, resume).ConfigureAwait(false);
                     if (createStaff)
                     {
                         return Json(new { isError = false, msg = "Application successful. Thank you for your interest. Our team will contact you soon", });
@@ -166,8 +196,21 @@ namespace e_college.Controllers
             }
             return Json(new { isError = true, msg = "Network Error" });
         }
-      
 
+        [HttpGet]
+        public JsonResult GetCoverLetter(int Id)
+        {
+            if (Id > 0)
+            {
+                var coverLetter = _userHelper.GetCoverLetter(Id);
+                if (coverLetter != null)
+                {
+                    return Json(new { isError = false, data = coverLetter });
+                }
+                return Json(new { isError = true, msg = "Unable To Get Cover Letter" });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
 
         [HttpGet]
         public IActionResult Login()

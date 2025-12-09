@@ -273,6 +273,12 @@ namespace e_college.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult ApprpovedStaff()
+        {
+            var pendingApp = _superAdminHelper.GetPendingApplications();
+            return View(pendingApp);
+        }
 
 
     }
