@@ -227,6 +227,7 @@ namespace e_college.Controllers
                 var existingUser = _userHelper.FindByEmailAsync(filterSpace).Result;
                 if (existingUser != null) 
                 {
+                    //for SuperAdmin Login
                     var userRole = await _userManager.GetRolesAsync(existingUser).ConfigureAwait(false);
                     if (userRole.FirstOrDefault().ToLower().Contains("superadmi"))
                     {
@@ -237,17 +238,26 @@ namespace e_college.Controllers
                             return Json(new { isError = false, dashboard = url });
                         }
                     }
+                    //for academic staffc login
                     if (userRole.FirstOrDefault().ToLower().Contains("academicstaff"))
                     {
+                        //checkforapproval
                         var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
                         if (!staffIsApproved)
                         {
                             return Json(new { isError = true, msg = "Your application has not been approved yet" });
                         }
+                        //check for suspension
                         var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
                         if (checkIfSuspended)
                         {
                             return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
+                        }
+                        //check for deactivation
+                        var checkIfDeactivated = _userHelper.CheckIfUserIsDeactivated(email);
+                        if (checkIfDeactivated)
+                        {
+                            return Json(new { isError = true, msg = "You have been deactivated. Contact the admin for further actions" });
                         }
                         var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
                         if (PasswordSignIn.Succeeded)
@@ -256,6 +266,7 @@ namespace e_college.Controllers
                             return Json(new { isError = false, dashboard = url });
                         }
                     }
+                    //for human resource login
                     if (userRole.FirstOrDefault().ToLower().Contains("humanresource"))
                     {
                         var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
@@ -268,6 +279,11 @@ namespace e_college.Controllers
                         {
                             return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
                         }
+                        var checkIfDeactivated = _userHelper.CheckIfUserIsDeactivated(email);
+                        if (checkIfDeactivated)
+                        {
+                            return Json(new { isError = true, msg = "You have been deactivated. Contact the admin for further actions" });
+                        }
                         var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
                         if (PasswordSignIn.Succeeded)
                         {
@@ -275,6 +291,7 @@ namespace e_college.Controllers
                             return Json(new { isError = false, dashboard = url });
                         }
                     }
+                    //for admission officer login
                     if (userRole.FirstOrDefault().ToLower().Contains("admissionofficer"))
                     {
                         var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
@@ -287,6 +304,11 @@ namespace e_college.Controllers
                         {
                             return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
                         }
+                        var checkIfDeactivated = _userHelper.CheckIfUserIsDeactivated(email);
+                        if (checkIfDeactivated)
+                        {
+                            return Json(new { isError = true, msg = "You have been deactivated. Contact the admin for further actions" });
+                        }
                         var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
                         if (PasswordSignIn.Succeeded)
                         {
@@ -294,6 +316,7 @@ namespace e_college.Controllers
                             return Json(new { isError = false, dashboard = url });
                         }
                     }
+                    //for librarian login 
                     if (userRole.FirstOrDefault().ToLower().Contains("librarianofficer"))
                     {
                         var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
@@ -306,6 +329,11 @@ namespace e_college.Controllers
                         {
                             return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
                         }
+                        var checkIfDeactivated = _userHelper.CheckIfUserIsDeactivated(email);
+                        if (checkIfDeactivated)
+                        {
+                            return Json(new { isError = true, msg = "You have been deactivated. Contact the admin for further actions" });
+                        }
                         var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
                         if (PasswordSignIn.Succeeded)
                         {
@@ -313,6 +341,8 @@ namespace e_college.Controllers
                             return Json(new { isError = false, dashboard = url });
                         }
                     }
+
+                    //for account officer login
                     if (userRole.FirstOrDefault().ToLower().Contains("accountofficer"))
                     {
                         var staffIsApproved = _userHelper.CheckIfStaffIsApproved(email);
@@ -325,6 +355,11 @@ namespace e_college.Controllers
                         {
                             return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
                         }
+                        var checkIfDeactivated = _userHelper.CheckIfUserIsDeactivated(email);
+                        if (checkIfDeactivated)
+                        {
+                            return Json(new { isError = true, msg = "You have been deactivated. Contact the admin for further actions" });
+                        }
                         var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
                         if (PasswordSignIn.Succeeded)
                         {
@@ -332,6 +367,7 @@ namespace e_college.Controllers
                             return Json(new { isError = false, dashboard = url });
                         }
                     }
+                    //for student login
                     if (userRole.FirstOrDefault().ToLower().Contains("tertiarystudent"))
                     {
                         var checkIfUserIsStudent = _userHelper.CheckIfUserIsStudent(email);
@@ -343,6 +379,11 @@ namespace e_college.Controllers
                         if (checkIfSuspended)
                         {
                             return Json(new { isError = true, msg = "You are still under suspension. Login when your suspension period expires" });
+                        }
+                        var checkIfDeactivated = _userHelper.CheckIfUserIsDeactivated(email);
+                        if (checkIfDeactivated)
+                        {
+                            return Json(new { isError = true, msg = "You have been deactivated. Contact the admin for further actions" });
                         }
                         var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
                         if (PasswordSignIn.Succeeded)

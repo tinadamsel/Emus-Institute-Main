@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Core.ViewModels.StaffDocumentationViewModel>
 
 @{
-    ViewData["Title"] = "Pending Applications";
+    ViewData["Title"] = "Approved Staff";
     Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
 }
 
@@ -11,30 +11,12 @@
         <nav class="mt-3">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="">Dashboard</a></li>
-                <li class="breadcrumb-item active"> Pending Staff Applications </li>
+                <li class="breadcrumb-item active"> Approved Staff </li>
             </ol>
         </nav>
     </div>
     <!-- End Page Title -->
-
-    <section class="section dashboard">
-        <div class="row">
-            <!-- Left side columns -->
-            <div class="col-lg-12">
-                <div class="row">
-
-                    <!-- Start Button -->
-                    @* <div class="col-lg-12 col-sm-12 mb-5">
-                        <button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addSubject" style=" float: right; margin-right: 20px;">
-                            Add Subjects
-                        </button>
-                    </div>*@
-                    <!-- End Button -->
-
-                </div>
-            </div><!-- End Left side columns -->
-        </div>
-    </section>
+   
     <div class="row mt-5">
         <div class="col-md-12">
             <div class="table-responsive">
@@ -90,16 +72,21 @@
                                     <td>@staff?.DateCreated.ToString("D") </td>
                                     <td class="text-center">
                                         <div style="display: flex" class="my-2">
-                                            <a class="btn btn-outline-success rounded-pill mx-1" onclick="approveApplication('@staff.Id')">
-                                                Approve
-                                            </a>
-                                            <a class="btn btn-outline-success rounded-pill" onclick="declineApplication('@staff.Id')">
-                                                Decline
+                                            @if (staff?.IsSuspended == true)
+                                            {
+                                                <button class="btn btn-outline-success rounded-pill mx-1 disabled">
+                                                    Suspended
+                                                </button>
+                                            }else
+                                            {
+                                                <a class="btn btn-outline-success rounded-pill mx-1" data-toggle="modal" data-target="#suspend_user" onclick="userToSuspend('@staff.UserId')">
+                                                    Suspend
+                                                </a>
+                                            }
+                                            <a class="btn btn-outline-success rounded-pill" data-toggle="modal" data-target="#deactivate_user" onclick="userToDeactivate('@staff.UserId')">
+                                                Deactivate
                                             </a>
                                         </div>
-
-
-
                                     </td>
                                 </tr>
                             }
@@ -178,3 +165,58 @@
         </div>
     </div>
 </div>
+
+
+<!-- suspend Modal -->
+<div class="modal fade" id="suspend_user" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> <b> Suspend User </b> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">Are you sure you want to suspend?</p>
+                <div class="modal-btn delete-action">
+                    <div class="row m-auto">
+                        <input class="form-control" hidden type="text" id="user_id">
+                        <div class="col-6">
+                            <a class="btn btn-outline-success rounded-pill p-2 d-block" onclick="SuspendUser()">Suspend</a>
+                        </div>
+                        <div class="col-6">
+                            <a data-bs-dismiss="modal" class="btn btn-outline-success rounded-pill p-2 d-block">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /suspend Modal -->
+
+<!-- Deactivate Modal -->
+<div class="modal fade" id="deactivate_user" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> <b> Deactivate User </b> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">Are you sure you want to deactivate?</p>
+                <div class="modal-btn delete-action">
+                    <div class="row m-auto">
+                        <input class="form-control" hidden type="text" id="user_id">
+                        <div class="col-6">
+                            <a class="btn btn-outline-success rounded-pill p-2 d-block" onclick="DeactivateUser()">Delete</a>
+                        </div>
+                        <div class="col-6">
+                            <a data-bs-dismiss="modal" class="btn btn-outline-success rounded-pill p-2 d-block">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Deactivate Modal -->

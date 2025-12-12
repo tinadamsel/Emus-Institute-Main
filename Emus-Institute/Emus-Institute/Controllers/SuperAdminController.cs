@@ -274,12 +274,62 @@ namespace e_college.Controllers
         }
 
         [HttpGet]
-        public IActionResult ApprpovedStaff()
+        public IActionResult ApprovedStaff()
         {
-            var pendingApp = _superAdminHelper.GetPendingApplications();
-            return View(pendingApp);
+            var approvedStaff = _superAdminHelper.GetApprovedStaff();
+            return View(approvedStaff);
+        }
+        [HttpPost]
+        public JsonResult SuspendUser(string userId)
+        {
+            if (userId != null)
+            {
+                var suspendStaff = _superAdminHelper.SuspendUser(userId);
+                if (suspendStaff)
+                {
+                    return Json(new { isError = false, msg = "User Suspended" });
+                }
+                return Json(new { isError = true, msg = "Unable To Suspend" });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
         }
 
+        [HttpPost]
+        public JsonResult DeactivateUser(string userId)
+        {
+            if (userId != null)
+            {
+                var deactivateUser = _superAdminHelper.DeactivateUser(userId);
+                if (deactivateUser)
+                {
+                    return Json(new { isError = false, msg = "User Deactivated" });
+                }
+                return Json(new { isError = true, msg = "Unable To Deactivate" });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
+
+        [HttpGet]
+        public IActionResult SuspendedUsers()
+        {
+            var suspendedUsers = _superAdminHelper.GetSuspendedUsers();
+            return View(suspendedUsers);
+        }
+
+        [HttpPost]
+        public JsonResult RemoveUserFromSuspension(int id)
+        {
+            if (id > 0)
+            {
+                var removeSuspension = _superAdminHelper.RemoveSuspension(id);
+                if (removeSuspension)
+                {
+                    return Json(new { isError = false, msg = "User Removed From Suspension" });
+                }
+                return Json(new { isError = true, msg = "Unable To Remove" });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
 
     }
 }

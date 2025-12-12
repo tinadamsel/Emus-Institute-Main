@@ -25,6 +25,7 @@ namespace Core.ViewModels
         public StaffPosition StaffPosition { get; set; }
         public DateTime? DateOfApproval { get; set; }
         public bool? IsApproved { get; set; }
+        public bool? IsSuspended { get; set; }
         public string? UserId { get; set; }
         public string? IDPix { get; set; }
         public virtual ApplicationUser Users { get; set; }

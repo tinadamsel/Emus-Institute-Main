@@ -151,6 +151,20 @@ namespace Logic.Helpers
             return false;
         }
 
+        public bool CheckIfUserIsDeactivated(string email)
+        {
+            if (email != null)
+            {
+                var checkForDeactivation = _context.ApplicationUser.Where(x => x.Email == email && x.Id != null && x.Deactivated).FirstOrDefault();
+                if (checkForDeactivation != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
         public async Task<bool> RegisterStudent(ApplicationUserViewModel userDetails, string linkToClick, string refLink)
         {
             try

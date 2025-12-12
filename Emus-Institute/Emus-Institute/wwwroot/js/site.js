@@ -767,4 +767,91 @@ $(document).ready(function () {
     $('#dataTable').DataTable();
 });
 
+function userToSuspend(id) {
+    $('#user_id').val(id);
+    $('#suspend_user').modal('show');
+}
+function SuspendUser() {
+   
+    var userId = $('#user_id').val();
+    $.ajax({
+        type: 'Post',
+        dataType: 'Json',
+        url: '/SuperAdmin/SuspendUser',
+        data: {
+            userId: userId
+        },
+        success: function (result) {
+            if (!result.isError) {
+                var url = '/SuperAdmin/Index'
+                successAlertWithRedirect(result.msg, url)
+                $('#submit_Btn').html(defaultBtnValue);
+            }
+            else {
+                errorAlert(result.msg)
+            }
+        },
+        error: function (ex) {
+            errorAlert("An error occured, please check and try again. Please contact admin if issue persists..");
+        }
+    })
+}
+
+function userToDeactivate(id) {
+    $('#user_id').val(id);
+    $('#deactivate_user').modal('show');
+}
+function DeactivateUser() {
+    
+    var userId = $('#user_id').val();
+    $.ajax({
+        type: 'Post',
+        dataType: 'Json',
+        url: '/SuperAdmin/DeactivateUser',
+        data: {
+            userId: userId
+        },
+        success: function (result) {
+            if (!result.isError) {
+                var url = '/SuperAdmin/Index'
+                successAlertWithRedirect(result.msg, url)
+                $('#submit_Btn').html(defaultBtnValue);
+            }
+            else {
+                errorAlert(result.msg)
+            }
+        },
+        error: function (ex) {
+            errorAlert("An error occured, please check and try again. Please contact admin if issue persists..");
+        }
+    })
+}
+
+function RemoveSuspension(id) {
+   
+    $.ajax({
+        type: 'Post',
+        dataType: 'Json',
+        url: '/SuperAdmin/RemoveUserFromSuspension',
+        data: {
+            id: id
+        },
+        success: function (result) {
+            if (!result.isError) {
+                var url = '/SuperAdmin/SuspendedUsers'
+                successAlertWithRedirect(result.msg, url)
+                $('#submit_Btn').html(defaultBtnValue);
+            }
+            else {
+                errorAlert(result.msg)
+            }
+        },
+        error: function (ex) {
+            errorAlert("An error occured, please check and try again. Please contact admin if issue persists..");
+        }
+    })
+}
+
+
+
 

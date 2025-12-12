@@ -171,29 +171,38 @@ namespace Logic.Helpers
         }
         public List<ApplicationUserViewModel> GetAllApprovedStudents()
         {
-            var appUserViewModel = new List<ApplicationUserViewModel>();
-            appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated).Include(x => x.Department)
-                .Select(x => new ApplicationUserViewModel()
+            var result = new List<ApplicationUserViewModel>();
+            var appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated).Include(x => x.Department);
+            if (appUserViewModel.Any())
+            {
+                 result = appUserViewModel.Select(x => new ApplicationUserViewModel()
+                 {
+                     Id = x.Id,
+                     FirstName = x.FirstName,
+                     LastName = x.LastName,
+                     OtherName = x.OtherName,
+                     DepartmentId = x.DepartmentId,
+                     DepartmentName = x.Department.Name,
+                     FullName = x.FirstName + " " + x.LastName,
+                     DateRegistered = x.DateRegistered,
+                     DOB = x.DOB,
+                     Address = x.Address,
+                     Country = x.Country,
+                     Email = x.Email,
+                     State = x.State,
+                     StudentId = x.StudentId,
+                     CurrentSession = x.CurrentSession,
+                     AcademicLevel = x.AcademicLevel,
+                     Phonenumber = x.PhoneNumber,
+                 }).OrderByDescending(o => o.DateRegistered).ToList();
+                foreach (var item in result)
                 {
-                    Id = x.Id,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    OtherName = x.OtherName,
-                    DepartmentId = x.DepartmentId,
-                    DepartmentName = x.Department.Name,
-                    FullName = x.FirstName + " " + x.LastName,
-                    DateRegistered = x.DateRegistered,
-                    DOB = x.DOB,
-                    Address = x.Address,
-                    Country = x.Country,
-                    Email = x.Email,
-                    State = x.State,
-                    StudentId = x.StudentId,
-                    CurrentSession = x.CurrentSession,
-                    AcademicLevel = x.AcademicLevel,
-                    Phonenumber = x.PhoneNumber,
-                }).ToList();
-            return appUserViewModel;
+                    item.IsSuspended = GetUserSuspensionStatus(item.Id);
+                }
+                return result;
+            }
+                 
+            return result;
         }
 
         public List<ApplicationUserViewModel> GetAllPaidStudents()
@@ -404,8 +413,8 @@ namespace Logic.Helpers
                         {
                             string toEmail = rejectApprove?.Users?.Email;
                             string subject = "Sorry, Application Declined ";
-                            string message = "Hello " + "<b>" + rejectApprove?.Users?.FirstName + "" + rejectApprove?.Users?.LastName + ", </b>" + "<br> your application for the post of " + rejectApprove?.StaffPosition + " on our platform has been declined. We thank you for your interest, but we can not move further with you. Keep on visiting our platform for other available positions. " + " <br> <br> We wish you well in your future endeavours <br> " +
-                              "HR, Ecollege Team";
+                            string message = "Hello " + "<b>" + rejectApprove?.Users?.FirstName + " " + rejectApprove?.Users?.LastName + ", </b>" + "<br> your application for the post of " + rejectApprove?.StaffPosition + " on our platform has been declined. We thank you for your interest, but we can not move further with you. Keep on visiting our platform for other available positions. " + " <br> <br> We wish you well in your future endeavours <br> " +
+                              "EMUS Institute Team";
 
                             _emailService.SendEmail(toEmail, subject, message);
                             return true;
@@ -420,6 +429,163 @@ namespace Logic.Helpers
                 _emailService.SendEmail(toEmailBug, subjectEmailBug, message);
                 throw;
             }
+        }
+
+        public List<StaffDocumentationViewModel> GetApprovedStaff()
+        { 
+            var result = new List<StaffDocumentationViewModel>();
+            var approvedStaff = _context.StaffDocuments.Where(x => x.Id > 0 && x.Active && x.StaffStatus == StaffStatus.Approved).Include(x => x.Users);
+            if (approvedStaff.Any())
+            {
+                result =  approvedStaff.Select(x => new StaffDocumentationViewModel()
+                {
+                    Id = x.Id,
+                    Name = x.Users.FirstName + " " + x.Users.LastName,
+                    Email = x.Users.Email,
+                    DateCreated = x.DateCreated,
+                    ApplicationLetter = x.ApplicationLetter,
+                    StaffPosition = x.StaffPosition,
+                    UserId = x.UserId,
+                    Identification = x.Identification,
+                    Resume = x.Resume,
+                    Active = x.Active,
+                }).OrderByDescending(o => o.DateCreated).ToList();
+                foreach (var item in result)
+                {
+                    item.IsSuspended = GetUserSuspensionStatus(item.UserId);
+                }
+                return result;
+            }
+            return result;
+        }
+      
+        public bool GetUserSuspensionStatus(string userId)
+        {
+            if (userId != null)
+            {
+                var getStatus = _context.Suspensions.Where(x => x.UserId == userId).FirstOrDefault();
+                if (getStatus != null)
+                {
+                    return getStatus.IsSuspended;
+                }
+            }
+            return false;
+        }
+
+        public bool SuspendUser(string userId)
+        {
+            if (userId != null)
+            {
+                var suspend = new Suspension()
+                {
+                    IsSuspended = true,
+                    IsRemoved = false,
+                    UserId = userId,
+                    DateSuspended = DateTime.Now,
+                    SuspensionDuration = " N/A",
+                    SuspensionReason = " Misconduct",
+                };
+                _context.Suspensions.Add(suspend);
+                _context.SaveChanges();
+
+                var getUser = _context.ApplicationUser.Where(x => x.Id == userId && !x.Deactivated).FirstOrDefault();
+                if (getUser != null)
+                {
+                    string toEmail = getUser?.Email;
+                    string subject = "Suspension Alert";
+                    string message = "Hello " + "<b>" + getUser?.FirstName + " " + getUser?.LastName + ", </b>" + 
+                        "<br> you have been suspended from having access to EMUS Institute Platform. " +
+                        "This simply means you cannot log in to the site currently. You will be notified when your suspension is lifted. " +
+                        " <br> <br> Warm Regards, " +
+                        " <br> <br> Emus Institute Team";
+
+                    _emailService.SendEmail(toEmail, subject, message);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool DeactivateUser(string userId)
+        {
+            if (userId != null)
+            {
+                var deactivateUser = _context.ApplicationUser.Where(x => x.Id == userId && !x.Deactivated).FirstOrDefault();
+                if (deactivateUser != null)
+                {
+                    deactivateUser.Deactivated = true;
+                    _context.SaveChanges();
+
+                    if (deactivateUser?.Email != null)
+                    {
+                        string toEmail = deactivateUser?.Email;
+                        string subject = "Deactivation Alert";
+                        string message = "Hello " + "<b>" + deactivateUser?.FirstName + " " + deactivateUser?.LastName + ", </b>" +
+                            "<br> you have been deactivated from using the EMUS Institute Platform. This simply means, you cannot log in to the site again " + 
+                            " <br> <br> We wish you well in your future endeavours <br> " +
+                            " <br> <br> Warm Regards " +
+                            "<br> <br> EMUS Institute Team ";
+
+                        _emailService.SendEmail(toEmail, subject, message);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public List<SuspensionViewModel> GetSuspendedUsers()
+        {
+            var getSuspendedUsers = new List<SuspensionViewModel>();
+            getSuspendedUsers = _context.Suspensions.Where(x => x.Id > 0 && x.IsSuspended && x.IsRemoved == false).Include(x => x.Users)
+           .Select(x => new SuspensionViewModel()
+           {
+               Id = x.Id,
+               Name = x.Users.FirstName + " " + x.Users.LastName,
+               IsSuspended = x.IsSuspended,
+               IsRemoved = x.IsRemoved,
+               UserId = x.UserId,
+               DateRemoved = x.DateRemoved,
+               DateSuspended = x.DateSuspended,
+               ValidUntilDate = x.ValidUntilDate,
+               SuspensionReason = x.SuspensionReason,
+               SuspensionDuration = x.SuspensionDuration,
+
+           }).ToList();
+            return getSuspendedUsers;
+        }
+
+        public bool RemoveSuspension(int id)
+        {
+            if (id > 0)
+            {
+                var removeSuspension = _context.Suspensions.Where(x => x.Id == id && x.IsSuspended).FirstOrDefault();
+                if (removeSuspension != null)
+                {
+                    removeSuspension.IsSuspended = false;
+                    removeSuspension.IsRemoved = true;
+                    removeSuspension.DateRemoved = DateTime.Now;
+
+                    _context.Update(removeSuspension);
+                    _context.SaveChanges();
+
+                    var getUser = _context.ApplicationUser.Where(x => x.Id == removeSuspension.UserId && !x.Deactivated).FirstOrDefault();
+                    if (getUser != null)
+                    {
+                        string toEmail = getUser?.Email;
+                        string subject = "Suspension Lifting Alert";
+                        string message = "Hello " + "<b>" + getUser?.FirstName + " " + getUser?.LastName + ", </b>" +
+                            "<br> your suspension has been lifted. You can now log into the EMUS Institute Platform with your login details " +
+                            " <br> <br> Warm Regards, " +
+                            "<br> <br> Emus Institute Team";
+
+                        _emailService.SendEmail(toEmail, subject, message);
+                        return true;
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         //public int GetTotalAcademicStaff()

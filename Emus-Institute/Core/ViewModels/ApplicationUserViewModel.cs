@@ -36,6 +36,7 @@ namespace Core.ViewModels
         public StaffType? StaffType { get; set; }
         public bool Deactivated { get; set; }
         public bool IsStudent { get; set; }
+        public bool IsSuspended { get; set; }
         public bool Paid { get; set; }
         public bool IsAdmin { get; set; }
         public string StudentId { get; set; }
@@ -52,5 +53,6 @@ namespace Core.ViewModels
         public int TotalActiveAnnouncements { get; set; }
         public int TotalComplains { get; set; }
         public string? RefLink { get; set; }
+
     }
 }

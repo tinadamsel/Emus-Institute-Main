@@ -40,5 +40,6 @@ namespace Logic.IHelpers
         Task<ApplicationUser> FindByUserNameAsync(string username);
         ApplicationUser GetStudentDetails(string userId);
         StaffDocumentation GetCoverLetter(int id);
+        bool CheckIfUserIsDeactivated(string email);
     }
 }

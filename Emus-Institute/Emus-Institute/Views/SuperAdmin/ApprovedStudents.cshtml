@@ -76,10 +76,22 @@
                                     <td>@user.StudentId</td>
                                     <td class="text-right">
                                         <div style="display: flex" class="my-2">
-                                            <a class="btn btn-outline-success mx-1" onclick="studentToSuspend('@user.Id')">
+                                            @* <a class="btn btn-outline-success mx-1" onclick="studentToSuspend('@user.Id')">
                                                 Suspend
-                                            </a>
-                                            <a class="btn btn-outline-success mx-1" onclick="studentToDeactivate('@user.Id')">
+                                            </a> *@
+                                            @if (user?.IsSuspended == true)
+                                            {
+                                                <button class="btn btn-outline-success rounded-pill mx-1 disabled">
+                                                    Suspended
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <a class="btn btn-outline-success mx-1" data-toggle="modal" data-target="#suspend_user" onclick="userToSuspend('@user.Id')">
+                                                    Suspend
+                                                </a>
+                                            }
+                                            <a class="btn btn-outline-success mx-1" data-toggle="modal" data-target="#deactivate_user" onclick="userToDeactivate('@user.Id')">
                                                 Deactivate
                                             </a>
                                         </div>
@@ -94,32 +106,59 @@
         </div>
     </div>
 </main><!-- End #main -->
-<!-- Add subject modal start
-<div class="modal fade" id="addDept" tabindex="-1">
+
+
+<!-- suspend Modal -->
+<div class="modal fade" id="suspend_user" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"> <b> Add Departments </b> </h5>
+                <h5 class="modal-title"> <b> Suspend User </b> </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12 col-lg-12">
-                        <label class="col-form-label"> Department Name <span class="text-danger">*</span></label>
-                        <input class="form-control" type="text" id="dept_Name" required>
-                    </div>
-                    <div class="col-sm-12 col-lg-12">
-                        <label class="col-form-label"> Department Description <span class="text-danger">*</span></label>
-                        <textarea rows="4" cols="4" class="form-control" type="text" id="dept_Desc" required> </textarea>
+                <p class="text-center">Are you sure you want to suspend?</p>
+                <div class="modal-btn delete-action">
+                    <div class="row m-auto">
+                        <input class="form-control" hidden type="text" id="user_id">
+                        <div class="col-6">
+                            <a class="btn btn-outline-success rounded-pill p-2 d-block" onclick="SuspendUser()">Suspend</a>
+                        </div>
+                        <div class="col-6">
+                            <a data-bs-dismiss="modal" class="btn btn-outline-success rounded-pill p-2 d-block">Cancel</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" id="submit_btn" onclick="addDept()">Add Department</button>
             </div>
         </div>
     </div>
 </div>
- Edit Subject Modal -->
 
+<!-- /suspend Modal -->
+
+<!-- Deactivate Modal -->
+<div class="modal fade" id="deactivate_user" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> <b> Deactivate User </b> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">Are you sure you want to deactivate?</p>
+                <div class="modal-btn delete-action">
+                    <div class="row m-auto">
+                        <input class="form-control" hidden type="text" id="user_id">
+                        <div class="col-6">
+                            <a class="btn btn-outline-success rounded-pill p-2 d-block" onclick="DeactivateUser()">Delete</a>
+                        </div>
+                        <div class="col-6">
+                            <a data-bs-dismiss="modal" class="btn btn-outline-success rounded-pill p-2 d-block">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Deactivate Modal -->
