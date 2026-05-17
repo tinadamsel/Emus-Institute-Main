@@ -274,9 +274,9 @@ namespace e_college.Controllers
         }
 
         [HttpGet]
-        public IActionResult ApprpovedStaff()
+        public IActionResult ApprovedStaff()
         {
-            var pendingApp = _superAdminHelper.GetPendingApplications();
+            var pendingApp = _superAdminHelper.GetApprovedStaff();
             return View(pendingApp);
         }
 

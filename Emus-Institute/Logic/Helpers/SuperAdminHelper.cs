@@ -422,6 +422,26 @@ namespace Logic.Helpers
             }
         }
 
+        public List<StaffDocumentationViewModel> GetApprovedStaff()
+        {
+            var getApprovedApplications = new List<StaffDocumentationViewModel>();
+            getApprovedApplications = _context.StaffDocuments.Where(x => x.Id > 0 && x.Active && x.StaffStatus == StaffStatus.Approved).Include(x => x.Users)
+           .Select(x => new StaffDocumentationViewModel()
+           {
+               Id = x.Id,
+               Name = x.Users.FirstName + " " + x.Users.LastName,
+               Email = x.Users.Email,
+               DateCreated = x.DateCreated,
+               ApplicationLetter = x.ApplicationLetter,
+               StaffPosition = x.StaffPosition,
+               UserId = x.UserId,
+               Identification = x.Identification,
+               Resume = x.Resume,
+               Active = x.Active,
+           }).ToList();
+            return getApprovedApplications;
+        }
+
         //public int GetTotalAcademicStaff()
         //{
         //    return _context.ApplicationUser.Where(a => a.Id != null && !a.Deactivated && a.IsStudent == false && a.StaffType == StaffType.AcademicStaff).Count();
@@ -430,6 +450,9 @@ namespace Logic.Helpers
         //{
         //    return _context.ApplicationUser.Where(a => a.Id != null && !a.Deactivated && a.IsStudent == false && a.StaffType == StaffType.NonAcademicStaff).Count();
         //}
+
+
+        //Add the method: check if staff is approved
 
 
 

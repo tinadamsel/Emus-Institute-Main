@@ -30,6 +30,7 @@ namespace Logic.IHelpers
         List<StaffDocumentationViewModel> GetPendingApplications();
         bool ApproveApplication(int id);
         bool RejectApplication(int id);
+        List<StaffDocumentationViewModel> GetApprovedStaff();
         //bool CheckExistingSubjectName(string name);
         //bool CreateSubject(SubjectViewModel subjectViewModel);
         //List<SubjectViewModel> GetSubjects();
