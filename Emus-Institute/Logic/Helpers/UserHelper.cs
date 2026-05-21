@@ -1,4 +1,4 @@
-﻿using Core.Config;
+using Core.Config;
 using Core.DB;
 using Core.Models;
 using Core.ViewModels;
@@ -346,6 +346,86 @@ namespace Logic.Helpers
                 return true;
             }
             return false;
+        }
+
+        public async Task<StaffEvaluationDetails> SaveStaffEvaluationDetails(string userId, string passport, string transcript,
+            string highSchCert, string waecScratchCard, string anyRelevantCert)
+        {
+            try
+            {
+                if (userId == null)
+                {
+                    return null;
+                }
+
+                var existing = _context.StaffEvaluationDetails.FirstOrDefault(x => x.UserId == userId);
+                if (existing != null)
+                {
+                    existing.Passport = passport;
+                    existing.SchoolTranscript = transcript;
+                    existing.HighSchoolCompletionCertificate = highSchCert;
+                    existing.WAECScratchCard = waecScratchCard;
+                    existing.OtherCertificate = anyRelevantCert;
+                    existing.DateAdded = DateTime.Now;
+                    _context.Update(existing);
+                    _context.SaveChanges();
+                    return existing;
+                }
+
+                var evaluationDetails = new StaffEvaluationDetails
+                {
+                    UserId = userId,
+                    Passport = passport,
+                    SchoolTranscript = transcript,
+                    HighSchoolCompletionCertificate = highSchCert,
+                    WAECScratchCard = waecScratchCard,
+                    OtherCertificate = anyRelevantCert,
+                    DateAdded = DateTime.Now
+                };
+                _context.StaffEvaluationDetails.Add(evaluationDetails);
+                _context.SaveChanges();
+                return evaluationDetails;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool SendStaffPaymentCompletionEmail(string email)
+        {
+            if (email == null)
+            {
+                return false;
+            }
+
+            var getUser = FindByEmailAsync(email).Result;
+            if (getUser == null)
+            {
+                return false;
+            }
+
+            string subject = "Staff Evaluation Payment Successful";
+            string message = "Dear " + getUser.FirstName + "<b>" + " " + ",</b> " +
+                ". <br/> <br/> Your staff credential evaluation payment of &pound;100 was successful. " +
+                "Please, login with your details and continue to your dashboard. " +
+                "<br/> <br/> Thank you  " +
+                "<br/> <br/> Emus Institute Team";
+            _emailService.SendEmail(email, subject, message);
+            return true;
+        }
+
+        public bool CheckIfStaffHasPaid(string email)
+        {
+            if (email == null)
+            {
+                return false;
+            }
+
+            var staffUser = _context.ApplicationUser
+                .FirstOrDefault(x => x.Email == email && x.IsAdmin && !x.Deactivated);
+
+            return staffUser != null && staffUser.Paid;
         }
 
         public ApplicationUser GetStudentDetails(string userId)

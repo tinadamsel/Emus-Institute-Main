@@ -1,4 +1,4 @@
-﻿using Core.Models;
+using Core.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -51,6 +51,8 @@ namespace Core.ViewModels
         public int TotalDepartmentTextbooks { get; set; }
         public int TotalActiveAnnouncements { get; set; }
         public int TotalComplains { get; set; }
+        public int TotalReferredStudents { get; set; }
+        public decimal ReferralEarnings { get; set; }
         public string? RefLink { get; set; }
     }
 }

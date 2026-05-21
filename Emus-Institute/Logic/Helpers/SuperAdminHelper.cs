@@ -1,4 +1,4 @@
-﻿using Core.Config;
+using Core.Config;
 using Core.DB;
 using Core.Models;
 using Core.ViewModels;
@@ -360,10 +360,15 @@ namespace Logic.Helpers
                         if (appApprove?.Users?.Email != null)
                         {
                             string toEmail = appApprove?.Users?.Email;
+                            var siteBaseUrl = (_generalConfiguration.SiteBaseUrl ?? "https://localhost:44329").TrimEnd('/');
+                            string evaluationUrl = siteBaseUrl + "/AcademicStaff/EvaluateCredentials?userId=" + appApprove.Users.Id;
                             string subject = "Hooray!!!, Application Approved ";
                             string message = "Hello " + "<b>" + appApprove?.Users?.FirstName + " " + appApprove?.Users?.LastName + ", </b>" + 
                                 "<br> your application for the post of " + appApprove?.StaffPosition + " on our platform has been approved.  " +
-                                "You can now login with the following credentials: <br>"  +
+                                "<br/> <br/> Before you can login, please complete your staff credential evaluation and pay the evaluation fee of &pound;100 " +
+                                "(which covers application, transcript review and certificate evaluation)." +
+                                "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + evaluationUrl + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
+                                "<br/> <br/> After payment, login with the following credentials: <br>"  +
                                 " <b> Email: " + appApprove?.Users?.Email + ", Password: " + appApprove?.Users?.Password + " </b> " +
                                 "<br> <br> We are happy to have you and we look forward to having a nice working relationship with you. " +
                                 "<br> <br>" +

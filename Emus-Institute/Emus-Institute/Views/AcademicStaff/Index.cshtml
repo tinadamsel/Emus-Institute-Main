@@ -1,4 +1,4 @@
-﻿@model Core.ViewModels.ApplicationUserViewModel
+@model Core.ViewModels.ApplicationUserViewModel
 
 @{
     ViewData["Title"] = "DashBoard";
@@ -66,17 +66,32 @@
                     <div class="col-lg-4 col-md-4">
                         <div class="card info-card sales-card">
                             <div class="card-body">
-                                @* <a asp-controller="Student" asp-action="Complain" class="card-link"> *@
-                                <h5 class="card-title"> No of Reffered Students </h5>
+                                <h5 class="card-title"> Referred Students </h5>
                                 <div class="d-flex align-items-center">
                                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <i class="bi bi-people-fill"></i>
                                     </div>
                                     <div class="ps-3">
-                                        <h6>0</h6>
+                                        <h6>@Model.TotalReferredStudents</h6>
                                     </div>
                                 </div>
-                                @* </a> *@
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Card -->
+                    <!-- Start Card -->
+                    <div class="col-lg-4 col-md-4">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title"> Referral Earnings </h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-currency-pound"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>&pound;@Model.ReferralEarnings.ToString("0.00")</h6>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +13,8 @@ namespace Core.Config
         public string PayStakApiKey { get; set; }
         public string PayStackBase { get; set; }
         public string CallbackUrl { get; set; }
+        public string StaffCallbackUrl { get; set; }
+        public decimal StaffEvaluationAmountNgn { get; set; }
+        public string SiteBaseUrl { get; set; }
     }
 }

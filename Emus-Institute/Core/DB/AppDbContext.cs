@@ -1,4 +1,4 @@
-﻿using Core.Models;
+using Core.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,6 +25,7 @@ namespace Core.DB
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PayStack> PayStackpayments { get; set; }
         public DbSet<EvaluationDetails> EvaluationDetails { get; set; }
+        public DbSet<StaffEvaluationDetails> StaffEvaluationDetails { get; set; }
 
 
         //public DbSet<PaymentForm> PaymentForms { get; set; }
