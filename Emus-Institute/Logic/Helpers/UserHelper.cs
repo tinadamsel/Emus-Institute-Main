@@ -198,6 +198,16 @@ namespace Logic.Helpers
                                 "<br/> <br/> Thank you  " +
                                 "<br/> <br/> Emus Institute Team";
                             _emailService.SendEmail(toEmail, subject, message);
+
+                            var adminEmail = "nwachukwuarinze00@gmail.com";
+                            string adminSubject = "Student Application Submission";
+                            string adminMessage = "Hello SuperAdmin, <br> A student application has been submitted by " +
+                                "<b>" + user?.FirstName + " " + user?.LastName + "</b> on " + user.DateRegistered.ToString() + ". " +
+                                "<br> Student ID: <b>" + user?.StudentId + "</b>. " +
+                                "<br> Please, endeavor to review the registration and make the necessary move. " +
+                                "<br> Thank you!!!";
+                            _emailService.SendEmail(adminEmail, adminSubject, adminMessage);
+
                             return true;
                         }
 
@@ -439,7 +449,7 @@ namespace Logic.Helpers
             return null;
         }
 
-        public async Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId, string resume)
+        public async Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId, string resume, string linkToClick)
         {
             try
             {
@@ -516,15 +526,32 @@ namespace Logic.Helpers
                     AddStaffDocuments(user.Id, staffPosition, user.DepartmentId, validId, appLetter, resume);
                     if (user.Id != null)
                     {
-                        var adminEmal = "nwachukwuarinze00@gmail.com";
-                        //string toEmail = _generalConfiguration.AdminEmail;
-                        string toEmail = adminEmal;
-                        string subject = "Staff Application Submission";
-                        string message = "Hello SuperAdmin, <br> A staff application has been submitted, by " + "<b>" + user?.FirstName + " " + user?.LastName + " </b> on " + user.DateRegistered.ToString() + ". " +
+                        if (user.Email != null && !string.IsNullOrEmpty(linkToClick))
+                        {
+                            var evaluationUrl = linkToClick + user.Id;
+                            string staffSubject = "Staff Application Submission";
+                            string staffMessage = "Hello, <b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
+                                "<br> Your application to join Emus Institute was received successfully." +
+                                "<br/> <br/> Please complete your staff credential evaluation to proceed with your application." +
+                                "<br/> <br/> Click the button below to upload your documents and make the evaluation payment of &pound;100 " +
+                                "(which covers application, transcript review and certificate evaluation)" +
+                                "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + evaluationUrl + "' target='_blank'>" +
+                                "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button></a>" +
+                                "<br/> <br/> After payment, you can login with the following credentials:" +
+                                "<br> <b>Email:</b> " + user.Email +
+                                "<br> <b>Password:</b> " + staffPassword +
+                                "<br/> <br/> Please keep these details safe." +
+                                "<br/> <br/> Thank you " +
+                                "<br/> <br/> Emus Institute Team";
+                            _emailService.SendEmail(user.Email, staffSubject, staffMessage);
+                        }
+
+                        var adminEmail = "nwachukwuarinze00@gmail.com";
+                        string adminSubject = "Staff Application Submission";
+                        string adminMessage = "Hello SuperAdmin, <br> A staff application has been submitted, by " + "<b>" + user?.FirstName + " " + user?.LastName + " </b> on " + user.DateRegistered.ToString() + ". " +
                                          "<br> Please, endeavor to review the pending application and make the necessary move. " +
                                          "<br> Thank you!!!";
-
-                        _emailService.SendEmail(toEmail, subject, message);
+                        _emailService.SendEmail(adminEmail, adminSubject, adminMessage);
                         return true;
                     }
                 }

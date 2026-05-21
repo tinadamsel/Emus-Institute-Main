@@ -18,7 +18,7 @@ namespace Logic.IHelpers
         ApplicationUser FindByUserName(string username);
        
         string GetUserId(string username);
-        Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId, string resume);
+        Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId, string resume, string linkToClick);
         string GetUserRole(string userId);
 
         bool CheckIfStaffIsApproved(string email);
