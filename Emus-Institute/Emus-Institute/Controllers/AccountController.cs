@@ -1,4 +1,4 @@
-﻿using Azure;
+using Azure;
 using Core.Config;
 using Core.DB;
 using Core.Models;
@@ -185,11 +185,14 @@ namespace e_college.Controllers
                     {
                         return Json(new { isError = true, msg = "Email Already Exists" });
                     }
-                    
-                    var createStaff = await _userHelper.RegStaff(appUserViewModel, staffPosition, appLetter, validId, resume).ConfigureAwait(false);
+
+                    string linkToClick = HttpContext.Request.Scheme.ToString() + "://" +
+                        HttpContext.Request.Host.ToString() + "/AcademicStaff/EvaluateCredentials?userId=";
+
+                    var createStaff = await _userHelper.RegStaff(appUserViewModel, staffPosition, appLetter, validId, resume, linkToClick).ConfigureAwait(false);
                     if (createStaff)
                     {
-                        return Json(new { isError = false, msg = "Application successful. Thank you for your interest. Our team will contact you soon", });
+                        return Json(new { isError = false, msg = "Application successful. Check your email and follow the instructions to complete your evaluation." });
                     }
                 }
                 return Json(new { isError = true, msg = "Unable to register" });
@@ -244,6 +247,10 @@ namespace e_college.Controllers
                         {
                             return Json(new { isError = true, msg = "Your application has not been approved yet" });
                         }
+                        if (!_userHelper.CheckIfStaffHasPaid(email))
+                        {
+                            return Json(new { isError = true, msg = "Please complete your staff credential evaluation and payment of £100 before logging in." });
+                        }
                         var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
                         if (checkIfSuspended)
                         {
@@ -262,6 +269,10 @@ namespace e_college.Controllers
                         if (!staffIsApproved)
                         {
                             return Json(new { isError = true, msg = "Your application has not been approved yet" });
+                        }
+                        if (!_userHelper.CheckIfStaffHasPaid(email))
+                        {
+                            return Json(new { isError = true, msg = "Please complete your staff credential evaluation and payment of £100 before logging in." });
                         }
                         var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
                         if (checkIfSuspended)
@@ -282,6 +293,10 @@ namespace e_college.Controllers
                         {
                             return Json(new { isError = true, msg = "Your application has not been approved yet" });
                         }
+                        if (!_userHelper.CheckIfStaffHasPaid(email))
+                        {
+                            return Json(new { isError = true, msg = "Please complete your staff credential evaluation and payment of £100 before logging in." });
+                        }
                         var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
                         if (checkIfSuspended)
                         {
@@ -301,6 +316,10 @@ namespace e_college.Controllers
                         {
                             return Json(new { isError = true, msg = "Your application has not been approved yet" });
                         }
+                        if (!_userHelper.CheckIfStaffHasPaid(email))
+                        {
+                            return Json(new { isError = true, msg = "Please complete your staff credential evaluation and payment of £100 before logging in." });
+                        }
                         var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
                         if (checkIfSuspended)
                         {
@@ -319,6 +338,10 @@ namespace e_college.Controllers
                         if (!staffIsApproved)
                         {
                             return Json(new { isError = true, msg = "Your application has not been approved yet" });
+                        }
+                        if (!_userHelper.CheckIfStaffHasPaid(email))
+                        {
+                            return Json(new { isError = true, msg = "Please complete your staff credential evaluation and payment of £100 before logging in." });
                         }
                         var checkIfSuspended = _userHelper.CheckIfUserIsSuspended(email);
                         if (checkIfSuspended)

@@ -1,4 +1,4 @@
-﻿using Core.Config;
+using Core.Config;
 using Core.DB;
 using Core.Models;
 using Core.ViewModels;
@@ -198,6 +198,16 @@ namespace Logic.Helpers
                                 "<br/> <br/> Thank you  " +
                                 "<br/> <br/> Emus Institute Team";
                             _emailService.SendEmail(toEmail, subject, message);
+
+                            var adminEmail = "nwachukwuarinze00@gmail.com";
+                            string adminSubject = "Student Application Submission";
+                            string adminMessage = "Hello SuperAdmin, <br> A student application has been submitted by " +
+                                "<b>" + user?.FirstName + " " + user?.LastName + "</b> on " + user.DateRegistered.ToString() + ". " +
+                                "<br> Student ID: <b>" + user?.StudentId + "</b>. " +
+                                "<br> Please, endeavor to review the registration and make the necessary move. " +
+                                "<br> Thank you!!!";
+                            _emailService.SendEmail(adminEmail, adminSubject, adminMessage);
+
                             return true;
                         }
 
@@ -348,6 +358,86 @@ namespace Logic.Helpers
             return false;
         }
 
+        public async Task<StaffEvaluationDetails> SaveStaffEvaluationDetails(string userId, string passport, string transcript,
+            string highSchCert, string waecScratchCard, string anyRelevantCert)
+        {
+            try
+            {
+                if (userId == null)
+                {
+                    return null;
+                }
+
+                var existing = _context.StaffEvaluationDetails.FirstOrDefault(x => x.UserId == userId);
+                if (existing != null)
+                {
+                    existing.Passport = passport;
+                    existing.SchoolTranscript = transcript;
+                    existing.HighSchoolCompletionCertificate = highSchCert;
+                    existing.WAECScratchCard = waecScratchCard;
+                    existing.OtherCertificate = anyRelevantCert;
+                    existing.DateAdded = DateTime.Now;
+                    _context.Update(existing);
+                    _context.SaveChanges();
+                    return existing;
+                }
+
+                var evaluationDetails = new StaffEvaluationDetails
+                {
+                    UserId = userId,
+                    Passport = passport,
+                    SchoolTranscript = transcript,
+                    HighSchoolCompletionCertificate = highSchCert,
+                    WAECScratchCard = waecScratchCard,
+                    OtherCertificate = anyRelevantCert,
+                    DateAdded = DateTime.Now
+                };
+                _context.StaffEvaluationDetails.Add(evaluationDetails);
+                _context.SaveChanges();
+                return evaluationDetails;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool SendStaffPaymentCompletionEmail(string email)
+        {
+            if (email == null)
+            {
+                return false;
+            }
+
+            var getUser = FindByEmailAsync(email).Result;
+            if (getUser == null)
+            {
+                return false;
+            }
+
+            string subject = "Staff Evaluation Payment Successful";
+            string message = "Dear " + getUser.FirstName + "<b>" + " " + ",</b> " +
+                ". <br/> <br/> Your staff credential evaluation payment of &pound;100 was successful. " +
+                "Please, login with your details and continue to your dashboard. " +
+                "<br/> <br/> Thank you  " +
+                "<br/> <br/> Emus Institute Team";
+            _emailService.SendEmail(email, subject, message);
+            return true;
+        }
+
+        public bool CheckIfStaffHasPaid(string email)
+        {
+            if (email == null)
+            {
+                return false;
+            }
+
+            var staffUser = _context.ApplicationUser
+                .FirstOrDefault(x => x.Email == email && x.IsAdmin && !x.Deactivated);
+
+            return staffUser != null && staffUser.Paid;
+        }
+
         public ApplicationUser GetStudentDetails(string userId)
         {
             var studentDetail = _context.ApplicationUser.Where(x => x.Id == userId && x.IsStudent && !x.Deactivated)
@@ -359,7 +449,7 @@ namespace Logic.Helpers
             return null;
         }
 
-        public async Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId, string resume)
+        public async Task<bool> RegStaff(ApplicationUserViewModel userDetails, string staffPosition, string appLetter, string validId, string resume, string linkToClick)
         {
             try
             {
@@ -436,15 +526,32 @@ namespace Logic.Helpers
                     AddStaffDocuments(user.Id, staffPosition, user.DepartmentId, validId, appLetter, resume);
                     if (user.Id != null)
                     {
-                        var adminEmal = "nwachukwuarinze00@gmail.com";
-                        //string toEmail = _generalConfiguration.AdminEmail;
-                        string toEmail = adminEmal;
-                        string subject = "Staff Application Submission";
-                        string message = "Hello SuperAdmin, <br> A staff application has been submitted, by " + "<b>" + user?.FirstName + " " + user?.LastName + " </b> on " + user.DateRegistered.ToString() + ". " +
+                        if (user.Email != null && !string.IsNullOrEmpty(linkToClick))
+                        {
+                            var evaluationUrl = linkToClick + user.Id;
+                            string staffSubject = "Staff Application Submission";
+                            string staffMessage = "Hello, <b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
+                                "<br> Your application to join Emus Institute was received successfully." +
+                                "<br/> <br/> Please complete your staff credential evaluation to proceed with your application." +
+                                "<br/> <br/> Click the button below to upload your documents and make the evaluation payment of &pound;100 " +
+                                "(which covers application, transcript review and certificate evaluation)" +
+                                "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + evaluationUrl + "' target='_blank'>" +
+                                "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button></a>" +
+                                "<br/> <br/> After payment, you can login with the following credentials:" +
+                                "<br> <b>Email:</b> " + user.Email +
+                                "<br> <b>Password:</b> " + staffPassword +
+                                "<br/> <br/> Please keep these details safe." +
+                                "<br/> <br/> Thank you " +
+                                "<br/> <br/> Emus Institute Team";
+                            _emailService.SendEmail(user.Email, staffSubject, staffMessage);
+                        }
+
+                        var adminEmail = "nwachukwuarinze00@gmail.com";
+                        string adminSubject = "Staff Application Submission";
+                        string adminMessage = "Hello SuperAdmin, <br> A staff application has been submitted, by " + "<b>" + user?.FirstName + " " + user?.LastName + " </b> on " + user.DateRegistered.ToString() + ". " +
                                          "<br> Please, endeavor to review the pending application and make the necessary move. " +
                                          "<br> Thank you!!!";
-
-                        _emailService.SendEmail(toEmail, subject, message);
+                        _emailService.SendEmail(adminEmail, adminSubject, adminMessage);
                         return true;
                     }
                 }

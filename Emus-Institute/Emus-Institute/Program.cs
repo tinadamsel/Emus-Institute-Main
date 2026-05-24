@@ -22,6 +22,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
 builder.Services.AddSingleton<IEmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>());
 builder.Services.AddSingleton<IGeneralConfiguration>(builder.Configuration.GetSection("GeneralConfiguration").Get<GeneralConfiguration>());
 builder.Services.AddHangfire(x => x.UseSqlServerStorage(builder.Configuration.GetConnectionString("ECollegeHangFire")));
+builder.Services.AddHangfireServer();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -61,6 +62,10 @@ builder.Services.AddScoped<IDropDownHelper, DropdownHelper>();
 builder.Services.AddScoped<IAccountHelper, AccountHelper>();
 builder.Services.AddScoped<IPaymentHelper, PaymentHelper>();
 builder.Services.AddScoped<IPaystackHelper, PaystackHelper>();
+builder.Services.AddScoped<IStaffPaymentHelper, StaffPaymentHelper>();
+builder.Services.AddScoped<IStaffPaystackHelper, StaffPaystackHelper>();
+builder.Services.AddScoped<IEvaluationReminderService, EvaluationReminderService>();
+builder.Services.AddTransient<EvaluationReminderJob>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -87,12 +92,18 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireDashboardAuthorizationFilter() }
+});
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context?.Database.Migrate();
-    var roleManger = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var context = services.GetRequiredService<AppDbContext>();
+    context.Database.Migrate();
+
+    var roleManger = services.GetRequiredService<RoleManager<IdentityRole>>();
     var templateServices = services.GetRequiredService<ITemplate>();
     var roles = templateServices.DefaultRoles();
     foreach (var role in roles)
@@ -103,16 +114,28 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        var _onLoadExe = services.GetRequiredService<IAccountHelper>();
-        _onLoadExe.CreateSuperAdminAccount();
+        var onLoadExe = services.GetRequiredService<IAccountHelper>();
+        onLoadExe.CreateSuperAdminAccount();
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while see the database.");
+        logger.LogError(ex, "An error occurred while seeding the database.");
     }
+
+    var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+    recurringJobManager.AddOrUpdate<EvaluationReminderJob>(
+        "weekly-evaluation-reminders",
+        job => job.SendWeeklyRemindersAsync(),
+        Cron.Weekly);
 }
+
 app.Run();
+
+class HangfireDashboardAuthorizationFilter : IDashboardAuthorizationFilter
+{
+    public bool Authorize(DashboardContext context) => true;
+}
 
 //static void UpdateDatabase(IApplicationBuilder app)
 //{

@@ -1,4 +1,4 @@
-﻿using Core.Config;
+using Core.Config;
 using Core.DB;
 using Core.Models;
 using Logic.IHelpers;
@@ -145,7 +145,7 @@ namespace Logic.Helpers
                     _context.SaveChanges();
                     if (_paystackEntity.PaymentId != Guid.Empty)
                     {
-                        var payment = _context.Payments.Where(x => x.Id == _paystackEntity.PaymentId && x.Status == PaymentStatus.Pending).FirstOrDefault();
+                        var payment = _context.Payments.Where(x => x.Id == _paystackEntity.PaymentId && x.Status == PaymentStatus.Pending && x.Details != "Staff Evaluation Payment").FirstOrDefault();
                         if (payment != null)
                         {
                             payment.Status = PaymentStatus.Approved;
@@ -155,7 +155,7 @@ namespace Logic.Helpers
                             _context.Update(payment);
                             _context.SaveChanges();
 
-                            var updateUserDetails = _context.ApplicationUser.Where(a => a.Id == payment.UserId && !a.Deactivated && !a.IsStudent).FirstOrDefault();
+                            var updateUserDetails = _context.ApplicationUser.Where(a => a.Id == payment.UserId && !a.Deactivated && !a.IsStudent && !a.IsAdmin).FirstOrDefault();
                             if (updateUserDetails != null)
                             {
                                 updateUserDetails.Paid = true;

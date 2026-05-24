@@ -1,4 +1,4 @@
-﻿
+
 function RegisterStudent() {
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");
@@ -91,6 +91,81 @@ function RegisterStudent() {
 //    $("#" + id + "Error").text(message).css({ color: "red" });
 //    $("#" + id).css({ border: "1px solid red" });
 //}
+
+async function EvaluateStaff() {
+    const defaultBtnValue = $('#submit_btn').html();
+    $('#submit_btn').html("Please wait...");
+    $('#submit_btn').attr("disabled", true);
+
+    const userId = $('#userId').val();
+
+    function toBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    try {
+        const passportFile = document.getElementById("passport").files[0];
+        const transcriptFile = document.getElementById("transcript").files[0];
+        const highSchCertFile = document.getElementById("highSchCert").files[0];
+        const waecScratchCardFile = document.getElementById("waecScratchCard").files[0];
+        const anyRelevantCertFile = document.getElementById("anyRelevantCert").files[0];
+
+        if (!passportFile || !transcriptFile || !highSchCertFile || !waecScratchCardFile || !anyRelevantCertFile) {
+            errorAlert("Please attach all required files before submitting.");
+            $('#submit_btn').html(defaultBtnValue);
+            $('#submit_btn').attr("disabled", false);
+            return;
+        }
+
+        const [passport, transcript, highSchCert, waecScratchCard, anyRelevantCert] = await Promise.all([
+            toBase64(passportFile),
+            toBase64(transcriptFile),
+            toBase64(highSchCertFile),
+            toBase64(waecScratchCardFile),
+            toBase64(anyRelevantCertFile)
+        ]);
+
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/AcademicStaff/EvaluateStaffDetails',
+            data: {
+                userId,
+                passport,
+                transcript,
+                highSchCert,
+                waecScratchCard,
+                anyRelevantCert
+            },
+            success: function (result) {
+                if (!result.isError) {
+                    successAlertWithRedirect(result.msg, result.data);
+                } else if (result.isError && result.url) {
+                    window.location.href = result.url;
+                } else {
+                    $('#submit_btn').html(defaultBtnValue);
+                    $('#submit_btn').attr("disabled", false);
+                    errorAlert(result.msg);
+                }
+            },
+            error: function () {
+                $('#submit_btn').html(defaultBtnValue);
+                $('#submit_btn').attr("disabled", false);
+                errorAlert("An error occurred. Please contact admin if issue persists.");
+            },
+        });
+    } catch (error) {
+        console.error("File reading error:", error);
+        errorAlert("Error reading files. Please try again.");
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+    }
+}
 
 async function Evaluate() {
    
