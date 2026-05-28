@@ -664,5 +664,14 @@ namespace Logic.Helpers
             return false;
         }
 
+        public bool CheckIfSuspended(string userId)
+        {
+            if (userId != null )
+            {
+                return _context.Suspensions.Where(x => x.UserId == userId && x.IsSuspended && x.IsRemoved == false).Any();
+            }
+            return false;
+        }
+
     }
 }

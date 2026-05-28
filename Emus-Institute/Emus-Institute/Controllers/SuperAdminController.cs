@@ -38,6 +38,7 @@ namespace e_college.Controllers
             var registeredStudents = _superAdminHelper.GetTotalRegisteredStudents();
             var staff = _superAdminHelper.GetTotalStaff();
             var departments = _superAdminHelper.GetTotalDepartments();
+            var suspendedUsers = _superAdminHelper.GetTotalSuspendedUsers();
             var model = new ApplicationUserViewModel()
             {
                 TotalStaff = staff,
@@ -45,6 +46,7 @@ namespace e_college.Controllers
                 TotalDepartments = departments,
                 TotalRegisteredStudents = registeredStudents,
                 TotalPaidStudents = paidStudents,
+                TotalSuspendedUsers = suspendedUsers,
             };
             return View(model);
         }
@@ -279,7 +281,64 @@ namespace e_college.Controllers
             var pendingApp = _superAdminHelper.GetApprovedStaff();
             return View(pendingApp);
         }
+        [HttpPost]
+        public JsonResult SuspendUser(string userId)
+        {
+            if (userId != null)
+            {
+                //check if user is susspended 
+                var checkifSuspended = _userHelper.CheckIfSuspended(userId);
+                if (checkifSuspended)
+                {
+                    return Json(new { isError = true, msg = "This user is already suspended" });
+                }
+                var suspendStaff = _superAdminHelper.SuspendUser(userId);
+                if (suspendStaff)
+                {
+                    return Json(new { isError = false, msg = "User Suspended" });
+                }
+                return Json(new { isError = true, msg = "Unable To Suspend" });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
 
+        [HttpPost]
+        public JsonResult DeactivateUser(string userId)
+        {
+            if (userId != null)
+            {
+                var deactivateUser = _superAdminHelper.DeactivateUser(userId);
+                if (deactivateUser)
+                {
+                    return Json(new { isError = false, msg = "User Deactivated" });
+                }
+                return Json(new { isError = true, msg = "Unable To Deactivate" });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
+
+        [HttpGet]
+        public IActionResult SuspendedUsers()
+        {
+            var suspendedUsers = _superAdminHelper.GetSuspendedUsers();
+            return View(suspendedUsers);
+        }
+
+        [HttpPost]
+        public JsonResult RemoveUserFromSuspension(int id)
+        {
+            if (id > 0)
+            {
+                //check if user is removed
+                var removeSuspension = _superAdminHelper.RemoveSuspension(id);
+                if (removeSuspension)
+                {
+                    return Json(new { isError = false, msg = "User Removed From Suspension" });
+                }
+                return Json(new { isError = true, msg = "Unable To Remove" });
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
 
     }
 }

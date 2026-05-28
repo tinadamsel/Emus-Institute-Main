@@ -31,12 +31,10 @@ namespace Logic.IHelpers
         bool ApproveApplication(int id);
         bool RejectApplication(int id);
         List<StaffDocumentationViewModel> GetApprovedStaff();
-        //bool CheckExistingSubjectName(string name);
-        //bool CreateSubject(SubjectViewModel subjectViewModel);
-        //List<SubjectViewModel> GetSubjects();
-        //SubjectViewModel GetSubjectToEdit(int id);
-        //bool SaveEditedSubject(SubjectViewModel subjectViewModel);
-        //bool DeleteSubject(int id);
-
+        bool SuspendUser(string userId);
+        List<SuspensionViewModel> GetSuspendedUsers();
+        bool DeactivateUser(string userId);
+        bool RemoveSuspension(int id);
+        int GetTotalSuspendedUsers();
     }
 }

@@ -1,0 +1,61 @@
+﻿@model IEnumerable<Core.ViewModels.SuspensionViewModel>
+
+@{
+    ViewData["Title"] = "Suspended Users";
+    Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Dashboard</h1>
+        <nav class="mt-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                <li class="breadcrumb-item active"> Suspended Users </li>
+            </ol>
+        </nav>
+    </div>
+    <!-- End Page Title -->
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped custom-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th> S/N</th>
+                            <th> Name </th>
+                            <th> Date Suspended </th>
+                            <th> Reason </th>
+                            <th> Duration </th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    @if (Model.Count() > 0 && Model != null)
+                    {
+                        <tbody>
+                            @foreach (var suspend in Model)
+                            {
+                                <tr style="font-size:small;">
+                                    <td></td>
+                                    <td>@suspend.Name </td>
+                                    <td>@suspend.DateSuspended.ToString("D") </td>
+                                    <td>@suspend.SuspensionReason </td>
+                                    <td>@suspend.SuspensionDuration </td>
+                                    <td class="text-center">
+                                        <div style="display: flex" class="my-2">
+                                            <a class="btn btn-outline-success rounded-pill mx-1" onclick="RemoveSuspension('@suspend.Id')">
+                                                Remove Suspension
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
+
+                </table>
+            </div>
+        </div>
+    </div>
+</main><!-- End #main -->

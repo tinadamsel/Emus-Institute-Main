@@ -191,6 +191,17 @@ namespace Logic.Helpers
                 _context.SaveChanges();
             }
 
+            var updateStaffDocument = _context.StaffDocuments.FirstOrDefault(x => x.UserId == staffEvaluation.UserId);
+            if (updateStaffDocument != null)
+            {
+                updateStaffDocument.IsApproved = true;
+                updateStaffDocument.DateOfApproval = DateTime.Now;
+                updateStaffDocument.ApprovedbyId = "Admin";
+                updateStaffDocument.StaffStatus = StaffStatus.Approved;
+                _context.Update(updateStaffDocument);
+                _context.SaveChanges();
+            }
+
             return paystackEntity;
         }
 

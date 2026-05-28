@@ -22,18 +22,10 @@ namespace Logic.IHelpers
         string GetUserRole(string userId);
 
         bool CheckIfStaffIsApproved(string email);
-        //List<StaffDocumentationViewModel> GetPendingApplications();
-        //StaffDocumentation GetCoverLetter(int id);
+       
         bool CheckIfApproved(int id);
         bool CheckIfDeclined(int id);
-        //bool ApproveApplication(int id);
-        //bool RejectApplication(int id);
-        //int GetTotalAcademicStaff();
-        //int GetTotalNonAcademicStaff();
-
-        //this 1 not included:
-        //Task<bool> RegisterUniStudent(ApplicationUserViewModel userDetails, string edulevel);
-        string GetCurrentUserId(string username);
+         string GetCurrentUserId(string username);
         Task<bool> RegisterStudent(ApplicationUserViewModel userDetails, string linkToClick, string refLink);
         Task<EvaluationDetails> SaveStudentEvaluationDetails(string UserId, string passport, string transcript, string highSchCert, string waecScratchCard, string anyRelevantCert);
         Task<StaffEvaluationDetails> SaveStaffEvaluationDetails(string userId, string passport, string transcript, string highSchCert, string waecScratchCard, string anyRelevantCert);
@@ -43,5 +35,7 @@ namespace Logic.IHelpers
         Task<ApplicationUser> FindByUserNameAsync(string username);
         ApplicationUser GetStudentDetails(string userId);
         StaffDocumentation GetCoverLetter(int id);
+        bool CheckIfSuspended(string userId);
+       
     }
 }

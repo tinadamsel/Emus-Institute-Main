@@ -90,6 +90,10 @@ namespace Logic.Helpers
         {
             return _context.Departments.Where(x => x.Id > 0 && x.Active).Count();
         }
+        public int GetTotalSuspendedUsers()
+        {
+            return _context.Suspensions.Where(x => x.Id > 0 && x.IsSuspended).Count();
+        }
         public int GetTotalStaff()
         {
             return _context.StaffDocuments.Where(a => a.Id > 0 && a.Active).Count();
@@ -171,9 +175,11 @@ namespace Logic.Helpers
         }
         public List<ApplicationUserViewModel> GetAllApprovedStudents()
         {
-            var appUserViewModel = new List<ApplicationUserViewModel>();
-            appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated).Include(x => x.Department)
-                .Select(x => new ApplicationUserViewModel()
+            var result = new List<ApplicationUserViewModel>();
+            var appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated).Include(x => x.Department);
+            if (appUserViewModel.Any())
+            {
+                result = appUserViewModel.Select(x => new ApplicationUserViewModel()
                 {
                     Id = x.Id,
                     FirstName = x.FirstName,
@@ -192,8 +198,15 @@ namespace Logic.Helpers
                     CurrentSession = x.CurrentSession,
                     AcademicLevel = x.AcademicLevel,
                     Phonenumber = x.PhoneNumber,
-                }).ToList();
-            return appUserViewModel;
+                }).OrderByDescending(o => o.DateRegistered).ToList();
+                foreach (var item in result)
+                {
+                    item.IsSuspended = GetUserSuspensionStatus(item.Id);
+                }
+                return result;
+            }
+
+            return result;
         }
 
         public List<ApplicationUserViewModel> GetAllPaidStudents()
@@ -340,6 +353,7 @@ namespace Logic.Helpers
            }).ToList();
             return getApplications;
         }
+  
         public bool ApproveApplication(int id)
         {
             string toEmailBug = _generalConfiguration.DeveloperEmail;
@@ -360,16 +374,10 @@ namespace Logic.Helpers
                         if (appApprove?.Users?.Email != null)
                         {
                             string toEmail = appApprove?.Users?.Email;
-                            var siteBaseUrl = (_generalConfiguration.SiteBaseUrl ?? "https://localhost:44329").TrimEnd('/');
-                            string evaluationUrl = siteBaseUrl + "/AcademicStaff/EvaluateCredentials?userId=" + appApprove.Users.Id;
                             string subject = "Hooray!!!, Application Approved ";
-                            string message = "Hello " + "<b>" + appApprove?.Users?.FirstName + " " + appApprove?.Users?.LastName + ", </b>" + 
+                            string message = "Hello " + "<b>" + appApprove?.Users?.FirstName + " " + appApprove?.Users?.LastName + ", </b>" +
                                 "<br> your application for the post of " + appApprove?.StaffPosition + " on our platform has been approved.  " +
-                                "<br/> <br/> Before you can login, please complete your staff credential evaluation and pay the evaluation fee of &pound;100 " +
-                                "(which covers application, transcript review and certificate evaluation)." +
-                                "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + evaluationUrl + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
-                                "<br/> <br/> After payment, login with the following credentials: <br>"  +
-                                " <b> Email: " + appApprove?.Users?.Email + ", Password: " + appApprove?.Users?.Password + " </b> " +
+                                "You can now login with your credentials <br>" +
                                 "<br> <br> We are happy to have you and we look forward to having a nice working relationship with you. " +
                                 "<br> <br>" +
                               " Once again, Congratulations !!! " +
@@ -429,22 +437,172 @@ namespace Logic.Helpers
 
         public List<StaffDocumentationViewModel> GetApprovedStaff()
         {
-            var getApprovedApplications = new List<StaffDocumentationViewModel>();
-            getApprovedApplications = _context.StaffDocuments.Where(x => x.Id > 0 && x.Active && x.StaffStatus == StaffStatus.Approved).Include(x => x.Users)
-           .Select(x => new StaffDocumentationViewModel()
+            var result = new List<StaffDocumentationViewModel>();
+            var approvedStaff = _context.StaffDocuments.Where(x => x.Id > 0 && x.Active && x.StaffStatus == StaffStatus.Approved).Include(x => x.Users);
+            if (approvedStaff.Any())
+            {
+                result = approvedStaff.Select(x => new StaffDocumentationViewModel()
+                {
+                    Id = x.Id,
+                    Name = x.Users.FirstName + " " + x.Users.LastName,
+                    Email = x.Users.Email,
+                    DateCreated = x.DateCreated,
+                    ApplicationLetter = x.ApplicationLetter,
+                    StaffPosition = x.StaffPosition,
+                    UserId = x.UserId,
+                    Identification = x.Identification,
+                    Resume = x.Resume,
+                    Active = x.Active,
+                }).OrderByDescending(o => o.DateCreated).ToList();
+                foreach (var item in result)
+                {
+                    item.IsSuspended = GetUserSuspensionStatus(item.UserId);
+                }
+                return result;
+            }
+            return result;
+        }
+
+        public bool GetUserSuspensionStatus(string userId)
+        {
+            if (userId != null)
+            {
+                var getStatus = _context.Suspensions.Where(x => x.UserId == userId).FirstOrDefault();
+                if (getStatus != null)
+                {
+                    return getStatus.IsSuspended;
+                }
+            }
+            return false;
+        }
+
+        public bool SuspendUser(string userId)
+        {
+            if (userId != null)
+            {
+                var getUserInitialSuspensionIfAny = _context.Suspensions.Where(x => x.UserId == userId && !x.IsSuspended && x.IsRemoved == true).FirstOrDefault();
+                if (getUserInitialSuspensionIfAny != null)
+                {
+                    getUserInitialSuspensionIfAny.IsSuspended = true;
+                    getUserInitialSuspensionIfAny.DateSuspended = DateTime.Now;
+                    getUserInitialSuspensionIfAny.IsRemoved = false;
+
+                    _context.Update(getUserInitialSuspensionIfAny);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    var suspend = new Suspension()
+                    {
+                        IsSuspended = true,
+                        IsRemoved = false,
+                        UserId = userId,
+                        DateSuspended = DateTime.Now,
+                        SuspensionDuration = " N/A",
+                        SuspensionReason = " Misconduct",
+                    };
+                    _context.Suspensions.Add(suspend);
+                    _context.SaveChanges();
+                }
+
+                var getUser = _context.ApplicationUser.Where(x => x.Id == userId && !x.Deactivated).FirstOrDefault();
+                if (getUser != null)
+                {
+                    string toEmail = getUser?.Email;
+                    string subject = "Suspension Alert";
+                    string message = "Hello " + "<b>" + getUser?.FirstName + " " + getUser?.LastName + ", </b>" +
+                        "<br> you have been suspended from having access to EMUS Institute Platform. " +
+                        "This simply means you cannot log in to the site currently. You will be notified when your suspension is lifted. " +
+                        " <br> <br> Warm Regards, " +
+                        " <br> <br> Emus Institute Team";
+
+                    _emailService.SendEmail(toEmail, subject, message);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool DeactivateUser(string userId)
+        {
+            if (userId != null)
+            {
+                var deactivateUser = _context.ApplicationUser.Where(x => x.Id == userId && !x.Deactivated).FirstOrDefault();
+                if (deactivateUser != null)
+                {
+                    deactivateUser.Deactivated = true;
+                    _context.SaveChanges();
+
+                    if (deactivateUser?.Email != null)
+                    {
+                        string toEmail = deactivateUser?.Email;
+                        string subject = "Deactivation Alert";
+                        string message = "Hello " + "<b>" + deactivateUser?.FirstName + " " + deactivateUser?.LastName + ", </b>" +
+                            "<br> you have been deactivated from using the EMUS Institute Platform. This simply means, you cannot log in to the site again " +
+                            " <br> <br> We wish you well in your future endeavours <br> " +
+                            " <br> <br> Warm Regards " +
+                            "<br> <br> EMUS Institute Team ";
+
+                        _emailService.SendEmail(toEmail, subject, message);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public List<SuspensionViewModel> GetSuspendedUsers()
+        {
+            var getSuspendedUsers = new List<SuspensionViewModel>();
+            getSuspendedUsers = _context.Suspensions.Where(x => x.Id > 0 && x.IsSuspended && x.IsRemoved == false).Include(x => x.Users)
+           .Select(x => new SuspensionViewModel()
            {
                Id = x.Id,
                Name = x.Users.FirstName + " " + x.Users.LastName,
-               Email = x.Users.Email,
-               DateCreated = x.DateCreated,
-               ApplicationLetter = x.ApplicationLetter,
-               StaffPosition = x.StaffPosition,
+               IsSuspended = x.IsSuspended,
+               IsRemoved = x.IsRemoved,
                UserId = x.UserId,
-               Identification = x.Identification,
-               Resume = x.Resume,
-               Active = x.Active,
+               DateRemoved = x.DateRemoved,
+               DateSuspended = x.DateSuspended,
+               ValidUntilDate = x.ValidUntilDate,
+               SuspensionReason = x.SuspensionReason,
+               SuspensionDuration = x.SuspensionDuration,
+
            }).ToList();
-            return getApprovedApplications;
+            return getSuspendedUsers;
+        }
+
+        public bool RemoveSuspension(int id)
+        {
+            if (id > 0)
+            {
+                var removeSuspension = _context.Suspensions.Where(x => x.Id == id && x.IsSuspended).FirstOrDefault();
+                if (removeSuspension != null)
+                {
+                    removeSuspension.IsSuspended = false;
+                    removeSuspension.IsRemoved = true;
+                    removeSuspension.DateRemoved = DateTime.Now;
+
+                    _context.Update(removeSuspension);
+                    _context.SaveChanges();
+
+                    var getUser = _context.ApplicationUser.Where(x => x.Id == removeSuspension.UserId && !x.Deactivated).FirstOrDefault();
+                    if (getUser != null)
+                    {
+                        string toEmail = getUser?.Email;
+                        string subject = "Suspension Lifting Alert";
+                        string message = "Hello " + "<b>" + getUser?.FirstName + " " + getUser?.LastName + ", </b>" +
+                            "<br> your suspension has been lifted. You can now log into the EMUS Institute Platform with your login details " +
+                            " <br> <br> Warm Regards, " +
+                            "<br> <br> Emus Institute Team";
+
+                        _emailService.SendEmail(toEmail, subject, message);
+                        return true;
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         //public int GetTotalAcademicStaff()

@@ -179,7 +179,7 @@ namespace Logic.Helpers
                             var updateStaffRefCommission = _context.StaffDocuments.Where(x => x.UserId == updateUserDetails.RefLink).FirstOrDefault();
                             if (updateStaffRefCommission != null)
                             {
-                                decimal refCommission = 2000;
+                                decimal refCommission = 20;
                                 if (updateStaffRefCommission.AmountPerStudent != null)
                                 {
                                     updateStaffRefCommission.AmountPerStudent += refCommission;
