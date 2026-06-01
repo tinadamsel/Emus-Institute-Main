@@ -800,7 +800,7 @@ function approveApplication(id) {
 function declineApplication(id) {
     $.ajax({
         type: 'POST',
-        url: '/HumanResource/DeclineApplication', // we are calling json method
+        url: '/SuperAdmin/DeclineApplication', // we are calling json method
         dataType: 'json',
         data:
         {
@@ -808,7 +808,7 @@ function declineApplication(id) {
         },
         success: function (result) {
             if (!result.isError) {
-                var url = '/HumanResource/PendingApplication';
+                var url = '/SuperAdmin/PendingApplication';
                 successAlertWithRedirect(result.msg, url);
                 $('#submit_btn').html(defaultBtnValue);
             }
