@@ -172,6 +172,7 @@ namespace Logic.Helpers
                     user.State = userDetails.State;
                     user.DOB = userDetails.DOB;
                     user.OtherName = userDetails.OtherName;
+                    user.Password = userDetails.Password;
                     user.IsStudent = false;
                     user.IsAdmin = false;
                     user.Paid = false;

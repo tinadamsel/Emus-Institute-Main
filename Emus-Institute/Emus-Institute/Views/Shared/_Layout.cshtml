@@ -147,6 +147,12 @@
             </div>
             @if (!User.Identity.IsAuthenticated)
             {
+                <a asp-controller="Account" asp-action="Login" class="nav-item nav-link d-lg-none">
+                    Login
+                </a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-light border-start py-4 px-lg-4 d-none d-lg-block">
+                    Login
+                </a>
                 <a asp-controller="Account" asp-action="StudentRegistration" class="btn btn-primary py-4 px-lg-5 d-sm-block d-lg-block">
                     Join Now
                     <i class="fa fa-arrow-right ms-3"></i>

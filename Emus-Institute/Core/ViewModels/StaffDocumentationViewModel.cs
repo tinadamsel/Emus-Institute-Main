@@ -20,13 +20,16 @@ namespace Core.ViewModels
         public string ApplicationLetter { get; set; }
         public string Resume { get; set; }
         public string Email { get; set; }
+        public string Password { get; set; }
         public string Identification { get; set; }
         public StaffStatus StaffStatus { get; set; }
         public StaffPosition StaffPosition { get; set; }
         public DateTime? DateOfApproval { get; set; }
         public bool? IsApproved { get; set; }
         public bool? IsSuspended { get; set; }
+        public bool Deactivated { get; set; }
         public string? UserId { get; set; }
+        public string? DepartmentName { get; set; }
         public string? IDPix { get; set; }
         public virtual ApplicationUser Users { get; set; }
         public int? DepartmentId { get; set; }

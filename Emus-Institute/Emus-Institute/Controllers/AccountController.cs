@@ -220,6 +220,80 @@ namespace e_college.Controllers
         {
             return View();
         }
+
+        
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var user = await _userManager.GetUserAsync(User).ConfigureAwait(false);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var model = new ApplicationUserViewModel
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                OtherName = user.OtherName,
+                Email = user.Email,
+                Phonenumber = user.PhoneNumber,
+                Country = user.Country,
+                State = user.State,
+                Address = user.Address,
+                DOB = user.DOB,
+            };
+
+            var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            ViewBag.UserRole = userRoles.FirstOrDefault() ?? string.Empty;
+
+            return View(model);
+        }
+
+       
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(ApplicationUserViewModel model)
+        {
+            var user = await _userManager.GetUserAsync(User).ConfigureAwait(false);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (model == null)
+            {
+                TempData["ProfileError"] = "Unable to update profile.";
+                return RedirectToAction(nameof(EditProfile));
+            }
+
+            user.FirstName = model.FirstName?.Trim();
+            user.LastName = model.LastName?.Trim();
+            user.OtherName = model.OtherName?.Trim();
+            user.PhoneNumber = model.Phonenumber?.Trim();
+            user.Country = model.Country?.Trim();
+            user.State = model.State?.Trim();
+            user.Address = model.Address?.Trim();
+            user.DOB = model.DOB;
+            user.DateModified = DateTime.Now;
+
+            // Email must not be changed from profile screen.
+            model.Email = user.Email;
+
+            var updatedUser = await _userManager.UpdateAsync(user).ConfigureAwait(false);
+            if (updatedUser.Succeeded)
+            {
+                TempData["ProfileSuccess"] = "Profile updated successfully.";
+            }
+            else
+            {
+                TempData["ProfileError"] = "Failed to update profile. Please try again.";
+            }
+
+            return RedirectToAction(nameof(EditProfile));
+        }
+
         [HttpPost]
         public async Task<JsonResult> Login(string email, string password)
         {

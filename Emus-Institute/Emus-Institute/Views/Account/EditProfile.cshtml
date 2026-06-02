@@ -1,0 +1,91 @@
+@model Core.ViewModels.ApplicationUserViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+    var role = (ViewBag.UserRole as string ?? string.Empty).ToLowerInvariant();
+    if (role.Contains("superadmin"))
+    {
+        Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
+    }
+    else if (role.Contains("student"))
+    {
+        Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    }
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">My Profile</h1>
+            <p class="sa-page-sub">View and update your personal details.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-xl-7">
+            <div class="sa-list-card sa-profile-card">
+                @if (TempData["ProfileSuccess"] != null)
+                {
+                    <div class="alert alert-success mb-3">@TempData["ProfileSuccess"]</div>
+                }
+                @if (TempData["ProfileError"] != null)
+                {
+                    <div class="alert alert-danger mb-3">@TempData["ProfileError"]</div>
+                }
+
+                <form asp-controller="Account" asp-action="UpdateProfile" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            <input asp-for="FirstName" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            <input asp-for="LastName" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Other Name</label>
+                            <input asp-for="OtherName" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            <input asp-for="Phonenumber" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email Address</label>
+                            <input asp-for="Email" class="form-control" disabled />
+                            <small class="text-muted">Email address cannot be changed.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Country</label>
+                            <input asp-for="Country" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">State</label>
+                            <input asp-for="State" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date of Birth</label>
+                            <input asp-for="DOB" type="date" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Address</label>
+                            <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn sa-btn-primary">Save Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
