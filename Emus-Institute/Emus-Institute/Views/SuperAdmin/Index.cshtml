@@ -1,150 +1,135 @@
 ﻿@model Core.ViewModels.ApplicationUserViewModel
 
 @{
-    ViewData["Title"] = "SuperAdmin DashBoard";
+    ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
+    var displayName = User?.Identity?.Name ?? "Administrator";
+    var greeting = DateTime.Now.Hour switch
+    {
+        < 12 => "Good morning",
+        < 17 => "Good afternoon",
+        _ => "Good evening"
+    };
 }
 
-<main id="main" class="main">
-    <div class="pagetitle">
-        <h1> Welcome! <small> Super Admin </small> </h1>
-        @*<h1>Dashboard</h1>*@
-        <nav>
-        <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="">Home</a></li>
-            <li class="breadcrumb-item active"> <small> Dashboard </small> </li>
-        </ol>
-        </nav>
-    </div>
-    <!-- End Page Title -->
+<main id="main" class="main sa-dashboard-home">
 
-    <section class="section dashboard">
-        <div class="row">
-            <!-- Left side columns -->
-            <div class="col-lg-12">
-                <div class="row">
-                    <!-- Start Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                <a asp-controller="SuperAdmin" asp-action="Departments" class="card-link">
-                                    <h5 class="card-title">Departments Created </h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-book"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            <h6>@Model.TotalDepartments</h6>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-                    <!-- Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                <a asp-controller="SuperAdmin" asp-action="ApprovedStaff" class="card-link">
-                                <h5 class="card-title">Total Staff</h5>
-                                <div class="d-flex align-items-center">
-                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-people-fill"></i>
-                                    </div>
-                                    <div class="ps-3">
-                                        <h6>@Model.TotalStaff</h6>
-                                    </div>
-                                </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-                    <!-- Start Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                <a asp-controller="SuperAdmin" asp-action="RegisteredStudents" class="card-link">
-                                    <h5 class="card-title">Total Registered Students</h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-people-fill"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            <h6>@Model.TotalRegisteredStudents</h6>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-                    <!-- Start Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                 <a asp-controller="SuperAdmin" asp-action="ApprovedStudents" class="card-link">
-                                <h5 class="card-title">Total Approved Students</h5>
-                                <div class="d-flex align-items-center">
-                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-people-fill"></i>
-                                    </div>
-                                    <div class="ps-3">
-                                        <h6>@Model.TotalApprovedStudents</h6>
-                                    </div>
-                                </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-                    <!-- Start Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                 <a asp-controller="SuperAdmin" asp-action="PaidStudents" class="card-link">
-                                <h5 class="card-title">Total Paid Students</h5>
-                                <div class="d-flex align-items-center">
-                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-people-fill"></i>
-                                    </div>
-                                    <div class="ps-3">
-                                        <h6>@Model.TotalPaidStudents</h6>
-                                    </div>
-                                </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-                    <!-- Start Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                <a asp-controller="SuperAdmin" asp-action="SuspendedUsers" class="card-link">
-                                    <h5 class="card-title">Total Suspended Users</h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-people-fill"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            <h6>@Model.TotalSuspendedUsers</h6>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-
-                    
-                    
-
-                </div>
-            </div><!-- End Left side columns -->
-
+    <section class="sa-hero" aria-label="Welcome">
+        <div class="sa-hero-content">
+            <p class="sa-hero-eyebrow">Super Admin</p>
+            <h1>@greeting, @displayName</h1>
+            <p class="sa-hero-sub">Manage departments, students, staff, and access from one place.</p>
+        </div>
+        <div class="sa-hero-meta">
+            <p class="sa-hero-date">@DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+            <p class="sa-hero-institute">Emus Institute</p>
         </div>
     </section>
 
-</main><!-- End #main -->
+    <section class="sa-stats-grid" aria-label="Key metrics">
+        <a asp-controller="SuperAdmin" asp-action="Departments" class="sa-stat-card" data-accent="cyan">
+            <p class="sa-stat-label">Departments</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-building"></i></span>
+                <p class="sa-stat-value">@Model.TotalDepartments</p>
+            </div>
+            <p class="sa-stat-hint">View &amp; manage &rarr;</p>
+        </a>
+
+        <a asp-controller="SuperAdmin" asp-action="ApprovedStaff" class="sa-stat-card" data-accent="teal">
+            <p class="sa-stat-label">Total staff</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-people"></i></span>
+                <p class="sa-stat-value">@Model.TotalStaff</p>
+            </div>
+            <p class="sa-stat-hint">All staff &rarr;</p>
+        </a>
+
+        <a asp-controller="SuperAdmin" asp-action="RegisteredStudents" class="sa-stat-card" data-accent="amber">
+            <p class="sa-stat-label">Registered students</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-person-plus"></i></span>
+                <p class="sa-stat-value">@Model.TotalRegisteredStudents</p>
+            </div>
+            <p class="sa-stat-hint">Awaiting approval &rarr;</p>
+        </a>
+
+        <a asp-controller="SuperAdmin" asp-action="ApprovedStudents" class="sa-stat-card" data-accent="green">
+            <p class="sa-stat-label">Approved students</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-person-check"></i></span>
+                <p class="sa-stat-value">@Model.TotalApprovedStudents</p>
+            </div>
+            <p class="sa-stat-hint">Approved list &rarr;</p>
+        </a>
+
+        <a asp-controller="SuperAdmin" asp-action="PaidStudents" class="sa-stat-card" data-accent="indigo">
+            <p class="sa-stat-label">Paid students</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-credit-card"></i></span>
+                <p class="sa-stat-value">@Model.TotalPaidStudents</p>
+            </div>
+            <p class="sa-stat-hint">Payment records &rarr;</p>
+        </a>
+
+        <a asp-controller="SuperAdmin" asp-action="SuspendedUsers" class="sa-stat-card" data-accent="rose">
+            <p class="sa-stat-label">Suspended users</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-slash-circle"></i></span>
+                <p class="sa-stat-value">@Model.TotalSuspendedUsers</p>
+            </div>
+            <p class="sa-stat-hint">Review suspensions &rarr;</p>
+        </a>
+    </section>
+
+    <div class="sa-panels">
+        <section class="sa-panel" aria-label="Quick actions">
+            <h2 class="sa-panel-title"><i class="bi bi-lightning-charge"></i> Quick actions</h2>
+            <div class="sa-quick-actions">
+                <a asp-controller="SuperAdmin" asp-action="Departments" class="sa-quick-action">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Manage departments</span>
+                </a>
+                <a asp-controller="SuperAdmin" asp-action="RegisteredStudents" class="sa-quick-action">
+                    <i class="bi bi-check2-square"></i>
+                    <span>Review registrations</span>
+                </a>
+                <a asp-controller="SuperAdmin" asp-action="PendingApplication" class="sa-quick-action">
+                    <i class="bi bi-file-earmark-person"></i>
+                    <span>Staff applications</span>
+                </a>
+                <a asp-controller="SuperAdmin" asp-action="ApprovedStaff" class="sa-quick-action">
+                    <i class="bi bi-person-badge"></i>
+                    <span>View all staff</span>
+                </a>
+            </div>
+        </section>
+
+        <aside class="sa-panel" aria-label="At a glance">
+            <h2 class="sa-panel-title"><i class="bi bi-pie-chart"></i> At a glance</h2>
+            <ul class="sa-summary-list">
+                <li>
+                    <span class="sa-summary-label">Pending registrations</span>
+                    <span class="sa-summary-value">@Model.TotalRegisteredStudents</span>
+                </li>
+                <li>
+                    <span class="sa-summary-label">Approved students</span>
+                    <span class="sa-summary-value">@Model.TotalApprovedStudents</span>
+                </li>
+                <li>
+                    <span class="sa-summary-label">Paid students</span>
+                    <span class="sa-summary-value">@Model.TotalPaidStudents</span>
+                </li>
+                <li>
+                    <span class="sa-summary-label">Active staff</span>
+                    <span class="sa-summary-value">@Model.TotalStaff</span>
+                </li>
+            </ul>
+            <p class="sa-summary-note">
+                <i class="bi bi-info-circle"></i>
+                Use the sidebar to navigate departments, student lists, staff applications, and suspended accounts.
+            </p>
+        </aside>
+    </div>
+
+</main>

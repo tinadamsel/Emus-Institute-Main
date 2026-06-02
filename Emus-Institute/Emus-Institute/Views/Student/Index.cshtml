@@ -1,97 +1,56 @@
 ﻿@model Core.ViewModels.ApplicationUserViewModel
 
 @{
-    ViewData["Title"] = "Student DashBoard";
+    ViewData["Title"] = "Student Dashboard";
     Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+    var fullName = $"{Model.FirstName} {Model.LastName}".Trim();
+    var greeting = DateTime.Now.Hour switch
+    {
+        < 12 => "Good morning",
+        < 17 => "Good afternoon",
+        _ => "Good evening"
+    };
 }
 
-<main id="main" class="main">
-    <div class="pagetitle">
-        <h1 style="text-transform: uppercase; color: #08626b; font-weight:700;" class="mt-3"> Welcome @Model.FirstName @Model.LastName </h1>
-        <p class="fs-6 text-dark mb-3 pb-2"> Emus-Institute is where you get to learn from the best in the world at the comfort of your home.</p>
-        
-        <div style="color: black;"> 
-            <p class="fs-6 mb-1 pb-2"> You are currently a <b>@Model.CurrentSession student </b> in <b> @Model.DepartmentName Department </b></p>
-            <small> Our classes are yet to start. We will notify you by email, once class starts. <br> <b> Congratulation!!!</b> </small>
+<main id="main" class="main sa-dashboard-home">
+    <section class="sa-hero" aria-label="Welcome">
+        <div class="sa-hero-content">
+            <p class="sa-hero-eyebrow">Student Portal</p>
+            <h1>@greeting, @fullName</h1>
+            <p class="sa-hero-sub">Learn with confidence and track your student journey at Emus Institute.</p>
         </div>
-        <nav class="mt-3">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard</li>
-            </ol>
-        </nav>
-    </div>
-    <!-- End Page Title -->
-
-    <section class="section dashboard">
-        <div class="row">
-            <!-- Left side columns -->
-            <div class="col-lg-12">
-                <div class="row">
-                    <!-- Start Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                @* <a asp-controller="Student" asp-action="Textbooks" class="card-link"> *@
-                                    <h5 class="card-title"> Department Textbooks </h5>
-                                    <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                            <i class="bi bi-book"></i>
-                                        </div>
-                                        <div class="ps-3">
-                                            <h6>0</h6>
-                                        </div>
-                                    </div>
-                                @* </a> *@
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-
-                    <!-- Start Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                @* <a asp-controller="Student" asp-action="Announcement" class="card-link"> *@
-                                <h5 class="card-title"> Announcements </h5>
-                                <div class="d-flex align-items-center">
-                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-megaphone-fill"></i>
-                                    </div>
-                                    <div class="ps-3">
-                                        <h6>0</h6>
-                                    </div>
-                                </div>
-                                @* </a> *@
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-
-                    <!-- Start Card -->
-                    <div class="col-lg-4 col-md-4">
-                        <div class="card info-card sales-card">
-                            <div class="card-body">
-                                @* <a asp-controller="Student" asp-action="Complain" class="card-link"> *@
-                                <h5 class="card-title"> Complains </h5>
-                                <div class="d-flex align-items-center">
-                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                    </div>
-                                    <div class="ps-3">
-                                        <h6>0</h6>
-                                    </div>
-                                </div>
-                                @* </a> *@
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Card -->
-                    
-
-                </div>
-            </div><!-- End Left side columns -->
-
+        <div class="sa-hero-meta">
+            <p class="sa-hero-date">@DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+            <p class="sa-hero-institute">@Model.CurrentSession - @Model.DepartmentName</p>
         </div>
     </section>
-</main><!-- End #main -->
+
+    <section class="sa-stats-grid" aria-label="Student overview">
+        <a class="sa-stat-card" data-accent="cyan">
+            <p class="sa-stat-label">Department textbooks</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-book"></i></span>
+                <p class="sa-stat-value">0</p>
+            </div>
+            <p class="sa-stat-hint">Learning resources</p>
+        </a>
+
+        <a class="sa-stat-card" data-accent="teal">
+            <p class="sa-stat-label">Announcements</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-megaphone"></i></span>
+                <p class="sa-stat-value">0</p>
+            </div>
+            <p class="sa-stat-hint">Latest updates</p>
+        </a>
+
+        <a class="sa-stat-card" data-accent="amber">
+            <p class="sa-stat-label">Support tickets</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-exclamation-triangle"></i></span>
+                <p class="sa-stat-value">0</p>
+            </div>
+            <p class="sa-stat-hint">Academic help and complaints</p>
+        </a>
+    </section>
+</main>

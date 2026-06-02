@@ -96,7 +96,7 @@ namespace Logic.Helpers
         }
         public int GetTotalStaff()
         {
-            return _context.StaffDocuments.Where(a => a.Id > 0 && a.Active).Count();
+            return _context.StaffDocuments.Where(a => a.Id > 0 && a.StaffStatus == StaffStatus.Approved && a.Active).Count();
         }
        
         public DepartmentViewModel GetDeptToEdit(int id)
@@ -193,6 +193,7 @@ namespace Logic.Helpers
                     Address = x.Address,
                     Country = x.Country,
                     Email = x.Email,
+                    Password = x.Password,
                     State = x.State,
                     StudentId = x.StudentId,
                     CurrentSession = x.CurrentSession,
@@ -410,6 +411,23 @@ namespace Logic.Helpers
                     if (rejectApprove != null)
                     {
                         rejectApprove.StaffStatus = StaffStatus.Rejected;
+                        rejectApprove.IsApproved = false;
+                        rejectApprove.Active = false;
+                        if (rejectApprove.Users != null)
+                        {
+                            rejectApprove.Users.Deactivated = true;
+                            rejectApprove.Users.DateModified = DateTime.Now;
+                        }
+                        else if (!string.IsNullOrEmpty(rejectApprove.UserId))
+                        {
+                            var staffUser = _context.ApplicationUser.FirstOrDefault(x => x.Id == rejectApprove.UserId);
+                            if (staffUser != null)
+                            {
+                                staffUser.Deactivated = true;
+                                staffUser.DateModified = DateTime.Now;
+                                _context.Update(staffUser);
+                            }
+                        }
                         _context.Update(rejectApprove);
                         _context.SaveChanges();
 
@@ -446,6 +464,7 @@ namespace Logic.Helpers
                     Id = x.Id,
                     Name = x.Users.FirstName + " " + x.Users.LastName,
                     Email = x.Users.Email,
+                    Password = x.Users.Password,
                     DateCreated = x.DateCreated,
                     ApplicationLetter = x.ApplicationLetter,
                     StaffPosition = x.StaffPosition,
@@ -453,6 +472,7 @@ namespace Logic.Helpers
                     Identification = x.Identification,
                     Resume = x.Resume,
                     Active = x.Active,
+                    DepartmentName = x.Users.Department.Name,
                 }).OrderByDescending(o => o.DateCreated).ToList();
                 foreach (var item in result)
                 {
