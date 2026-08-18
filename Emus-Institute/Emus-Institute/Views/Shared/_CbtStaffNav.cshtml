@@ -1,0 +1,37 @@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string TabClass(string action) =>
+        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            ? "cbt-tab active"
+            : "cbt-tab";
+    int? testId = ViewBag.TestId as int?;
+}
+
+<div class="cbt-hub-banner mb-4">
+    <div class="cbt-hub-banner-inner">
+        <span class="cbt-hub-badge">CBT Assessment Hub</span>
+        <h2 class="cbt-hub-title">CBT Test Creator</h2>
+        <p class="cbt-hub-sub">Design department assessments, manage questions, and review student performance.</p>
+    </div>
+</div>
+
+<nav class="cbt-tabs mb-4">
+    <a class="@TabClass("CreateCbtTest")" asp-controller="AcademicStaff" asp-action="CreateCbtTest">
+        <i class="bi bi-plus-circle"></i> Create New Test
+    </a>
+    <a class="@TabClass("CbtTests")" asp-controller="AcademicStaff" asp-action="CbtTests">
+        <i class="bi bi-clipboard-check"></i> Manage Tests
+    </a>
+    @if (testId.HasValue)
+    {
+        <a class="@TabClass("ManageCbtQuestions")" asp-controller="AcademicStaff" asp-action="ManageCbtQuestions" asp-route-id="@testId">
+            <i class="bi bi-list-check"></i> Manage Questions
+        </a>
+        <a class="@TabClass("CbtTestAnalytics")" asp-controller="AcademicStaff" asp-action="CbtTestAnalytics" asp-route-id="@testId">
+            <i class="bi bi-bar-chart"></i> Test Analytics
+        </a>
+        <a class="@TabClass("CbtTestScores")" asp-controller="AcademicStaff" asp-action="CbtTestScores" asp-route-id="@testId">
+            <i class="bi bi-mortarboard"></i> Student Scores
+        </a>
+    }
+</nav>

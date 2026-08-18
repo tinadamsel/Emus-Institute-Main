@@ -24,6 +24,11 @@ namespace Logic.IHelpers
         List<ApplicationUserViewModel> GetAllApprovedStudents();
         int GetTotalPaidStudents();
         List<ApplicationUserViewModel> GetAllPaidStudents();
+        List<ApplicationUserViewModel> GetScholarshipStudents();
+        List<ApplicationUserViewModel> GetApprovedScholarshipStudents();
+        bool CheckIfScholarshipStudentIsApproved(string userId);
+        bool ApproveScholarshipStudent(string userId);
+        bool DeclineScholarshipStudent(string userId);
         bool CheckIfStudentIsApproved(string userId);
         bool ApproveStudent(string userId);
         bool DeclineStudent(string userId);

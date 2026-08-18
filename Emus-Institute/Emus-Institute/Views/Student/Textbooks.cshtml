@@ -1,0 +1,50 @@
+@model IEnumerable<Core.ViewModels.TextbookViewModel>
+
+@{
+    ViewData["Title"] = "Textbooks";
+    Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Department Textbooks</h1>
+            <p class="sa-page-sub">Approved textbooks for your department. Click a book to download.</p>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var book in Model)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <a asp-controller="Student" asp-action="DownloadTextbook" asp-route-id="@book.Id"
+                       class="text-decoration-none text-dark d-block h-100"
+                       title="Download @book.Name">
+                        <div class="sa-list-card h-100 overflow-hidden" style="cursor:pointer;">
+                            <img src="@(string.IsNullOrWhiteSpace(book.CoverImagePath) ? "/assets/img/grad.jpg" : book.CoverImagePath)"
+                                 alt="@book.Name"
+                                 class="img-fluid w-100"
+                                 style="height:180px; object-fit:cover;" />
+                            <div class="p-3">
+                                <h5 class="mb-2">@book.Name</h5>
+                                <p class="mb-0 text-muted">@book.DepartmentName</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="sa-list-card">
+            <div class="sa-empty-state py-5">
+                <i class="bi bi-book"></i>
+                <h6>No approved textbooks yet</h6>
+                <p>Approved textbooks for your department will appear here.</p>
+            </div>
+        </div>
+    }
+</main>

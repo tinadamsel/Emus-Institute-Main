@@ -1,0 +1,139 @@
+@model IEnumerable<Core.ViewModels.CbtQuestionViewModel>
+@using static Core.DB.ECollegeEnums
+@{
+    var test = ViewBag.Test as Core.ViewModels.CbtTestViewModel;
+    ViewData["Title"] = "Manage Questions";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    ViewBag.TestId = test?.Id;
+}
+
+<main id="main" class="main">
+    <partial name="_CbtStaffNav" />
+
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Manage Questions</h1>
+            <p class="sa-page-sub">@test?.Title · Add questions one by one before the test starts.</p>
+        </div>
+        @if (test?.CanEdit == true)
+        {
+            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#questionModal" onclick="resetQuestionForm()">
+                <i class="bi bi-plus-lg"></i> Add Question
+            </button>
+        }
+    </div>
+
+    @if (test?.CanEdit != true)
+    {
+        <div class="alert alert-warning">This test has started. Questions can no longer be edited.</div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var q in Model.OrderBy(x => x.SortOrder))
+            {
+                <div class="col-12">
+                    <div class="sa-list-card p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="badge bg-light text-dark me-2">Q@q.SortOrder</span>
+                                <span class="badge bg-primary">@q.QuestionType</span>
+                                <span class="badge bg-secondary">@q.Marks mark(s)</span>
+                            </div>
+                            @if (test?.CanEdit == true)
+                            {
+                                <div class="sa-row-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-edit-question"
+                                            data-question='@System.Text.Json.JsonSerializer.Serialize(q)'>
+                                        Edit
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteCbtQuestion(@q.Id)">Delete</button>
+                                </div>
+                            }
+                        </div>
+                        <p class="mb-2">@q.QuestionText</p>
+                        @if (!string.IsNullOrWhiteSpace(q.ImagePath))
+                        {
+                            <img src="@q.ImagePath" alt="Question image" class="img-fluid rounded mb-2" style="max-height:160px;" />
+                        }
+                        <ul class="small text-muted mb-0">
+                            @foreach (var opt in q.DisplayOptions)
+                            {
+                                <li>@opt.Key. @opt.Text</li>
+                            }
+                        </ul>
+                        <p class="small mt-2 mb-0"><strong>Correct:</strong> @q.CorrectAnswer</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="sa-list-card">
+            <div class="sa-empty-state py-5">
+                <i class="bi bi-list-check"></i>
+                <h6>No questions yet</h6>
+                <p>Add your first question using the button above.</p>
+            </div>
+        </div>
+    }
+</main>
+
+<div class="modal fade sa-modal" id="questionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questionModalTitle">Add Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="q_Id" value="0" />
+                <input type="hidden" id="q_TestId" value="@test?.Id" />
+                <div class="mb-3">
+                    <label class="form-label">Question Type</label>
+                    <select id="q_Type" class="form-control" onchange="toggleQuestionOptions()">
+                        <option value="@((int)CbtQuestionType.SingleChoice)">Multiple Choice (Single Answer)</option>
+                        <option value="@((int)CbtQuestionType.MultipleChoice)">Multiple Correct Answers</option>
+                        <option value="@((int)CbtQuestionType.TrueFalse)">True/False</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Question Text</label>
+                    <textarea id="q_Text" class="form-control" rows="3"></textarea>
+                </div>
+                <div id="mcqOptions">
+                    <div class="row g-2">
+                        <div class="col-md-6"><input type="text" id="q_OptionA" class="form-control" placeholder="Option A" /></div>
+                        <div class="col-md-6"><input type="text" id="q_OptionB" class="form-control" placeholder="Option B" /></div>
+                        <div class="col-md-6"><input type="text" id="q_OptionC" class="form-control" placeholder="Option C" /></div>
+                        <div class="col-md-6"><input type="text" id="q_OptionD" class="form-control" placeholder="Option D" /></div>
+                    </div>
+                </div>
+                <div class="mb-3 mt-3">
+                    <label class="form-label">Correct Answer</label>
+                    <input type="text" id="q_Correct" class="form-control" placeholder="A, or A,C for multiple, or True/False" />
+                    <small class="text-muted">Single: A-D. Multiple: comma-separated e.g. A,C. True/False: True or False.</small>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Marks</label>
+                        <input type="number" id="q_Marks" class="form-control" value="@test?.MarkPerQuestion" step="0.01" />
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Image (optional)</label>
+                        <input type="file" id="q_Image" class="form-control" accept="image/*" />
+                    </div>
+                </div>
+                <div class="mb-3 mt-3">
+                    <label class="form-label">Explanation (optional)</label>
+                    <textarea id="q_Explanation" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" id="save_question_btn" onclick="saveCbtQuestion()">Save Question</button>
+            </div>
+        </div>
+    </div>
+</div>

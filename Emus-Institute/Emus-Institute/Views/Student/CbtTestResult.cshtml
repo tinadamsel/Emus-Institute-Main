@@ -1,0 +1,59 @@
+@model Core.ViewModels.CbtAttemptViewModel
+@{
+    ViewData["Title"] = "Test Result";
+    Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Test Result</h1>
+            <p class="sa-page-sub">@Model.TestTitle</p>
+        </div>
+        <a asp-action="MyCbtTests" class="btn btn-outline-secondary">Back to My CBT Tests</a>
+    </div>
+
+    <div class="sa-stats-grid mb-4">
+        <div class="sa-stat-card" data-accent="@(Model.Passed ? "green" : "orange")">
+            <p class="sa-stat-label">Your Score</p>
+            <p class="sa-stat-value">@Model.Score / @Model.TotalMarks</p>
+        </div>
+        <div class="sa-stat-card" data-accent="@(Model.Passed ? "green" : "orange")">
+            <p class="sa-stat-label">Result</p>
+            <p class="sa-stat-value">@(Model.Passed ? "Passed" : "Failed")</p>
+        </div>
+        <div class="sa-stat-card" data-accent="blue">
+            <p class="sa-stat-label">Pass Mark</p>
+            <p class="sa-stat-value">@Model.PassMark</p>
+        </div>
+    </div>
+
+    @if (Model.AutoSubmitted)
+    {
+        <div class="alert alert-info">This test was auto-submitted when the timer expired.</div>
+    }
+
+    @if (Model.Answers.Any())
+    {
+        <div class="sa-list-card p-4">
+            <h5 class="mb-3">Answer Review</h5>
+            @foreach (var answer in Model.Answers)
+            {
+                <div class="border-bottom pb-3 mb-3">
+                    <p class="mb-1">
+                        <span class="badge @(answer.IsCorrect ? "bg-success" : "bg-danger")">
+                            @(answer.IsCorrect ? "Correct" : "Incorrect")
+                        </span>
+                        <span class="ms-2">@answer.MarksAwarded mark(s)</span>
+                    </p>
+                    <p class="small mb-1">Your answer: @(string.IsNullOrWhiteSpace(answer.SelectedAnswer) ? "—" : answer.SelectedAnswer)</p>
+                    <p class="small mb-0 text-muted">Correct answer: @answer.CorrectAnswer</p>
+                    @if (!string.IsNullOrWhiteSpace(answer.Explanation))
+                    {
+                        <p class="small mt-2 mb-0"><em>@answer.Explanation</em></p>
+                    }
+                </div>
+            }
+        </div>
+    }
+</main>

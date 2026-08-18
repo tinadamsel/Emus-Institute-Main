@@ -1,0 +1,172 @@
+@inject Logic.IHelpers.IUserHelper _userHelper
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var currentUser = _userHelper.FindByUserName(User?.Identity?.Name);
+    var userRole = _userHelper.GetUserRole(currentUser?.Id) ?? string.Empty;
+    var isSuperAdmin = userRole.Contains("SuperAdmin", StringComparison.OrdinalIgnoreCase);
+    string NavClass(string action) =>
+        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            ? "nav-link sa-nav-active"
+            : "nav-link collapsed";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="Emus Institute librarian dashboard" name="description">
+    <title>@ViewData["Title"] - Emus Institute</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <link href="~/assets/img/logo-main-fav.jpg" rel="icon">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link href="~/asset/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/asset/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/asset/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" />
+    <link href="~/asset/vendor/quill/quill.snow.css" rel="stylesheet" />
+    <link href="~/asset/vendor/quill/quill.bubble.css" rel="stylesheet" />
+    <link href="~/asset/vendor/remixicon/remixicon.css" rel="stylesheet" />
+    <link href="~/asset/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/asset/css/datatables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="~/asset/vendor/simple-datatables/style.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" />
+    <link href="~/css/sweetalert2.css" rel="stylesheet" />
+    <link href="~/asset/css/style.css" rel="stylesheet" />
+    <link href="~/css/superadmin-dashboard.css" rel="stylesheet" asp-append-version="true" />
+
+    <script>
+        function errorAlert(message) {
+            Swal.fire({ icon: 'error', text: message })
+        }
+        function infoAlert(message) {
+            Swal.fire({ icon: 'info', text: message })
+        }
+        function successAlert(message) {
+            Swal.fire({ icon: 'success', text: message })
+        }
+        function successAlertWithRedirect(message, url) {
+            swal.fire({
+                title: "Success",
+                text: message,
+                icon: "success",
+                timer: "30000",
+                overlay: "background-color: #06BBCC",
+            }).then(function () {
+                location.href = url;
+            })
+        }
+    </script>
+</head>
+<body class="superadmin-dashboard librarian-dashboard">
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a asp-controller="Librarian" asp-action="Index" class="logo d-flex align-items-center">
+                <img src="~/assets/img/logo-main.jpeg" alt="Emus Institute" />
+                <span class="d-none d-lg-block">Emus Institute</span>
+                <span class="sa-header-badge d-none d-md-inline-flex">Librarian</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn" aria-label="Toggle sidebar"></i>
+        </div>
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item dropdown pe-3">
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="~/asset/img/profile-img.jpg" alt="Profile" class="rounded-circle">
+                        <span class="d-none d-md-block dropdown-toggle ps-2">@User.Identity?.Name</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                        <li class="dropdown-header">
+                            <h6>@User.Identity?.Name</h6>
+                            <span>Librarian</span>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" asp-controller="Account" asp-action="EditProfile">
+                                <i class="bi bi-person"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center">
+                                <form asp-action="Logout" asp-controller="Account" method="post" class="w-100 m-0">
+                                    <button type="submit" class="btn w-100 text-start p-0 border-0 bg-transparent">
+                                        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+                                    </button>
+                                </form>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-heading">Overview</li>
+            <li class="nav-item">
+                <a class="@NavClass("Index")" asp-controller="Librarian" asp-action="Index">
+                    <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-heading">Library</li>
+            <li class="nav-item">
+                <a class="@NavClass("Textbooks")" asp-controller="Librarian" asp-action="Textbooks">
+                    <i class="bi bi-book"></i><span>Textbooks</span>
+                </a>
+            </li>
+            @* <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Librarian" asp-action="Announcements">
+                    <i class="bi bi-megaphone"></i><span>Announcements</span>
+                </a>
+            </li> *@
+            @if (isSuperAdmin)
+            {
+                <li class="nav-heading">Admin</li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-controller="SuperAdmin" asp-action="Index">
+                        <i class="bi bi-shield-lock"></i><span>Back to Super Admin</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-controller="AcademicStaff" asp-action="Index">
+                        <i class="bi bi-person-workspace"></i><span>Academic Staff dashboard</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </aside>
+
+    <div>
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer id="footer" class="footer">
+        <div class="copyright">
+            &copy; @DateTime.Now.Year <strong><a asp-controller="Librarian" asp-action="Index">Emus Institute</a></strong>. All rights reserved.
+        </div>
+    </footer>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center" aria-label="Back to top">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/jquery-3.3.1.min.js" asp-append-version="true"></script>
+    <script src="~/asset/js/main.js"></script>
+    <script src="~/js/sweetalert2.all.min.js" asp-append-version="true"></script>
+    <script src="~/asset/js/datatables.bootstrap4.min.js"></script>
+    <script src="~/asset/js/jquery.datatables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

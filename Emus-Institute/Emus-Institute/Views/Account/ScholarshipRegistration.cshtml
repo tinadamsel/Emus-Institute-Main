@@ -1,0 +1,157 @@
+@model Core.ViewModels.ApplicationUserViewModel
+@{
+    ViewData["Title"] = "Scholarship Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 mb-4">
+    <div class=" col-md-6 m-auto">
+        <form id="multiSectionForm">
+            <h2 class="text-center">Scholarship Student Registration</h2>
+            <p class="text-center"> Fill the scholarship registration form below. <small> (All fields marked <span class="text-danger">*</span> are compulsory)</small></p>
+            <div class="section mt-3" id="section1">
+                <h4>Section 1</h4>
+
+                <div class="form-group mb-2">
+                    <label>Scholarship Department <span class="text-danger">*</span></label>
+                    <select id="deptId" style="background-color:transparent !important;" asp-items="@(new SelectList(ViewBag.Departments,"Id","Name"))" class="form-control custom-select" required>
+                    </select>
+                    <input class="form-control" id="reflink" type="text" autocomplete="on" hidden>
+                    <div id="deptIdError" class="error"></div>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" required>
+                    <div id="emailError" class="error"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Password <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" id="password" required>
+                    <div id="passwordError" class="error"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Confirm Password <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" id="confirmPassword" required>
+                    <div id="confirmPasswordError" class="error"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Firstname <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="firstname" required>
+                    <div id="firstnameError" class="error"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <label>Lastname <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="lastname" required>
+                    <div id="lastnameError" class="error"></div>
+                </div>
+
+                <button id="submit-btn" type="button" style="float: right;" class="btn btn-primary px-5 py-3 mt-3" onclick="nextSection(2)">
+                    Next
+                    <i class="fa fa-arrow-right ms-3"> </i>
+                </button>
+            </div>
+
+            <div class="section mt-3" id="section2" style="display: none;">
+                <h4>Section 2</h4>
+                <div class="form-group mb-2">
+                    <label>Othername (Optional)</label>
+                    <input type="text" class="form-control" id="othername">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Phonenumber <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="phonenumber">
+                </div>
+                <div class="form-group mb-2">
+                    <label>State of Residence <span class="text-danger">*</span> </label>
+                    <input type="text" class="form-control" id="state">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Country of Residence <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="country">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Date of Birth <span class="text-danger">*</span> </label>
+                    <input type="date" class="form-control" id="dateOfBirth">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Residential Address <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="address">
+                </div>
+                <button type="button" class="btn btn-outline-secondary px-5 py-3 mt-3" onclick="previousSection(1)">
+                    <i class="fa fa-arrow-left ms-3"> </i>
+                    Previous
+                </button>
+                <button type="button" id="submit_btn" style="float: right;"
+                        class="btn btn-primary px-5 py-3 mt-3 approve" onclick="RegisterScholarshipStudent()">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function nextSection(nextSectionNumber) {
+        var currentSectionNumber = nextSectionNumber - 1;
+        var currentSection = document.getElementById('section' + currentSectionNumber);
+        var nextSection = document.getElementById('section' + nextSectionNumber);
+
+        var data = {};
+        data.Department = $("#deptId").val();
+        data.Email = $("#email").val();
+        data.Password = $("#password").val();
+        data.ConfirmPassword = $("#confirmPassword").val();
+        data.Firstname = $("#firstname").val();
+        data.Lastname = $("#lastname").val();
+
+        if (currentSection && nextSection) {
+            if (data.Department == 0 || data.Department == undefined) {
+                validateForm("deptId", "Department cannnot be empty");
+                return;
+            }
+             if (data.Email == "" || data.Email == undefined) {
+                 validateForm("email", "Email cannnot be empty");
+                 return;
+             }
+             if (data.Password == "" || data.Password == undefined) {
+                 validateForm("password", "Password cannnot be empty");
+                 return;
+             }
+
+             if (data.ConfirmPassword == "" || data.ConfirmPassword == undefined) {
+                validateForm("confirmPassword", "Confirm Password cannnot be empty");
+                return;
+             }
+
+             if (data.Firstname == "" || data.Firstname == undefined) {
+                validateForm("firstname", "Firstname cannnot be empty");
+                return;
+             }
+             if (data.Lastname == "" || data.Lastname == undefined) {
+                validateForm("lastname", "Lastname cannnot be empty");
+                return;
+             }
+            else
+            {
+                currentSection.style.display = 'none';
+                nextSection.style.display = 'block';
+            }
+        }
+    }
+    function previousSection(previousSectionNumber) {
+        var currentSectionNumber = previousSectionNumber + 1;
+        var currentSection = document.getElementById('section' + currentSectionNumber);
+        var previousSection = document.getElementById('section' + previousSectionNumber);
+
+        if (currentSection && previousSection) {
+            currentSection.style.display = 'none';
+            previousSection.style.display = 'block';
+        }
+    }
+
+    function validateForm(id, message) {
+        $("#" + id + "Error").text(message).css({ color: "red" });
+        $("#" + id).css({ border: "1px solid red" });
+    }
+</script>

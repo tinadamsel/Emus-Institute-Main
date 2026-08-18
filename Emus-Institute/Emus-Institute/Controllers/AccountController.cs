@@ -39,7 +39,7 @@ namespace e_college.Controllers
         [HttpGet]
         public IActionResult StudentRegistration()
         {
-            ViewBag.Departments = _dropdownHelper.DropdownOfDepartments();
+            ViewBag.Departments = _dropdownHelper.DropdownOfDepartments(excludeScholarship: true);
             return View();
         }
 
@@ -60,6 +60,15 @@ namespace e_college.Controllers
                     {
                         return Json(new { isError = true, msg = "Please select a department" });
                     }
+                    var selectedDepartment = _context.Departments.FirstOrDefault(d => d.Id == appUserViewModel.DepartmentId && d.Active && !d.Deleted);
+                    if (selectedDepartment == null)
+                    {
+                        return Json(new { isError = true, msg = "Please select a valid department" });
+                    }
+                    if (selectedDepartment.IsUnderScholarship)
+                    {
+                        return Json(new { isError = true, msg = "This department is only available through the scholarship program" });
+                    }
                     if (appUserViewModel.Password != appUserViewModel.ConfirmPassword)
                     {
                         return Json(new { isError = true, msg = "Password and Confirm password do not match" });
@@ -68,6 +77,7 @@ namespace e_college.Controllers
                     {
                         return Json(new { isError = true, msg = "Password must be from 8 characters" });
                     }
+                    appUserViewModel.IsCohort = false;
                     string linkToClick = HttpContext.Request.Scheme.ToString() + "://" +
                     HttpContext.Request.Host.ToString() + "/Account/EvaluateCredentials?userId=";
 
@@ -81,6 +91,114 @@ namespace e_college.Controllers
             }
             return Json(new { isError = true, msg = "Network Error" });
         }
+
+        [HttpGet]
+        public IActionResult CohortRegistration()
+        {
+            ViewBag.Departments = _dropdownHelper.DropdownOfDepartments(excludeScholarship: true);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> CohortRegistration(string userDetails, string refLink)
+        {
+            if (userDetails != null)
+            {
+                var appUserViewModel = JsonConvert.DeserializeObject<ApplicationUserViewModel>(userDetails);
+                if (appUserViewModel != null)
+                {
+                    var checkEmail = await _userHelper.FindByEmailAsync(appUserViewModel.Email).ConfigureAwait(false);
+                    if (checkEmail != null)
+                    {
+                        return Json(new { isError = true, msg = "Email Already Exists" });
+                    }
+                    if (appUserViewModel.DepartmentId == 0)
+                    {
+                        return Json(new { isError = true, msg = "Please select a department" });
+                    }
+                    var selectedDepartment = _context.Departments.FirstOrDefault(d => d.Id == appUserViewModel.DepartmentId && d.Active && !d.Deleted);
+                    if (selectedDepartment == null)
+                    {
+                        return Json(new { isError = true, msg = "Please select a valid department" });
+                    }
+                    if (selectedDepartment.IsUnderScholarship)
+                    {
+                        return Json(new { isError = true, msg = "This department is only available through the scholarship program" });
+                    }
+                    if (appUserViewModel.Password != appUserViewModel.ConfirmPassword)
+                    {
+                        return Json(new { isError = true, msg = "Password and Confirm password do not match" });
+                    }
+                    if (appUserViewModel.Password.Length < 8)
+                    {
+                        return Json(new { isError = true, msg = "Password must be from 8 characters" });
+                    }
+
+                    appUserViewModel.IsCohort = true;
+                    string linkToClick = HttpContext.Request.Scheme.ToString() + "://" +
+                    HttpContext.Request.Host.ToString() + "/Account/EvaluateCredentials?userId=";
+
+                    var createStudent = await _userHelper.RegisterStudent(appUserViewModel, linkToClick, refLink).ConfigureAwait(false);
+                    if (createStudent)
+                    {
+                        return Json(new { isError = false, msg = "Cohort registration successful. Login to your email and follow the instructions" });
+                    }
+                    return Json(new { isError = true, msg = "Unable to register" });
+                }
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
+
+        [HttpGet]
+        public IActionResult ScholarshipRegistration()
+        {
+            ViewBag.Departments = _dropdownHelper.DropdownOfScholarshipDepartments();
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ScholarshipRegistration(string userDetails, string refLink)
+        {
+            if (userDetails != null)
+            {
+                var appUserViewModel = JsonConvert.DeserializeObject<ApplicationUserViewModel>(userDetails);
+                if (appUserViewModel != null)
+                {
+                    var checkEmail = await _userHelper.FindByEmailAsync(appUserViewModel.Email).ConfigureAwait(false);
+                    if (checkEmail != null)
+                    {
+                        return Json(new { isError = true, msg = "Email Already Exists" });
+                    }
+                    if (appUserViewModel.DepartmentId == 0)
+                    {
+                        return Json(new { isError = true, msg = "Please select a scholarship department" });
+                    }
+                    var selectedDepartment = _context.Departments.FirstOrDefault(d =>
+                        d.Id == appUserViewModel.DepartmentId && d.Active && !d.Deleted && d.IsUnderScholarship);
+                    if (selectedDepartment == null)
+                    {
+                        return Json(new { isError = true, msg = "Please select a valid scholarship department" });
+                    }
+                    if (appUserViewModel.Password != appUserViewModel.ConfirmPassword)
+                    {
+                        return Json(new { isError = true, msg = "Password and Confirm password do not match" });
+                    }
+                    if (appUserViewModel.Password.Length < 8)
+                    {
+                        return Json(new { isError = true, msg = "Password must be from 8 characters" });
+                    }
+
+                    var createStudent = await _userHelper.RegisterScholarshipStudent(appUserViewModel, refLink).ConfigureAwait(false);
+                    if (createStudent)
+                    {
+                        return Json(new { isError = false, msg = "Scholarship registration successful. Check your email for further details." });
+                    }
+                    return Json(new { isError = true, msg = "Unable to register" });
+                }
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
+
         [HttpGet]
         public IActionResult EvaluateCredentials(string userId)
         {
@@ -387,7 +505,7 @@ namespace e_college.Controllers
                         var PasswordSignIn = await _signInManager.PasswordSignInAsync(existingUser, password, true, true).ConfigureAwait(false);
                         if (PasswordSignIn.Succeeded)
                         {
-                            url = "/AcademicStaff/Index";
+                            url = "/Librarian/Index";
                             return Json(new { isError = false, dashboard = url });
                         }
                     }

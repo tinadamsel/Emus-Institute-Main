@@ -1,0 +1,97 @@
+@model IEnumerable<Core.ViewModels.CbtTestViewModel>
+@{
+    ViewData["Title"] = "Manage CBT Tests";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    ViewBag.TestId = null;
+}
+
+<main id="main" class="main">
+    <partial name="_CbtStaffNav" />
+
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Manage Tests</h1>
+            <p class="sa-page-sub">Tests for @ViewBag.DepartmentName. Editing is locked once a test starts.</p>
+        </div>
+        <a asp-controller="AcademicStaff" asp-action="CreateCbtTest" class="btn btn-outline-success">
+            <i class="bi bi-plus-lg"></i> Create New Test
+        </a>
+    </div>
+
+    <div class="sa-list-card p-4 mb-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search tests..." />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Filter</label>
+                <select name="filter" class="form-control">
+                    @{
+                        var filter = ViewBag.Filter as string ?? "all";
+                    }
+                    <option value="all" selected="@(filter == "all")">All</option>
+                    <option value="published" selected="@(filter == "published")">Published</option>
+                    <option value="draft" selected="@(filter == "draft")">Draft</option>
+                    <option value="active" selected="@(filter == "active")">Active</option>
+                    <option value="upcoming" selected="@(filter == "upcoming")">Upcoming</option>
+                    <option value="ended" selected="@(filter == "ended")">Ended</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-primary w-100">Apply</button>
+            </div>
+        </form>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var test in Model)
+            {
+                var badgeClass = test.IsPublished ? (test.IsActiveNow ? "bg-success" : test.IsUpcoming ? "bg-primary" : "bg-secondary") : "bg-warning text-dark";
+                <div class="col-lg-6">
+                    <div class="cbt-test-card sa-list-card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="mb-0">@test.Title</h5>
+                            <span class="badge @badgeClass">@(test.IsPublished ? test.StatusLabel : "Draft")</span>
+                        </div>
+                        <p class="text-muted small mb-2">@test.ScheduleDisplay</p>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="cbt-pill">@test.DurationMinutes mins</span>
+                            <span class="cbt-pill">@test.QuestionCount questions</span>
+                            <span class="cbt-pill">@test.TotalMarks pts</span>
+                            @if (!string.IsNullOrWhiteSpace(test.BrowserCode))
+                            {
+                                <span class="cbt-pill cbt-pill-green">Browser Code Required</span>
+                            }
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (test.CanEdit)
+                            {
+                                <a asp-action="EditCbtTest" asp-route-id="@test.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a asp-action="ManageCbtQuestions" asp-route-id="@test.Id" class="btn btn-sm btn-outline-secondary">Questions</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteCbtTest(@test.Id)">Delete</button>
+                            }
+                            else
+                            {
+                                <a asp-action="CbtTestAnalytics" asp-route-id="@test.Id" class="btn btn-sm btn-outline-primary">Analytics</a>
+                                <a asp-action="CbtTestScores" asp-route-id="@test.Id" class="btn btn-sm btn-outline-secondary">Scores</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="sa-list-card">
+            <div class="sa-empty-state py-5">
+                <i class="bi bi-clipboard-check"></i>
+                <h6>No CBT tests yet</h6>
+                <p>Create your first test to get started.</p>
+            </div>
+        </div>
+    }
+</main>

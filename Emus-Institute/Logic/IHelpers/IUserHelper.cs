@@ -27,6 +27,7 @@ namespace Logic.IHelpers
         bool CheckIfDeclined(int id);
          string GetCurrentUserId(string username);
         Task<bool> RegisterStudent(ApplicationUserViewModel userDetails, string linkToClick, string refLink);
+        Task<bool> RegisterScholarshipStudent(ApplicationUserViewModel userDetails, string refLink);
         Task<EvaluationDetails> SaveStudentEvaluationDetails(string UserId, string passport, string transcript, string highSchCert, string waecScratchCard, string anyRelevantCert);
         Task<StaffEvaluationDetails> SaveStaffEvaluationDetails(string userId, string passport, string transcript, string highSchCert, string waecScratchCard, string anyRelevantCert);
         bool SendPaymentCompletionEmail(string email);

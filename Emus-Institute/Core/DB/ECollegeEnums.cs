@@ -71,30 +71,6 @@ namespace Core.DB
         }
         public enum TextbookEnum
         {
-            //[Description("For Primary1")]
-            //Primary1 = 1,
-            //[Description("For Primary2")]
-            //Primary2,
-            //[Description("For Primary3")]
-            //Primary3,
-            //[Description("For Primary4")]
-            //Primary4,
-            //[Description("For Primary5")]
-            //Primary5,
-            //[Description("For Primary6")]
-            //Primary6,
-            //[Description("For JS1")]
-            //JS1,
-            //[Description("For JS2")]
-            //JS2,
-            //[Description("For JS3")]
-            //JS3,
-            //[Description("For SS1")]
-            //SS1,
-            //[Description("For SS2")]
-            //SS2,
-            //[Description("For SS3")]
-            //SS3,
             [Description("For Year1")]
             Year1 = 1,
             [Description("For Year2")]
@@ -103,7 +79,46 @@ namespace Core.DB
             Year3,
             [Description("For Year4")]
             Year4,
+        }
 
+        public enum TextbookApprovalStatus
+        {
+            [Description("Pending")]
+            Pending = 1,
+            [Description("Approved")]
+            Approved = 2,
+            [Description("Declined")]
+            Declined = 3,
+        }
+
+        public enum LiveSessionStatus
+        {
+            [Description("Scheduled")]
+            Scheduled = 1,
+            [Description("Live")]
+            Live = 2,
+            [Description("Completed")]
+            Completed = 3,
+            [Description("Cancelled")]
+            Cancelled = 4,
+        }
+
+        public enum CbtQuestionType
+        {
+            [Description("Multiple Choice (Single Answer)")]
+            SingleChoice = 1,
+            [Description("Multiple Correct Answers")]
+            MultipleChoice = 2,
+            [Description("True/False")]
+            TrueFalse = 3,
+        }
+
+        public enum AnnouncementAudience
+        {
+            [Description("Whole Students")]
+            WholeStudents = 1,
+            [Description("Department")]
+            Department = 2,
         }
         public enum PaymentStatus
         {
@@ -135,6 +150,8 @@ namespace Core.DB
             LibrarianOfficer,
             [Description("Account Officer")]
             AccountOfficer,
+            [Description("Marketing Officer")]
+            MarketingOfficer,
             [Description("Exams Officer")]
             ExamsOfficer,
             [Description("Business Development Officer")]

@@ -9,6 +9,7 @@ namespace Logic.IHelpers
 {
     public interface IDropDownHelper
     {
-        List<Department> DropdownOfDepartments();
+        List<Department> DropdownOfDepartments(bool excludeScholarship = false);
+        List<Department> DropdownOfScholarshipDepartments();
     }
 }

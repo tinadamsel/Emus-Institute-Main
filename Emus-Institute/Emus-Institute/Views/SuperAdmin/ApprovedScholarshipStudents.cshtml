@@ -1,0 +1,179 @@
+@model IEnumerable<Core.ViewModels.ApplicationUserViewModel>
+
+
+
+@{
+
+    ViewData["Title"] = "Approved Scholarship Students";
+
+    Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
+
+}
+
+
+
+<main id="main" class="main">
+
+    <div class="sa-page-header">
+
+        <div>
+
+            <h1 class="sa-page-title">Approved Scholarship Students</h1>
+
+            <p class="sa-page-sub">Students whose scholarship applications have been approved.</p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <div class="sa-list-card sa-table-wrap table-responsive">
+
+                <table class="table table-hover table-striped custom-table" id="dataTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>S/N</th>
+
+                            <th>Name</th>
+
+                            <th>Date Registered</th>
+
+                            <th>Date Approved</th>
+
+                            <th>Department</th>
+
+                            <th>Scholarship Value</th>
+
+                            <th>State</th>
+
+                            <th>Country</th>
+
+                            <th>Current Session</th>
+
+                            <th>Academic Level</th>
+
+                            <th>Email</th>
+
+                            <th>Phone Number</th>
+
+                            <th>Student ID</th>
+
+                            <th>Paid</th>
+
+                        </tr>
+
+                    </thead>
+
+                    @if (Model != null && Model.Any())
+
+                    {
+
+                        <tbody>
+
+                            @foreach (var user in Model)
+
+                            {
+
+                                <tr>
+
+                                    <td></td>
+
+                                    <td>@user.FullName</td>
+
+                                    <td>@user.DateRegistered.ToString("D")</td>
+
+                                    <td>@(user.DateOfApproval.HasValue ? user.DateOfApproval.Value.ToString("D") : "—")</td>
+
+                                    <td>@user.DepartmentName</td>
+
+                                    <td>
+
+                                        @if (user.ScholarshipAmount.HasValue)
+
+                                        {
+
+                                            @($"€{user.ScholarshipAmount.Value:N2}")
+
+                                        }
+
+                                        else
+
+                                        {
+
+                                            <span class="text-muted">—</span>
+
+                                        }
+
+                                    </td>
+
+                                    <td>@user.State</td>
+
+                                    <td>@user.Country</td>
+
+                                    <td>@user.CurrentSession</td>
+
+                                    <td>@user.AcademicLevel</td>
+
+                                    <td>@user.Email</td>
+
+                                    <td>@user.Phonenumber</td>
+
+                                    <td>@user.StudentId</td>
+
+                                    <td>@(user.Paid ? "Yes" : "No")</td>
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+
+                    }
+
+                    else
+
+                    {
+
+                        <tbody>
+
+                            <tr>
+
+                                <td colspan="14">
+
+                                    <div class="sa-empty-state">
+
+                                        <i class="bi bi-award"></i>
+
+                                        <h6>No approved scholarship students</h6>
+
+                                        <p>Approved scholarship applications will appear here.</p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    }
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+

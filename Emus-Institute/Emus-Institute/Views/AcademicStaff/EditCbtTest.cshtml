@@ -1,0 +1,88 @@
+@model Core.ViewModels.CbtTestViewModel
+@{
+    ViewData["Title"] = "Edit CBT Test";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    ViewBag.TestId = Model.Id;
+}
+
+<main id="main" class="main">
+    <partial name="_CbtStaffNav" />
+
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Edit Test</h1>
+            <p class="sa-page-sub">@Model.Title · @ViewBag.DepartmentName</p>
+        </div>
+        <a asp-action="ManageCbtQuestions" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Manage Questions</a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="sa-list-card p-4">
+                <input type="hidden" id="cbt_Id" value="@Model.Id" />
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Test Title <span class="text-danger">*</span></label>
+                        <input type="text" id="cbt_Title" class="form-control" value="@Model.Title" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" id="cbt_Duration" class="form-control" value="@Model.DurationMinutes" min="1" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea id="cbt_Description" class="form-control" rows="2">@Model.Description</textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Start Date &amp; Time</label>
+                        <input type="datetime-local" id="cbt_Start" class="form-control" value="@Model.StartDateTime.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">End Date &amp; Time</label>
+                        <input type="datetime-local" id="cbt_End" class="form-control" value="@Model.EndDateTime.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Pass Mark</label>
+                        <input type="number" id="cbt_PassMark" class="form-control" value="@Model.PassMark" step="0.01" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Mark Per Question</label>
+                        <input type="number" id="cbt_MarkPerQuestion" class="form-control" value="@Model.MarkPerQuestion" step="0.01" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Maximum Attempts</label>
+                        <input type="number" id="cbt_MaxAttempts" class="form-control" value="@Model.MaximumAttempts" min="1" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Browser Code</label>
+                        <input type="text" id="cbt_BrowserCode" class="form-control" value="@Model.BrowserCode" />
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end gap-4 flex-wrap pb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cbt_ShuffleQuestions" @(Model.ShuffleQuestions ? "checked" : "") />
+                            <label class="form-check-label" for="cbt_ShuffleQuestions">Shuffle Questions</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cbt_ShuffleOptions" @(Model.ShuffleOptions ? "checked" : "") />
+                            <label class="form-check-label" for="cbt_ShuffleOptions">Shuffle Options</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cbt_Published" @(Model.IsPublished ? "checked" : "") />
+                            <label class="form-check-label" for="cbt_Published">Publish Test</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Instructions</label>
+                        <textarea id="cbt_Instructions" class="form-control" rows="4">@Model.Instructions</textarea>
+                    </div>
+                    <div class="col-12">
+                        <p class="small text-muted mb-0">Total marks (from questions): <strong>@Model.TotalMarks</strong> · Questions: <strong>@Model.QuestionCount</strong></p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="button" id="update_cbt_btn" class="btn btn-outline-success" onclick="saveCbtTest(true)">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

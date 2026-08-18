@@ -41,6 +41,8 @@ namespace Core.Models
         [ForeignKey("DepartmentId")]
         public virtual Department? Department { get; set; }
         public string? RefLink { get; set; }
+        public int EvaluationReminderSentCount { get; set; }
+        public bool? IsCohort { get; set; }
     }
 
 }

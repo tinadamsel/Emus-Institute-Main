@@ -1,0 +1,75 @@
+@model Core.ViewModels.CbtAnalyticsViewModel
+@{
+    ViewData["Title"] = "Test Analytics";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    ViewBag.TestId = Model.CbtTestId;
+}
+
+<main id="main" class="main">
+    <partial name="_CbtStaffNav" />
+
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Test Analytics</h1>
+            <p class="sa-page-sub">@Model.TestTitle</p>
+        </div>
+        <a asp-action="CbtTestScores" asp-route-id="@Model.CbtTestId" class="btn btn-outline-secondary">View All Scores</a>
+    </div>
+
+    <div class="sa-stats-grid mb-4">
+        <div class="sa-stat-card" data-accent="blue">
+            <p class="sa-stat-label">Total Attempts</p>
+            <p class="sa-stat-value">@Model.TotalAttempts</p>
+        </div>
+        <div class="sa-stat-card" data-accent="green">
+            <p class="sa-stat-label">Average Score</p>
+            <p class="sa-stat-value">@Model.AverageScore</p>
+        </div>
+        <div class="sa-stat-card" data-accent="teal">
+            <p class="sa-stat-label">Pass Rate</p>
+            <p class="sa-stat-value">@Model.PassRate%</p>
+        </div>
+        <div class="sa-stat-card" data-accent="orange">
+            <p class="sa-stat-label">Fail Rate</p>
+            <p class="sa-stat-value">@Model.FailRate%</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="sa-list-card p-4">
+                <h6>Pass / Fail breakdown</h6>
+                <p class="mb-1">Passed: <strong>@Model.PassedCount</strong></p>
+                <p class="mb-1">Failed: <strong>@Model.FailedCount</strong></p>
+                <p class="mb-0 text-muted small">Pass mark: @Model.PassMark / @Model.TotalMarks</p>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Attempts.Any())
+    {
+        <div class="sa-list-card sa-table-wrap">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Score</th>
+                        <th>Result</th>
+                        <th>Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var attempt in Model.Attempts)
+                    {
+                        <tr>
+                            <td>@attempt.StudentName</td>
+                            <td>@attempt.Score / @attempt.TotalMarks</td>
+                            <td><span class="badge @(attempt.Passed ? "bg-success" : "bg-danger")">@(attempt.Passed ? "Passed" : "Failed")</span></td>
+                            <td>@attempt.SubmittedAt?.ToString("MMM d, yyyy h:mm tt")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</main>

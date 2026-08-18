@@ -1,0 +1,101 @@
+@model Core.ViewModels.CbtAttemptViewModel
+@using static Core.DB.ECollegeEnums
+@{
+    ViewData["Title"] = Model.TestTitle;
+    Layout = "~/Views/Shared/_TakeCbtTestLayout.cshtml";
+}
+
+<div class="cbt-exam-header">
+    <div>
+        <h4 class="mb-0">@Model.TestTitle</h4>
+        @if (!string.IsNullOrWhiteSpace(Model.Instructions))
+        {
+            <p class="small text-muted mb-0 mt-1">@Model.Instructions</p>
+        }
+    </div>
+    <div class="cbt-timer-wrap">
+        <span class="cbt-timer-label">Time left</span>
+        <div id="cbtTimer" class="cbt-timer">--:--</div>
+    </div>
+</div>
+
+<form id="cbtExamForm">
+    <input type="hidden" id="cbtAttemptId" value="@Model.Id" />
+    <input type="hidden" id="cbtRemainingSeconds" value="@Model.RemainingSeconds" />
+
+    @for (var i = 0; i < Model.Questions.Count; i++)
+    {
+        var q = Model.Questions[i];
+        <div class="sa-list-card p-4 mb-3 cbt-question-card" data-question-id="@q.Id" data-question-type="@((int)q.QuestionType)">
+            <div class="d-flex justify-content-between mb-2">
+                <strong>Question @(i + 1)</strong>
+                <span class="badge bg-secondary">@q.Marks mark(s)</span>
+            </div>
+            <p class="mb-3">@q.QuestionText</p>
+            @if (!string.IsNullOrWhiteSpace(q.ImagePath))
+            {
+                <img src="@q.ImagePath" alt="Question" class="img-fluid rounded mb-3" style="max-height:200px;" />
+            }
+
+            @if (q.QuestionType == CbtQuestionType.MultipleChoice)
+            {
+                @foreach (var opt in q.DisplayOptions)
+                {
+                    <div class="form-check mb-2">
+                        <input class="form-check-input cbt-answer" type="checkbox" name="q_@q.Id" value="@opt.Key" id="q_@(q.Id)_@opt.Key" />
+                        <label class="form-check-label" for="q_@(q.Id)_@opt.Key">@opt.Key. @opt.Text</label>
+                    </div>
+                }
+            }
+            else
+            {
+                @foreach (var opt in q.DisplayOptions)
+                {
+                    <div class="form-check mb-2">
+                        <input class="form-check-input cbt-answer" type="radio" name="q_@q.Id" value="@opt.Key" id="q_@(q.Id)_@opt.Key" />
+                        <label class="form-check-label" for="q_@(q.Id)_@opt.Key">@opt.Key. @opt.Text</label>
+                    </div>
+                }
+            }
+        </div>
+    }
+
+    <div class="text-end mb-4">
+        <button type="button" id="submit_cbt_btn" class="btn btn-outline-success btn-lg" onclick="submitCbtTest(false)">Submit Test</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        (function () {
+            var remaining = parseInt($('#cbtRemainingSeconds').val(), 10) || 0;
+            var timerEl = document.getElementById('cbtTimer');
+            var intervalId;
+
+            function formatTime(seconds) {
+                var m = Math.floor(seconds / 60);
+                var s = seconds % 60;
+                return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            }
+
+            function tick() {
+                timerEl.textContent = formatTime(remaining);
+                if (remaining <= 60) timerEl.classList.add('cbt-timer-danger');
+                if (remaining <= 0) {
+                    clearInterval(intervalId);
+                    submitCbtTest(true);
+                    return;
+                }
+                remaining--;
+            }
+
+            tick();
+            intervalId = setInterval(tick, 1000);
+
+            window.addEventListener('beforeunload', function (e) {
+                e.preventDefault();
+                e.returnValue = '';
+            });
+        })();
+    </script>
+}

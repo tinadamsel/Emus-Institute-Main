@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.Models;
+﻿using Core.Models;
 using static Core.DB.ECollegeEnums;
 
 namespace Core.ViewModels
@@ -20,12 +13,16 @@ namespace Core.ViewModels
         public string TextbookCode { get; set; }
         public decimal Price { get; set; }
         public int? DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
         public virtual Department? Departments { get; set; }
         public TextbookEnum TextbookForEachSession { get; set; }
         public string? UserId { get; set; }
         public virtual ApplicationUser? Users { get; set; }
         public string AddedBy { get; set; }
         public bool? IsApproved { get; set; }
-       
+        public TextbookApprovalStatus Status { get; set; }
+        public string? FilePath { get; set; }
+        public string? CoverImagePath { get; set; }
+        public string? StatusLabel { get; set; }
     }
 }

@@ -161,6 +161,70 @@ namespace e_college.Controllers
 
         }
 
+        public IActionResult ScholarshipStudents()
+        {
+            var scholarshipStudents = _superAdminHelper.GetScholarshipStudents();
+            return View(scholarshipStudents);
+        }
+
+        public IActionResult ApprovedScholarshipStudents()
+        {
+            var approvedScholarshipStudents = _superAdminHelper.GetApprovedScholarshipStudents();
+            return View(approvedScholarshipStudents);
+        }
+
+        public JsonResult ScholarshipRegistrationLink()
+        {
+            var link = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/Account/ScholarshipRegistration";
+            return Json(link);
+        }
+
+        public JsonResult ScholarshipStudentApproval(string userId)
+        {
+            try
+            {
+                if (userId != null)
+                {
+                    if (_superAdminHelper.CheckIfScholarshipStudentIsApproved(userId))
+                    {
+                        return Json(new { isError = true, msg = "This scholarship student has been approved before" });
+                    }
+                    var approveStudent = _superAdminHelper.ApproveScholarshipStudent(userId);
+                    if (approveStudent)
+                    {
+                        return Json(new { isError = false, msg = "Scholarship student has been approved successfully" });
+                    }
+                    return Json(new { isError = true, msg = "Could not approve scholarship student" });
+                }
+                return Json(new { isError = true, msg = "Network Failure" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+
+        public JsonResult DeclineScholarshipStudent(string userId)
+        {
+            try
+            {
+                if (userId != null)
+                {
+                    var declineStudent = _superAdminHelper.DeclineScholarshipStudent(userId);
+                    if (declineStudent)
+                    {
+                        return Json(new { isError = false, msg = "Scholarship student has been declined" });
+                    }
+                    return Json(new { isError = true, msg = "Could not decline scholarship student" });
+                }
+                return Json(new { isError = true, msg = "Network Failure" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+
         public JsonResult StudentApproval(string userId)
         {
             try
@@ -338,6 +402,12 @@ namespace e_college.Controllers
                 return Json(new { isError = true, msg = "Unable To Remove" });
             }
             return Json(new { isError = true, msg = "Network Error" });
+        }
+
+        [HttpGet]
+        public IActionResult Announcements()
+        {
+            return RedirectToAction("Announcements", "AcademicStaff");
         }
 
     }

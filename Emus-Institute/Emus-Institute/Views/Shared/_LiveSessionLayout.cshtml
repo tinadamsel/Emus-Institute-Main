@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Emus Institute</title>
+    <link href="~/assets/img/logo-main-fav.jpg" rel="icon">
+    <link href="~/asset/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/asset/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/css/superadmin-dashboard.css" rel="stylesheet" asp-append-version="true" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: #0f172a;
+        }
+
+        .live-session-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .live-session-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .live-session-topbar a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .live-session-body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .live-session-frame {
+            flex: 1;
+            min-height: calc(100vh - 140px);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #111827;
+        }
+    </style>
+</head>
+<body>
+    <div class="live-session-shell">
+        <div class="live-session-topbar">
+            <a href="@ViewBag.BackUrl"><i class="bi bi-arrow-left"></i> @ViewBag.BackLabel</a>
+            <span class="small">Powered by Jitsi Meet</span>
+        </div>
+        <div class="live-session-body">
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

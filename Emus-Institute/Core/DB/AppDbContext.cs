@@ -26,6 +26,12 @@ namespace Core.DB
         public DbSet<PayStack> PayStackpayments { get; set; }
         public DbSet<EvaluationDetails> EvaluationDetails { get; set; }
         public DbSet<StaffEvaluationDetails> StaffEvaluationDetails { get; set; }
+        public DbSet<LiveSession> LiveSessions { get; set; }
+        public DbSet<CbtTest> CbtTests { get; set; }
+        public DbSet<CbtQuestion> CbtQuestions { get; set; }
+        public DbSet<CbtAttempt> CbtAttempts { get; set; }
+        public DbSet<CbtStudentAnswer> CbtStudentAnswers { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
 
 
         //public DbSet<PaymentForm> PaymentForms { get; set; }

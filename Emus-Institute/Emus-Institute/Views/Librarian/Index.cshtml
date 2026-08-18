@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Librarian Dashboard";
+    Layout = "~/Views/Shared/_LibrarianDashboardLayout.cshtml";
+}
+
+<main id="main" class="main sa-dashboard-home">
+    <section class="sa-hero" aria-label="Welcome">
+        <div class="sa-hero-content">
+            <p class="sa-hero-eyebrow">Librarian</p>
+            <h1>Library workspace</h1>
+            <p class="sa-hero-sub">Review and approve department textbooks uploaded by academic staff.</p>
+        </div>
+        <div class="sa-hero-meta">
+            <p class="sa-hero-date">@DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+            <p class="sa-hero-institute">Emus Institute</p>
+        </div>
+    </section>
+
+    <section class="sa-stats-grid" aria-label="Key metrics">
+        <a asp-controller="Librarian" asp-action="Textbooks" class="sa-stat-card" data-accent="amber">
+            <p class="sa-stat-label">Pending textbooks</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-hourglass-split"></i></span>
+                <p class="sa-stat-value">@(ViewBag.PendingCount ?? 0)</p>
+            </div>
+            <p class="sa-stat-hint">Awaiting approval</p>
+        </a>
+    </section>
+</main>

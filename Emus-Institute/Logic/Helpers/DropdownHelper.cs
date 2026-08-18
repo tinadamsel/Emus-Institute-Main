@@ -19,7 +19,7 @@ namespace Logic.Helpers
             _context = context;
         }
 
-        public List<Department> DropdownOfDepartments()
+        public List<Department> DropdownOfDepartments(bool excludeScholarship = false)
         {
             try
             {
@@ -28,7 +28,38 @@ namespace Logic.Helpers
                     Id = 0,
                     Name = "-- Select Department --"
                 };
-                var listOfDepartments = _context.Departments.Where(x => x.Id > 0 && x.Active).ToList();
+                var query = _context.Departments.Where(x => x.Id > 0 && x.Active);
+                if (excludeScholarship)
+                {
+                    query = query.Where(x => !x.IsUnderScholarship);
+                }
+                var listOfDepartments = query.ToList();
+                var drp = listOfDepartments.Select(x => new Department
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                }).ToList();
+                drp.Insert(0, common);
+                return drp;
+            }
+            catch (Exception exp)
+            {
+                throw exp;
+            }
+        }
+
+        public List<Department> DropdownOfScholarshipDepartments()
+        {
+            try
+            {
+                var common = new Department()
+                {
+                    Id = 0,
+                    Name = "-- Select Scholarship Department --"
+                };
+                var listOfDepartments = _context.Departments
+                    .Where(x => x.Id > 0 && x.Active && !x.Deleted && x.IsUnderScholarship)
+                    .ToList();
                 var drp = listOfDepartments.Select(x => new Department
                 {
                     Id = x.Id,

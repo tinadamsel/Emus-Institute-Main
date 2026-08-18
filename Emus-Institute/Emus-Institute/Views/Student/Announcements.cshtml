@@ -1,0 +1,46 @@
+@model IEnumerable<Core.ViewModels.AnnouncementViewModel>
+@{
+    ViewData["Title"] = "Announcements";
+    Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Announcements</h1>
+            <p class="sa-page-sub">Latest announcements for your department and all students.</p>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-12">
+                    <div class="sa-list-card p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="mb-0">@item.Title</h5>
+                            <span class="badge bg-warning text-dark">New</span>
+                        </div>
+                        <p class="mb-2">@item.Message</p>
+                        <p class="small text-muted mb-1"><strong>Audience:</strong> @item.AudienceLabel</p>
+                        <p class="small text-muted mb-0">
+                            Active until @item.EndDateTime.ToString("MMM d, yyyy h:mm tt")
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="sa-list-card">
+            <div class="sa-empty-state py-5">
+                <i class="bi bi-megaphone"></i>
+                <h6>No active announcements</h6>
+                <p>Any active announcement will appear here.</p>
+            </div>
+        </div>
+    }
+</main>

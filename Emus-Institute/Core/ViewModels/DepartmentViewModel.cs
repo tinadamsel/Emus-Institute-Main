@@ -17,6 +17,8 @@ namespace Core.ViewModels
         public string Description { get; set; }
         public bool Active { get; set; }
         public bool Deleted { get; set; }
+        public bool IsUnderScholarship { get; set; }
+        public decimal? ScholarshipAmount { get; set; }
         public DateTime DateCreated { get; set; }
     }
 }

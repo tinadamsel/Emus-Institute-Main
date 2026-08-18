@@ -1,7 +1,10 @@
 ﻿@{
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     string NavClass(string action) =>
-        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+        (string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            || (action == "VirtualClass" && string.Equals(currentAction, "JoinLiveSession", StringComparison.OrdinalIgnoreCase))
+            || (action == "MyCbtTests" && (string.Equals(currentAction, "TakeCbtTest", StringComparison.OrdinalIgnoreCase) || string.Equals(currentAction, "CbtTestResult", StringComparison.OrdinalIgnoreCase)))
+            || (action == "Announcements" && string.Equals(currentAction, "Announcements", StringComparison.OrdinalIgnoreCase)))
             ? "nav-link sa-nav-active"
             : "nav-link collapsed";
 }
@@ -130,6 +133,26 @@
             <li class="nav-item">
                 <a class="@NavClass("Index")" asp-controller="Student" asp-action="Index">
                     <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="@NavClass("Textbooks")" asp-controller="Student" asp-action="Textbooks">
+                    <i class="bi bi-book"></i><span>Textbooks</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="@NavClass("VirtualClass")" asp-controller="Student" asp-action="VirtualClass">
+                    <i class="bi bi-camera-video"></i><span>Virtual Class</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="@NavClass("MyCbtTests")" asp-controller="Student" asp-action="MyCbtTests">
+                    <i class="bi bi-clipboard-check"></i><span>My CBT Tests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="@NavClass("Announcements")" asp-controller="Student" asp-action="Announcements">
+                    <i class="bi bi-megaphone"></i><span>Announcements</span>
                 </a>
             </li>
         </ul>

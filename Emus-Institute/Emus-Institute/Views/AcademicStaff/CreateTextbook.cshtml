@@ -1,0 +1,56 @@
+@model Core.ViewModels.TextbookViewModel
+@using static Core.DB.ECollegeEnums
+
+@{
+    ViewData["Title"] = "Create Textbook";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    var sessions = ViewBag.Sessions as List<TextbookEnum> ?? new List<TextbookEnum>();
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Create Textbook</h1>
+            <p class="sa-page-sub">Upload a PDF textbook for @ViewBag.DepartmentName. It will remain pending until librarian approval.</p>
+        </div>
+        <div>
+            <a asp-controller="AcademicStaff" asp-action="Textbooks" class="btn btn-outline-secondary">Back to Textbooks</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="sa-list-card p-4">
+                <div class="mb-3">
+                    <label class="form-label">Textbook Name <span class="text-danger">*</span></label>
+                    <input type="text" id="textbook_Name" class="form-control" placeholder="Enter textbook name" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Textbook Code</label>
+                    <input type="text" id="textbook_Code" class="form-control" placeholder="Optional code" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Session <span class="text-danger">*</span></label>
+                    <select id="textbook_Session" class="form-control">
+                        <option value="0">-- Select Session --</option>
+                        @foreach (var session in sessions)
+                        {
+                            <option value="@((int)session)">@session</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea id="textbook_Description" class="form-control" rows="4" placeholder="Short description"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">PDF File <span class="text-danger">*</span></label>
+                    <input type="file" id="textbook_Pdf" class="form-control" accept="application/pdf,.pdf" />
+                </div>
+                <button type="button" id="create_textbook_btn" class="btn btn-outline-success" onclick="createTextbook()">
+                    Upload Textbook
+                </button>
+            </div>
+        </div>
+    </div>
+</main>

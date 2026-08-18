@@ -1,7 +1,14 @@
-﻿@{
+﻿@inject Logic.IHelpers.IUserHelper _userHelper
+@{
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var currentUser = _userHelper.FindByUserName(User?.Identity?.Name);
+    var userRole = _userHelper.GetUserRole(currentUser?.Id) ?? string.Empty;
+    var isSuperAdmin = userRole.Contains("SuperAdmin", StringComparison.OrdinalIgnoreCase);
     string NavClass(string action) =>
-        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+        (string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            || (action == "LiveSessions" && string.Equals(currentAction, "JoinLiveSession", StringComparison.OrdinalIgnoreCase))
+            || (action == "CbtTests" && (currentAction.StartsWith("Cbt", StringComparison.OrdinalIgnoreCase) || currentAction.Contains("Cbt", StringComparison.OrdinalIgnoreCase)))
+            || (action == "Announcements" && string.Equals(currentAction, "Announcements", StringComparison.OrdinalIgnoreCase)))
             ? "nav-link sa-nav-active"
             : "nav-link collapsed";
 }
@@ -153,6 +160,40 @@
                     <i class="bi bi-book"></i><span>Textbooks</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="@NavClass("CreateTextbook")" asp-controller="AcademicStaff" asp-action="CreateTextbook">
+                    <i class="bi bi-plus-square"></i><span>Create Textbook</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="@NavClass("LiveSessions")" asp-controller="AcademicStaff" asp-action="LiveSessions">
+                    <i class="bi bi-camera-video"></i><span>Live Sessions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="@NavClass("CbtTests")" asp-controller="AcademicStaff" asp-action="CbtTests">
+                    <i class="bi bi-clipboard-check"></i><span>CBT Tests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="@NavClass("Announcements")" asp-controller="AcademicStaff" asp-action="Announcements">
+                    <i class="bi bi-megaphone"></i><span>Announcements</span>
+                </a>
+            </li>
+            @if (isSuperAdmin)
+            {
+                <li class="nav-heading">Admin</li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-controller="SuperAdmin" asp-action="Index">
+                        <i class="bi bi-shield-lock"></i><span>Back to Super Admin</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-controller="Librarian" asp-action="Index">
+                        <i class="bi bi-journal-bookmark"></i><span>Librarian dashboard</span>
+                    </a>
+                </li>
+            }
         </ul>
     </aside>
 

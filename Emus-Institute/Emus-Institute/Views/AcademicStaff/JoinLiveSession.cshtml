@@ -1,0 +1,10 @@
+@model Core.ViewModels.LiveSessionViewModel
+
+@{
+    ViewData["Title"] = Model.RoomName;
+    Layout = "~/Views/Shared/_LiveSessionLayout.cshtml";
+    ViewBag.BackUrl = Url.Action("LiveSessions", "AcademicStaff");
+    ViewBag.BackLabel = "Back to Live Sessions";
+}
+
+<partial name="_JitsiMeeting" model="Model" />

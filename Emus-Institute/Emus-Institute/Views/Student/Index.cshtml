@@ -13,6 +13,16 @@
 }
 
 <main id="main" class="main sa-dashboard-home">
+    @if (ViewBag.HasWholeStudentAnnouncement == true)
+    {
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="bi bi-megaphone-fill me-2"></i>
+            <div>
+                There is an announcement for all students.
+                <a asp-controller="Student" asp-action="Announcements" class="alert-link">Read announcement</a>.
+            </div>
+        </div>
+    }
     <section class="sa-hero" aria-label="Welcome">
         <div class="sa-hero-content">
             <p class="sa-hero-eyebrow">Student Portal</p>
@@ -26,22 +36,29 @@
     </section>
 
     <section class="sa-stats-grid" aria-label="Student overview">
-        <a class="sa-stat-card" data-accent="cyan">
+        <a asp-controller="Student" asp-action="Textbooks" class="sa-stat-card" data-accent="cyan">
             <p class="sa-stat-label">Department textbooks</p>
             <div class="sa-stat-row">
                 <span class="sa-stat-icon"><i class="bi bi-book"></i></span>
-                <p class="sa-stat-value">0</p>
+                <p class="sa-stat-value">@Model.TotalDepartmentTextbooks</p>
             </div>
             <p class="sa-stat-hint">Learning resources</p>
         </a>
 
-        <a class="sa-stat-card" data-accent="teal">
+        <a asp-controller="Student" asp-action="Announcements" class="sa-stat-card" data-accent="teal">
             <p class="sa-stat-label">Announcements</p>
             <div class="sa-stat-row">
                 <span class="sa-stat-icon"><i class="bi bi-megaphone"></i></span>
-                <p class="sa-stat-value">0</p>
+                <p class="sa-stat-value">@Model.TotalActiveAnnouncements</p>
             </div>
-            <p class="sa-stat-hint">Latest updates</p>
+            @if (Model.TotalActiveAnnouncements > 0)
+            {
+                <p class="sa-stat-hint text-warning fw-semibold">You have active announcements</p>
+            }
+            else
+            {
+                <p class="sa-stat-hint">Latest updates</p>
+            }
         </a>
 
         <a class="sa-stat-card" data-accent="amber">

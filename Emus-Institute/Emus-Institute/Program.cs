@@ -65,6 +65,10 @@ builder.Services.AddScoped<IPaystackHelper, PaystackHelper>();
 builder.Services.AddScoped<IStaffPaymentHelper, StaffPaymentHelper>();
 builder.Services.AddScoped<IStaffPaystackHelper, StaffPaystackHelper>();
 builder.Services.AddScoped<IEvaluationReminderService, EvaluationReminderService>();
+builder.Services.AddScoped<ITextbookHelper, TextbookHelper>();
+builder.Services.AddScoped<ILiveSessionHelper, LiveSessionHelper>();
+builder.Services.AddScoped<ICbtHelper, CbtHelper>();
+builder.Services.AddScoped<IAnnouncementHelper, AnnouncementHelper>();
 builder.Services.AddTransient<EvaluationReminderJob>();
 
 // Add services to the container.

@@ -11,6 +11,10 @@
     {
         Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
     }
+    else if (role.Contains("librarian"))
+    {
+        Layout = "~/Views/Shared/_LibrarianDashboardLayout.cshtml";
+    }
     else
     {
         Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";

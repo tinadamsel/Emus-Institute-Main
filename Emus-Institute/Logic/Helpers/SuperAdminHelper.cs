@@ -48,6 +48,8 @@ namespace Logic.Helpers
                 {
                     Name = departmentViewModel.Name,
                     Description = departmentViewModel.Description,
+                    IsUnderScholarship = departmentViewModel.IsUnderScholarship,
+                    ScholarshipAmount = departmentViewModel.IsUnderScholarship ? departmentViewModel.ScholarshipAmount : null,
                     DateCreated = DateTime.Now,
                     Active = true,
                     Deleted = false,
@@ -68,6 +70,8 @@ namespace Logic.Helpers
                     Id = x.Id,
                     Name = x.Name,
                     Description = x.Description,
+                    IsUnderScholarship = x.IsUnderScholarship,
+                    ScholarshipAmount = x.ScholarshipAmount,
                     DateCreated = x.DateCreated,
                 }).ToList();
             return departmentViewModel;
@@ -75,11 +79,19 @@ namespace Logic.Helpers
 
         public int GetTotalApprovedStudents()
         {
-            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == true).Count();
+            return _context.ApplicationUser
+                .Include(x => x.Department)
+                .Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == true
+                    && (a.Department == null || !a.Department.IsUnderScholarship))
+                .Count();
         }
         public int GetTotalRegisteredStudents()
         {
-            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == false).Count();
+            return _context.ApplicationUser
+                .Include(x => x.Department)
+                .Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == false
+                    && (a.Department == null || !a.Department.IsUnderScholarship))
+                .Count();
         }
         public int GetTotalPaidStudents()
         {
@@ -107,6 +119,8 @@ namespace Logic.Helpers
                     Name = a.Name,
                     Id = a.Id,
                     Description = a.Description,
+                    IsUnderScholarship = a.IsUnderScholarship,
+                    ScholarshipAmount = a.ScholarshipAmount,
                     DateCreated = a.DateCreated,
                 }).FirstOrDefault();
                 if (departmentToEdit != null)
@@ -125,6 +139,8 @@ namespace Logic.Helpers
                 {
                     editDept.Name = departmentViewModel.Name;
                     editDept.Description = departmentViewModel.Description;
+                    editDept.IsUnderScholarship = departmentViewModel.IsUnderScholarship;
+                    editDept.ScholarshipAmount = departmentViewModel.IsUnderScholarship ? departmentViewModel.ScholarshipAmount : null;
                 }
                 _context.Update(editDept);
                 _context.SaveChanges();
@@ -150,7 +166,10 @@ namespace Logic.Helpers
         public List<ApplicationUserViewModel> GetAllRegisteredStudents()
         {
             var appUserViewModel = new List<ApplicationUserViewModel>();
-            appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && !x.IsStudent && !x.IsAdmin && !x.Deactivated).Include(x => x.Department)
+            appUserViewModel = _context.ApplicationUser
+                .Where(x => x.Id != null && x.StudentId != null && !x.IsStudent && !x.IsAdmin && !x.Deactivated
+                    && (x.Department == null || !x.Department.IsUnderScholarship))
+                .Include(x => x.Department)
                 .Select(x => new ApplicationUserViewModel()
                 {
                     Id = x.Id,
@@ -176,7 +195,10 @@ namespace Logic.Helpers
         public List<ApplicationUserViewModel> GetAllApprovedStudents()
         {
             var result = new List<ApplicationUserViewModel>();
-            var appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated).Include(x => x.Department);
+            var appUserViewModel = _context.ApplicationUser
+                .Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated
+                    && (x.Department == null || !x.Department.IsUnderScholarship))
+                .Include(x => x.Department);
             if (appUserViewModel.Any())
             {
                 result = appUserViewModel.Select(x => new ApplicationUserViewModel()
@@ -238,6 +260,162 @@ namespace Logic.Helpers
             return appUserViewModel;
         }
 
+        public List<ApplicationUserViewModel> GetScholarshipStudents()
+        {
+            return GetScholarshipStudentsQuery(approved: false);
+        }
+
+        public List<ApplicationUserViewModel> GetApprovedScholarshipStudents()
+        {
+            return GetScholarshipStudentsQuery(approved: true);
+        }
+
+        private List<ApplicationUserViewModel> GetScholarshipStudentsQuery(bool approved)
+        {
+            var query = _context.ApplicationUser
+                .Include(x => x.Department)
+                .Where(x => x.Id != null && x.StudentId != null && !x.IsAdmin && !x.Deactivated
+                    && x.Department != null && x.Department.IsUnderScholarship
+                    && x.IsStudent == approved)
+                .Select(x => new ApplicationUserViewModel()
+                {
+                    Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    OtherName = x.OtherName,
+                    DepartmentId = x.DepartmentId,
+                    DepartmentName = x.Department.Name,
+                    ScholarshipAmount = x.Department.ScholarshipAmount,
+                    FullName = x.FirstName + " " + x.LastName,
+                    DateRegistered = x.DateRegistered,
+                    DOB = x.DOB,
+                    Address = x.Address,
+                    Country = x.Country,
+                    Email = x.Email,
+                    State = x.State,
+                    StudentId = x.StudentId,
+                    CurrentSession = x.CurrentSession,
+                    AcademicLevel = x.AcademicLevel,
+                    Phonenumber = x.PhoneNumber,
+                    IsStudent = x.IsStudent,
+                    Paid = x.Paid,
+                    DateOfApproval = x.DateOfApproval,
+                });
+
+            return approved
+                ? query.OrderByDescending(x => x.DateOfApproval).ToList()
+                : query.OrderByDescending(x => x.DateRegistered).ToList();
+        }
+
+        public bool CheckIfScholarshipStudentIsApproved(string userId)
+        {
+            if (userId != null)
+            {
+                var approvedStudent = _context.ApplicationUser
+                    .Include(x => x.Department)
+                    .Where(x => x.Id == userId && x.IsStudent && !x.Deactivated
+                        && x.Department != null && x.Department.IsUnderScholarship)
+                    .FirstOrDefault();
+                if (approvedStudent != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ApproveScholarshipStudent(string userId)
+        {
+            string toEmailBug = _generalConfiguration.DeveloperEmail;
+            string subjectEmailBug = " Exception Message on Emu-Institute";
+            try
+            {
+                if (userId != null)
+                {
+                    var approveStudent = _context.ApplicationUser
+                        .Include(x => x.Department)
+                        .Where(a => a.Id == userId && !a.Deactivated && !a.IsStudent && !a.IsAdmin
+                            && a.Department != null && a.Department.IsUnderScholarship)
+                        .FirstOrDefault();
+                    if (approveStudent != null)
+                    {
+                        approveStudent.IsStudent = true;
+                        approveStudent.DateModified = DateTime.Now;
+                        approveStudent.DateOfApproval = DateTime.Now;
+                        _context.Update(approveStudent);
+                        _context.SaveChanges();
+
+                        if (approveStudent.Email != null)
+                        {
+                            string toEmail = approveStudent.Email;
+                            string subject = "Scholarship Application Approved";
+                            string message = "Hello " + "<b>" + approveStudent.FirstName + " " + approveStudent.LastName + ", </b>" +
+                                "<br> Your scholarship application into Emus Institute has been approved. You can now continue to login." +
+                                "<br><br> Once again, Congratulations!" +
+                                "<br> Emus Institute Team";
+
+                            _emailService.SendEmail(toEmail, subject, message);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                string message = "Exception " + ex.Message + " and inner exception:" + ex.InnerException.Message + "  Occured at " + DateTime.Now;
+                _emailService.SendEmail(toEmailBug, subjectEmailBug, message);
+                throw;
+            }
+        }
+
+        public bool DeclineScholarshipStudent(string userId)
+        {
+            string toEmailBug = _generalConfiguration.DeveloperEmail;
+            string subjectEmailBug = "Exception Message on Emus-Institute";
+            try
+            {
+                if (userId != null)
+                {
+                    var declineStudent = _context.ApplicationUser
+                        .Include(x => x.Department)
+                        .Where(a => a.Id == userId && !a.Deactivated && !a.IsStudent && !a.IsAdmin
+                            && a.Department != null && a.Department.IsUnderScholarship)
+                        .FirstOrDefault();
+                    if (declineStudent != null)
+                    {
+                        declineStudent.Deactivated = true;
+                        declineStudent.DateModified = DateTime.Now;
+
+                        _context.Update(declineStudent);
+                        _context.SaveChanges();
+
+                        if (declineStudent.Email != null)
+                        {
+                            string toEmail = declineStudent.Email;
+                            string subject = "Scholarship Application Declined";
+                            string message = "Hello " + "<b>" + declineStudent.FirstName + " " + declineStudent.LastName + ", </b>" +
+                                "<br> We regret to announce to you that your scholarship application into Emus Institute has been declined." +
+                                " We thank you for your interest, but we can not move further with you." +
+                                " <br> We wish you well in your future endeavours <br> <br> " +
+                                " Warm Regards <br> " +
+                              "Emus Institute Team";
+
+                            _emailService.SendEmail(toEmail, subject, message);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                string message = "Exception " + ex.Message + " and inner exception:" + ex.InnerException.Message + "  Occured at " + DateTime.Now;
+                _emailService.SendEmail(toEmailBug, subjectEmailBug, message);
+                throw;
+            }
+        }
+
         public bool CheckIfStudentIsApproved(string userId)
         {
             if (userId != null)
@@ -259,7 +437,11 @@ namespace Logic.Helpers
             {
                 if (userId != null)
                 {
-                    var approveStudent = _context.ApplicationUser.Where(a => a.Id == userId && !a.Deactivated && !a.IsStudent && !a.IsAdmin).FirstOrDefault();
+                    var approveStudent = _context.ApplicationUser
+                        .Include(a => a.Department)
+                        .Where(a => a.Id == userId && !a.Deactivated && !a.IsStudent && !a.IsAdmin
+                            && (a.Department == null || !a.Department.IsUnderScholarship))
+                        .FirstOrDefault();
                     if (approveStudent != null)
                     {
                         approveStudent.IsStudent = true;
@@ -300,7 +482,11 @@ namespace Logic.Helpers
             {
                 if (userId != null)
                 {
-                    var declineStudent = _context.ApplicationUser.Where(a => a.Id == userId && !a.Deactivated && !a.IsStudent && !a.IsAdmin).FirstOrDefault();
+                    var declineStudent = _context.ApplicationUser
+                        .Include(a => a.Department)
+                        .Where(a => a.Id == userId && !a.Deactivated && !a.IsStudent && !a.IsAdmin
+                            && (a.Department == null || !a.Department.IsUnderScholarship))
+                        .FirstOrDefault();
                     if (declineStudent != null)
                     {
                         declineStudent.Deactivated = true;
@@ -344,6 +530,7 @@ namespace Logic.Helpers
                Id = x.Id,
                Name = x.Users.FirstName + " " + x.Users.LastName,
                Email = x.Users.Email,
+               DepartmentName = x.Users.Department.Name,
                DateCreated = x.DateCreated,
                ApplicationLetter = x.ApplicationLetter,
                StaffPosition = x.StaffPosition,

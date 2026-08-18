@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using static Core.DB.ECollegeEnums;
 
 namespace Core.Models
@@ -23,9 +17,11 @@ namespace Core.Models
         public string? UserId { get; set; }
         [Display(Name = "User")]
         [ForeignKey("UserId")]
-
         public virtual ApplicationUser? Users { get; set; }
         public string AddedBy { get; set; }
         public bool? IsApproved { get; set; }
+        public TextbookApprovalStatus Status { get; set; } = TextbookApprovalStatus.Pending;
+        public string? FilePath { get; set; }
+        public string? CoverImagePath { get; set; }
     }
 }

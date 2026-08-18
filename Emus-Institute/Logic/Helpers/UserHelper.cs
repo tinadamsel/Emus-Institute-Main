@@ -181,6 +181,7 @@ namespace Logic.Helpers
                     user.DepartmentId = userDetails.DepartmentId;
                     user.StudentId = studentId;
                     user.RefLink = refLink != null ? refLink : null;
+                    user.IsCohort = userDetails.IsCohort == true ? true : null;
                     var createUser = await _userManager.CreateAsync(user, userDetails.Password).ConfigureAwait(false);
                     if (createUser.Succeeded)
                     {
@@ -188,12 +189,13 @@ namespace Logic.Helpers
                         var url = linkToClick + user.Id;
                         if (user.Email != null)
                         {
+                            var evaluationAmount = user.IsCohort == true ? "100" : "200";
                             string toEmail = user.Email;
                             string subject = "Student Application Submission";
                             string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
                                 "<br> Your application into Emus Institute was successful and your Student ID is " + "<b>" + user?.StudentId + ".</b>" +
                                 "<br/> <br/> However, you need to complete the evaluation form to be fully admitted into the school." +
-                                ". <br/> <br/> Please, click on the button below to log into the evaluation page and make the necessary payment of &euro;200 " +
+                                ". <br/> <br/> Please, click on the button below to log into the evaluation page and make the necessary payment of &euro;" + evaluationAmount + " " +
                                 "(which covers application, transcript review and certificate evaluation)" +
                                 "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + url + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
                                 "<br/> <br/> Thank you  " +
@@ -229,6 +231,90 @@ namespace Logic.Helpers
                     }
                 }
                 return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<bool> RegisterScholarshipStudent(ApplicationUserViewModel userDetails, string refLink)
+        {
+            try
+            {
+                if (userDetails == null || userDetails.DepartmentId == null || userDetails.DepartmentId == 0)
+                {
+                    return false;
+                }
+
+                var department = _context.Departments.FirstOrDefault(d =>
+                    d.Id == userDetails.DepartmentId && d.Active && !d.Deleted && d.IsUnderScholarship);
+                if (department == null)
+                {
+                    return false;
+                }
+
+                var studentId = GenerateStudentID();
+                var user = new ApplicationUser
+                {
+                    UserName = userDetails.Email,
+                    Email = userDetails.Email,
+                    FirstName = userDetails.FirstName,
+                    LastName = userDetails.LastName,
+                    PhoneNumber = userDetails.Phonenumber,
+                    DateRegistered = DateTime.Now,
+                    Deactivated = false,
+                    Address = userDetails.Address,
+                    Country = userDetails.Country,
+                    State = userDetails.State,
+                    DOB = userDetails.DOB,
+                    OtherName = userDetails.OtherName,
+                    Password = userDetails.Password,
+                    IsStudent = false,
+                    IsAdmin = false,
+                    Paid = false,
+                    AcademicLevel = AcademicLevel.Tertiary,
+                    CurrentSession = CurrentSession.YearOne,
+                    DepartmentId = userDetails.DepartmentId,
+                    StudentId = studentId,
+                    RefLink = refLink
+                };
+
+                var createUser = await _userManager.CreateAsync(user, userDetails.Password).ConfigureAwait(false);
+                if (!createUser.Succeeded || user.Email == null)
+                {
+                    return false;
+                }
+
+                await _userManager.AddToRoleAsync(user, "TertiaryStudent").ConfigureAwait(false);
+
+                var scholarshipAmountText = department.ScholarshipAmount.HasValue
+                    ? $"&euro;{department.ScholarshipAmount.Value:N2}"
+                    : "the amount specified for your scholarship department";
+
+                string toEmail = user.Email;
+                string subject = "Scholarship Application Submission";
+                string message =
+                    "Hello," + "<b>" + user.FirstName + " " + user.LastName + ",</b> " +
+                    "<br> Your scholarship application into Emus Institute was successful and your Student ID is " + "<b>" + user.StudentId + ".</b>" +
+                    "<br/><br/> Please wait while your application is reviewed. You will receive an email notifying you of approval or rejection." +
+                    "<br/><br/> Upon successful completion of your course, you will be required to pay " + scholarshipAmountText +
+                    " as the total scholarship amount for your department." +
+                    "<br/><br/> Thank you " +
+                    "<br/><br/> Emus Institute Team";
+                _emailService.SendEmail(toEmail, subject, message);
+
+                var adminEmail = "nwachukwuarinze00@gmail.com";
+                string adminSubject = "Scholarship Application Submission";
+                string adminMessage = "Hello SuperAdmin, <br> A scholarship student application has been submitted by " +
+                    "<b>" + user.FirstName + " " + user.LastName + "</b> on " + user.DateRegistered.ToString() + ". " +
+                    "<br> Student ID: <b>" + user.StudentId + "</b>. " +
+                    "<br> Department: <b>" + department.Name + "</b>. " +
+                    "<br> Please review the application on the Student Scholarship page." +
+                    "<br> Thank you!!!";
+                _emailService.SendEmail(adminEmail, adminSubject, adminMessage);
+
+                return true;
             }
             catch (Exception ex)
             {
@@ -506,6 +592,10 @@ namespace Logic.Helpers
                             {
                                 await _userManager.AddToRoleAsync(user, "AccountOfficer").ConfigureAwait(false);
                             }
+                            if (staffPosition.ToLower().Contains("marketingofficer"))
+                            {
+                                await _userManager.AddToRoleAsync(user, "MarketingOfficer").ConfigureAwait(false);
+                            }
                             //if (staffPosition.ToLower().Contains("examsofficer"))
                             //{
                             //    await _userManager.AddToRoleAsync(user, "ExamsOfficer").ConfigureAwait(false);
@@ -610,6 +700,10 @@ namespace Logic.Helpers
             if (staffPosition.ToLower().Contains("accountofficer"))
             {
                 return (int)StaffPosition.AccountOfficer;
+            }
+            if (staffPosition.ToLower().Contains("marketingofficer"))
+            {
+                return (int)StaffPosition.MarketingOfficer;
             }
             if (staffPosition.ToLower().Contains("examsofficer"))
             {

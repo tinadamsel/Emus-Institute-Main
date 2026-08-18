@@ -1,0 +1,10 @@
+@model Core.ViewModels.LiveSessionViewModel
+
+@{
+    ViewData["Title"] = Model.RoomName;
+    Layout = "~/Views/Shared/_LiveSessionLayout.cshtml";
+    ViewBag.BackUrl = Url.Action("VirtualClass", "Student");
+    ViewBag.BackLabel = "Back to Virtual Class";
+}
+
+<partial name="_JitsiMeeting" model="Model" />

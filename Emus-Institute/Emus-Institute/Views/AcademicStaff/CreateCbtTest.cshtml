@@ -1,0 +1,83 @@
+@model Core.ViewModels.CbtTestViewModel
+@{
+    ViewData["Title"] = "Create CBT Test";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    ViewBag.TestId = null;
+}
+
+<main id="main" class="main">
+    <partial name="_CbtStaffNav" />
+
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Create New Test</h1>
+            <p class="sa-page-sub">Set up a CBT for @ViewBag.DepartmentName. Add questions after saving.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="sa-list-card p-4">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Test Title <span class="text-danger">*</span></label>
+                        <input type="text" id="cbt_Title" class="form-control" placeholder="e.g. SS 2 CBT Exam" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Duration (minutes) <span class="text-danger">*</span></label>
+                        <input type="number" id="cbt_Duration" class="form-control" value="30" min="1" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea id="cbt_Description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Start Date &amp; Time <span class="text-danger">*</span></label>
+                        <input type="datetime-local" id="cbt_Start" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">End Date &amp; Time <span class="text-danger">*</span></label>
+                        <input type="datetime-local" id="cbt_End" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Pass Mark <span class="text-danger">*</span></label>
+                        <input type="number" id="cbt_PassMark" class="form-control" value="50" min="0" step="0.01" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Mark Per Question <span class="text-danger">*</span></label>
+                        <input type="number" id="cbt_MarkPerQuestion" class="form-control" value="1" min="0.01" step="0.01" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Maximum Attempts</label>
+                        <input type="number" id="cbt_MaxAttempts" class="form-control" value="1" min="1" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Browser Code (optional)</label>
+                        <input type="text" id="cbt_BrowserCode" class="form-control" placeholder="Leave blank if not required" />
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end gap-4 flex-wrap pb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cbt_ShuffleQuestions" />
+                            <label class="form-check-label" for="cbt_ShuffleQuestions">Shuffle Questions</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cbt_ShuffleOptions" />
+                            <label class="form-check-label" for="cbt_ShuffleOptions">Shuffle Options</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cbt_Published" />
+                            <label class="form-check-label" for="cbt_Published">Publish Test</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Instructions</label>
+                        <textarea id="cbt_Instructions" class="form-control" rows="4" placeholder="Instructions shown to students before the test"></textarea>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="button" id="create_cbt_btn" class="btn btn-outline-success" onclick="saveCbtTest(false)">Create Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

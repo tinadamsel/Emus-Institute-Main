@@ -13,7 +13,7 @@ namespace Logic.Helpers
     {
         public List<string> DefaultRoles()
         {
-            var roles = new[] { "SuperAdmin", "AcademicStaff", "NonAcademicStaff", "TertiaryStudent", "HumanResourceOfficer", "AdmissionOfficer", "LibrarianOfficer", "AccountOfficer" };
+            var roles = new[] { "SuperAdmin", "AcademicStaff", "NonAcademicStaff", "TertiaryStudent", "HumanResourceOfficer", "AdmissionOfficer", "LibrarianOfficer", "AccountOfficer", "MarketingOfficer" };
             return roles.ToList();
         }
     }

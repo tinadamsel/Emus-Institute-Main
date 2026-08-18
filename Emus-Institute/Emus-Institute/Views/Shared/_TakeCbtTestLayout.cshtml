@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Emus Institute</title>
+    <link href="~/assets/img/logo-main-fav.jpg" rel="icon">
+    <link href="~/asset/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/asset/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/css/superadmin-dashboard.css" rel="stylesheet" asp-append-version="true" />
+    <style>
+        body { background: var(--emus-bg, #f4f8f9); }
+        .cbt-exam-shell { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+        .cbt-exam-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .cbt-timer-wrap { text-align: right; }
+        .cbt-timer-label { display: block; font-size: 0.75rem; color: #64748b; }
+        .cbt-timer { font-size: 1.75rem; font-weight: 700; color: var(--emus-teal, #08626b); font-variant-numeric: tabular-nums; }
+        .cbt-timer.cbt-timer-danger { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="cbt-exam-shell">
+        @RenderBody()
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/sweetalert2.all.min.js" asp-append-version="true"></script>
+    <script>
+        function errorAlert(message) { Swal.fire({ icon: 'error', title: 'Error', text: message }); }
+        function successAlertWithRedirect(message, url) {
+            Swal.fire({ icon: 'success', title: 'Success', text: message }).then(function () { window.location.href = url; });
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

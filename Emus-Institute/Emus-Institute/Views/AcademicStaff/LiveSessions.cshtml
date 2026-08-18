@@ -1,0 +1,113 @@
+@model IEnumerable<Core.ViewModels.LiveSessionViewModel>
+
+@{
+    ViewData["Title"] = "Live Sessions";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Live Sessions</h1>
+            <p class="sa-page-sub">Schedule and host virtual classes for @ViewBag.DepartmentName. Only one session can run per department at a time.</p>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Error"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="sa-list-card p-4">
+                <h5 class="mb-3">Scheduled rooms</h5>
+                @if (Model != null && Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Room</th>
+                                    <th>Schedule</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var session in Model)
+                                {
+                                    var badgeClass = session.IsActiveNow ? "bg-success" : session.IsUpcoming ? "bg-primary" : "bg-secondary";
+                                    <tr>
+                                        <td>
+                                            <strong>@session.RoomName</strong>
+                                            @if (!string.IsNullOrWhiteSpace(session.WelcomeMessage))
+                                            {
+                                                <div class="small text-muted">@session.WelcomeMessage</div>
+                                            }
+                                        </td>
+                                        <td class="small">@session.ScheduleDisplay</td>
+                                        <td><span class="badge @badgeClass">@session.StatusLabel</span></td>
+                                        <td class="text-end">
+                                            @if (session.CanJoin)
+                                            {
+                                                <a asp-controller="AcademicStaff" asp-action="JoinLiveSession" asp-route-id="@session.Id"
+                                                   class="btn btn-sm btn-outline-success">Enter room</a>
+                                            }
+                                            else if (session.IsUpcoming)
+                                            {
+                                                <span class="small text-muted">Opens 10 min before start</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="sa-empty-state py-4">
+                        <i class="bi bi-camera-video"></i>
+                        <h6>No live sessions yet</h6>
+                        <p>Create your first virtual class using the form on the right.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="sa-list-card p-4">
+                <h5 class="mb-1">Room setup</h5>
+                <p class="text-muted small mb-4">Students in @ViewBag.DepartmentName will be emailed when you schedule a class.</p>
+
+                <div class="mb-3">
+                    <label class="form-label">Room name <span class="text-danger">*</span></label>
+                    <input type="text" id="liveSession_RoomName" class="form-control" placeholder="e.g. Year 1 Introduction" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Welcome message</label>
+                    <textarea id="liveSession_WelcomeMessage" class="form-control" rows="3" placeholder="Optional message for students"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Start date &amp; time <span class="text-danger">*</span></label>
+                    <input type="datetime-local" id="liveSession_StartDateTime" class="form-control" />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Duration <span class="text-danger">*</span></label>
+                    <select id="liveSession_Duration" class="form-control">
+                        <option value="0">-- Select duration --</option>
+                        <option value="30">30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60">60 minutes</option>
+                        <option value="90">90 minutes</option>
+                        <option value="120">120 minutes</option>
+                    </select>
+                </div>
+                <button type="button" id="create_live_session_btn" class="btn btn-outline-success w-100" onclick="createLiveSession()">
+                    Schedule live session
+                </button>
+            </div>
+        </div>
+    </div>
+</main>

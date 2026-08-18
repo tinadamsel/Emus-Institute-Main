@@ -1,4 +1,5 @@
-﻿using Core.DB;
+﻿using Core.Config;
+using Core.DB;
 using Core.Models;
 using Logic.IHelpers;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,29 @@ namespace Logic.Helpers
     {
         private readonly AppDbContext _context;
         private readonly IPaystackHelper _paystackHelper;
+        private readonly IGeneralConfiguration _generalConfiguration;
 
-        public PaymentHelper(AppDbContext context, IPaystackHelper paystackHelper)
+        public PaymentHelper(AppDbContext context, IPaystackHelper paystackHelper, IGeneralConfiguration generalConfiguration)
         {
             _context = context;
             _paystackHelper = paystackHelper;
+            _generalConfiguration = generalConfiguration;
         }
+
+        private decimal GetStudentEvaluationAmount(ApplicationUser user)
+        {
+            if (user.IsCohort == true)
+            {
+                return _generalConfiguration.CohortEvaluationAmountNgn > 0
+                    ? _generalConfiguration.CohortEvaluationAmountNgn
+                    : 200000m;
+            }
+
+            return _generalConfiguration.StudentEvaluationAmountNgn > 0
+                ? _generalConfiguration.StudentEvaluationAmountNgn
+                : 400000m;
+        }
+
         public async Task<PaystackResponse> CreateStudentPayment(string UserId, ApplicationUser users)
         {
             try
@@ -31,7 +49,7 @@ namespace Logic.Helpers
                     var getUser = _context.ApplicationUser.Where(x => x.Id == UserId && !x.Deactivated && !x.IsStudent && !x.Paid).FirstOrDefault();
                     if (getUser != null) 
                     {
-                        //check if user payment exists
+                        var evaluationAmount = GetStudentEvaluationAmount(getUser);
                         var checkIfUserPaymentExist = _context.Payments.Where(x => x.UserId == UserId).FirstOrDefault();
                         if (checkIfUserPaymentExist != null)
                         {
@@ -39,6 +57,7 @@ namespace Logic.Helpers
                             checkIfUserPaymentExist.Status = PaymentStatus.Pending;
                             checkIfUserPaymentExist.PaymentMethod = "Paystack";
                             checkIfUserPaymentExist.Reference = GenerateNumber();
+                            checkIfUserPaymentExist.Amount = evaluationAmount;
                             
                             var newPayment = _context.Update(checkIfUserPaymentExist);
                                              await _context.SaveChangesAsync();
@@ -74,7 +93,7 @@ namespace Logic.Helpers
                                 PaymentMethod = "Paystack",
                                 UserId = UserId,
                                 DepartmentId = (int)getUser.DepartmentId,
-                                Amount = (decimal?)400000.00,
+                                Amount = evaluationAmount,
                                 Reference = GenerateNumber(),
                             };
                             var newPayment = await _context.AddAsync(payment);

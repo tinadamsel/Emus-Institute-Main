@@ -41,13 +41,10 @@ namespace e_college.Controllers
         //    };
         //    return View(model);
         //}
-
-        
-       
-
-
-
-
-
+        [HttpGet]
+        public IActionResult Announcements()
+        {
+            return RedirectToAction("Announcements", "AcademicStaff");
+        }
     }
 }

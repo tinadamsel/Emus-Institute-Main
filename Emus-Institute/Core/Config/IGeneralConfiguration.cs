@@ -15,6 +15,8 @@ namespace Core.Config
         public string CallbackUrl { get; set; }
         public string StaffCallbackUrl { get; set; }
         public decimal StaffEvaluationAmountNgn { get; set; }
+        public decimal StudentEvaluationAmountNgn { get; set; }
+        public decimal CohortEvaluationAmountNgn { get; set; }
         public string SiteBaseUrl { get; set; }
     }
 }

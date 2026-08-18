@@ -40,6 +40,8 @@
                             <th> S/N</th>
                             <th> Name </th>
                             <th> Description </th>
+                            <th> Scholarship </th>
+                            <th> Scholarship Value </th>
                             <th> DateCreated</th>
                             <th> Action</th>
                         </tr>
@@ -53,11 +55,26 @@
                                     <td></td>
                                     <td>@depts.Name </td>
                                     <td>@depts.Description </td>
-                                    @* <td> *@
-                                    @*     <button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#" onclick="getDeptDescription('@depts.Id')"> *@
-                                    @*         <i class="bi bi-eye"></i> &nbsp; View Description *@
-                                    @*     </button> *@
-                                    @* </td> *@
+                                    <td>
+                                        @if (depts.IsUnderScholarship)
+                                        {
+                                            <span class="badge bg-success">Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">No</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (depts.ScholarshipAmount.HasValue)
+                                        {
+                                            @($"€{depts.ScholarshipAmount.Value:N2}")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
                                     <td>@depts.DateCreated.ToString("D")</td>
                                     <td class="text-right">
                                         <div class="sa-row-actions my-2">
@@ -77,7 +94,7 @@
                     {
                         <tbody>
                             <tr>
-                                <td colspan="5">
+                                <td colspan="7">
                                     <div class="sa-empty-state">
                                         <i class="bi bi-building"></i>
                                         <h6>No departments yet</h6>
@@ -112,6 +129,16 @@
                         <label class="col-form-label"> Department Description <span class="text-danger">*</span></label>
                         <textarea rows="4" cols="4" class="form-control" type="text" id="dept_Desc" required> </textarea>
                     </div>
+                    <div class="col-sm-12 col-lg-12 mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="dept_IsUnderScholarship" onchange="toggleScholarshipAmount('dept')">
+                            <label class="form-check-label" for="dept_IsUnderScholarship">Under scholarship program</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-lg-12 mt-2" id="dept_scholarship_amount_wrap" style="display:none;">
+                        <label class="col-form-label"> Scholarship amount (department value)</label>
+                        <input class="form-control" type="number" min="0" step="0.01" id="dept_ScholarshipAmount" placeholder="e.g. 5000">
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -140,6 +167,16 @@
                     <div class="col-sm-12">
                         <label class="form-label">Department Description <span class="text-danger">*</span></label>
                         <textarea rows="4" cols="4" class="form-control" type="text" id="edit_Desc"> </textarea>
+                    </div>
+                    <div class="col-sm-12 mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="edit_dept_IsUnderScholarship" onchange="toggleScholarshipAmount('edit_dept')">
+                            <label class="form-check-label" for="edit_dept_IsUnderScholarship">Under scholarship program</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 mt-2" id="edit_dept_scholarship_amount_wrap" style="display:none;">
+                        <label class="form-label">Scholarship amount (department value)</label>
+                        <input class="form-control" type="number" min="0" step="0.01" id="edit_dept_ScholarshipAmount" placeholder="e.g. 5000">
                     </div>
                 </div>
             </div>

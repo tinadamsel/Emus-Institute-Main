@@ -1,0 +1,83 @@
+@model IEnumerable<Core.ViewModels.TextbookViewModel>
+
+@{
+    ViewData["Title"] = "Pending Textbooks";
+    Layout = "~/Views/Shared/_LibrarianDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Textbooks</h1>
+            <p class="sa-page-sub">Approve or decline textbooks uploaded by academic staff.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sa-list-card sa-table-wrap table-responsive">
+                <table class="table table-hover table-striped custom-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Department</th>
+                            <th>Session</th>
+                            <th>Added By</th>
+                            <th>Date Created</th>
+                            <th>Status</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    @if (Model != null && Model.Any())
+                    {
+                        <tbody>
+                            @{ var sn = 1; }
+                            @foreach (var book in Model)
+                            {
+                                <tr>
+                                    <td>@sn</td>
+                                    <td>@book.Name</td>
+                                    <td>@book.TextbookCode</td>
+                                    <td>@book.DepartmentName</td>
+                                    <td>@book.TextbookForEachSession</td>
+                                    <td>@book.AddedBy</td>
+                                    <td>@book.DateCreated.ToString("D")</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                    <td class="text-right">
+                                        <div class="sa-row-actions my-2">
+                                            @if (!string.IsNullOrWhiteSpace(book.FilePath))
+                                            {
+                                                <a class="btn btn-outline-secondary mx-1" asp-controller="Librarian" asp-action="DownloadTextbook" asp-route-id="@book.Id">
+                                                    View PDF
+                                                </a>
+                                            }
+                                            <a class="btn btn-outline-success mx-1" onclick="approveTextbook(@book.Id)">Approve</a>
+                                            <a class="btn btn-outline-danger mx-1" onclick="declineTextbook(@book.Id)">Decline</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                sn++;
+                            }
+                        </tbody>
+                    }
+                    else
+                    {
+                        <tbody>
+                            <tr>
+                                <td colspan="9">
+                                    <div class="sa-empty-state">
+                                        <i class="bi bi-book"></i>
+                                        <h6>No pending textbooks</h6>
+                                        <p>Newly uploaded textbooks will appear here for review.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

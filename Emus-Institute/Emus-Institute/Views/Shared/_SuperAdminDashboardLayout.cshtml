@@ -120,6 +120,19 @@
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
+              <a class="dropdown-item d-flex align-items-center" asp-controller="AcademicStaff" asp-action="Index">
+                <i class="bi bi-person-workspace"></i>
+                <span>Academic Staff dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" asp-controller="Librarian" asp-action="Index">
+                <i class="bi bi-journal-bookmark"></i>
+                <span>Librarian dashboard</span>
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
               <a class="dropdown-item d-flex align-items-center" asp-controller="Account" asp-action="EditProfile">
                 <i class="bi bi-person"></i>
                 <span>My Profile</span>
@@ -178,6 +191,18 @@
           <span>Paid Students</span>
         </a>
       </li>
+      <li class="nav-item">
+        <a class="@NavClass("ScholarshipStudents")" asp-controller="SuperAdmin" asp-action="ScholarshipStudents">
+          <i class="bi bi-award"></i>
+          <span>Student Scholarship</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="@NavClass("ApprovedScholarshipStudents")" asp-controller="SuperAdmin" asp-action="ApprovedScholarshipStudents">
+          <i class="bi bi-patch-check"></i>
+          <span>Approved Scholarship</span>
+        </a>
+      </li>
 
       <li class="nav-heading">Staff &amp; access</li>
       <li class="nav-item">
@@ -196,6 +221,26 @@
         <a class="@NavClass("SuspendedUsers")" asp-controller="SuperAdmin" asp-action="SuspendedUsers">
           <i class="bi bi-slash-circle"></i>
           <span>Suspended Users</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" asp-controller="AcademicStaff" asp-action="Announcements">
+          <i class="bi bi-megaphone"></i>
+          <span>Announcements</span>
+        </a>
+      </li>
+
+      <li class="nav-heading">Role dashboards</li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" asp-controller="AcademicStaff" asp-action="Index">
+          <i class="bi bi-person-workspace"></i>
+          <span>Academic Staff</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" asp-controller="Librarian" asp-action="Index">
+          <i class="bi bi-journal-bookmark"></i>
+          <span>Librarian</span>
         </a>
       </li>
     </ul>

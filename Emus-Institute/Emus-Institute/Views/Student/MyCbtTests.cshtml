@@ -1,0 +1,105 @@
+@model Core.ViewModels.CbtStudentTestsViewModel
+@{
+    ViewData["Title"] = "My CBT Tests";
+    Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">My CBT Tests</h1>
+            <p class="sa-page-sub">Tests assigned to your department only.</p>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Error"]</div>
+    }
+
+    <h5 class="mb-3">Active Tests</h5>
+    @if (Model.ActiveTests.Any())
+    {
+        <div class="row g-4 mb-5">
+            @foreach (var test in Model.ActiveTests)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="sa-list-card h-100 p-4 d-flex flex-column">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5 class="mb-0">@test.Title</h5>
+                            <span class="badge @(test.IsActiveNow ? "bg-success" : "bg-primary")">@test.StatusLabel</span>
+                        </div>
+                        <p class="small text-muted">@test.ScheduleDisplay</p>
+                        <p class="small">Duration: @test.DurationMinutes mins · @test.TotalMarks marks · Pass: @test.PassMark</p>
+                        @if (!string.IsNullOrWhiteSpace(test.Instructions))
+                        {
+                            <p class="small flex-grow-1">@test.Instructions</p>
+                        }
+                        else { <div class="flex-grow-1"></div> }
+
+                        @if (test.CanTake)
+                        {
+                            <button type="button" class="btn btn-outline-success w-100 mt-3"
+                                    onclick="promptTakeCbtTest(@test.Id, @(test.BrowserCode != null ? "true" : "false"))">
+                                Take Test
+                            </button>
+                        }
+                        else if (test.IsUpcoming)
+                        {
+                            <button type="button" class="btn btn-outline-secondary w-100 mt-3" disabled>Not started yet</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-outline-secondary w-100 mt-3" disabled>Unavailable</button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="sa-list-card mb-5">
+            <div class="sa-empty-state py-4">
+                <i class="bi bi-clipboard"></i>
+                <h6>No active tests</h6>
+                <p>Published tests for your department will appear here.</p>
+            </div>
+        </div>
+    }
+
+    <h5 class="mb-3">Completed Tests</h5>
+    @if (Model.CompletedTests.Any())
+    {
+        <div class="row g-4">
+            @foreach (var test in Model.CompletedTests)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="sa-list-card h-100 p-4">
+                        <h5>@test.Title</h5>
+                        <p class="small text-muted mb-2">@test.ScheduleDisplay</p>
+                        <p class="mb-2">
+                            Score: <strong>@test.LatestScore</strong> / @test.TotalMarks
+                            <span class="badge @(test.LatestPassed == true ? "bg-success" : "bg-danger") ms-1">
+                                @(test.LatestPassed == true ? "Passed" : "Failed")
+                            </span>
+                        </p>
+                        @if (test.LatestAttemptId.HasValue)
+                        {
+                            <a asp-action="CbtTestResult" asp-route-id="@test.LatestAttemptId" class="btn btn-sm btn-outline-primary">View Result</a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="sa-list-card">
+            <div class="sa-empty-state py-4">
+                <i class="bi bi-check2-circle"></i>
+                <h6>No completed tests yet</h6>
+            </div>
+        </div>
+    }
+</main>
