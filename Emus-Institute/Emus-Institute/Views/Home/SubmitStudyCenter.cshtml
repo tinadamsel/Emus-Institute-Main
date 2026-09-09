@@ -1,0 +1,73 @@
+@{
+    ViewData["Title"] = "Submit Study Center";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid bg-primary py-5 mb-5 page-header">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <h1 class="display-3 text-white animated slideInDown">Submit Study Center</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item"><a class="text-white" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item"><a class="text-white" asp-controller="Home" asp-action="StudyCenters">Study Centers</a></li>
+                        <li class="breadcrumb-item text-white active" aria-current="page">Submit</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="text-center mb-4">
+                    <h6 class="section-title bg-white text-center text-primary px-3">Register Your Center</h6>
+                    <h1 class="mb-3">Submit Study Center for Approval</h1>
+                    <p class="text-muted">Fill in the details below. Your submission will be reviewed by our team before it appears on the Study Centers page.</p>
+                </div>
+
+                <form id="submitStudyCenterForm" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="studyCenter_Name" placeholder="Study Center Name" required />
+                                <label for="studyCenter_Name">Study Center Name</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" id="studyCenter_Address" placeholder="Address" style="height: 100px;" required></textarea>
+                                <label for="studyCenter_Address">Address</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="studyCenter_Country" placeholder="Country" required />
+                                <label for="studyCenter_Country">Country</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="studyCenter_ContactPerson" placeholder="Contact Person" required />
+                                <label for="studyCenter_ContactPerson">Contact Person</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="studyCenter_Image" class="form-label">Center Image (JPG, PNG, or WEBP)</label>
+                            <input type="file" class="form-control" id="studyCenter_Image" accept=".jpg,.jpeg,.png,.webp" required />
+                        </div>
+                        <div class="col-12">
+                            <button type="button" id="submit_study_center_btn" class="btn btn-primary w-100 py-3" onclick="submitStudyCenter()">
+                                Submit for Approval
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

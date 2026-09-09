@@ -25,5 +25,6 @@ namespace Core.ViewModels
         public string? ScheduleDisplay { get; set; }
         public string? JitsiDisplayName { get; set; }
         public bool IsHost { get; set; }
+        public string? JitsiJoinUrl { get; set; }
     }
 }

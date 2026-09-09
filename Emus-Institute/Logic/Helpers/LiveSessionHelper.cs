@@ -108,6 +108,7 @@ namespace Logic.Helpers
             }
 
             mapped.IsHost = isStaff;
+            mapped.JitsiJoinUrl = BuildJitsiJoinUrl(mapped.RoomCode, mapped.JitsiDisplayName, mapped.IsHost, mapped.Id);
             return mapped;
         }
 
@@ -233,6 +234,30 @@ namespace Logic.Helpers
         {
             var suffix = Guid.NewGuid().ToString("N")[..8];
             return $"emus-inst-dept{departmentId}-session{sessionId}-{suffix}";
+        }
+
+        public static string BuildJitsiJoinUrl(string? roomCode, string? displayName, bool isHost, int sessionId)
+        {
+            var room = string.IsNullOrWhiteSpace(roomCode) || roomCode == "pending"
+                ? $"emus-inst-session{sessionId}"
+                : roomCode.Trim();
+            var name = string.IsNullOrWhiteSpace(displayName) ? "Participant" : displayName.Trim();
+            if (isHost && !name.Contains("(Host)", StringComparison.OrdinalIgnoreCase))
+            {
+                name += " (Host)";
+            }
+
+            name = name.Replace("\"", string.Empty);
+            var hash = string.Join("&",
+                "config.prejoinPageEnabled=true",
+                "config.prejoinConfig.enabled=true",
+                "config.startWithAudioMuted=true",
+                "config.startWithVideoMuted=true",
+                "config.disableDeepLinking=true",
+                "config.enableWelcomePage=false",
+                "userInfo.displayName=" + Uri.EscapeDataString("\"" + name + "\""));
+
+            return $"https://meet.jit.si/{Uri.EscapeDataString(room)}#{hash}";
         }
 
         private LiveSessionViewModel MapSession(LiveSession session, string userId, bool isStaff)

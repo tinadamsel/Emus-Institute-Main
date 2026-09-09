@@ -1,0 +1,99 @@
+@model IEnumerable<Core.ViewModels.AssignmentViewModel>
+
+@{
+    ViewData["Title"] = "Assignments";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Assignments</h1>
+            <p class="sa-page-sub">Create assignments for students in @ViewBag.DepartmentName. They will be notified by email.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="sa-list-card p-4">
+                <h5 class="mb-3">Posted assignments</h5>
+                @if (Model != null && Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Assignment</th>
+                                    <th>Due date</th>
+                                    <th>Submissions</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    var badgeClass = item.IsOverdue ? "bg-secondary" : "bg-success";
+                                    <tr>
+                                        <td>
+                                            <strong>@item.Name</strong>
+                                            <div class="small text-muted">@item.TotalMarks marks</div>
+                                        </td>
+                                        <td class="small">@item.DueDateDisplay</td>
+                                        <td>
+                                            <span class="badge @badgeClass">@item.StatusLabel</span>
+                                            <div class="small text-muted mt-1">@item.SubmissionCount submitted · @item.GradedCount graded</div>
+                                        </td>
+                                        <td class="text-end">
+                                            <a asp-controller="AcademicStaff" asp-action="AssignmentSubmissions" asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-outline-success">View &amp; grade</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="sa-empty-state py-4">
+                        <i class="bi bi-journal-text"></i>
+                        <h6>No assignments yet</h6>
+                        <p>Create your first assignment using the form on the right.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="sa-list-card p-4">
+                <h5 class="mb-1">Create assignment</h5>
+                <p class="text-muted small mb-4">Students in @ViewBag.DepartmentName will receive an email when you post this.</p>
+
+                <div class="mb-3">
+                    <label class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" id="assignment_Name" class="form-control" placeholder="e.g. Week 3 Written Task" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea id="assignment_Description" class="form-control" rows="4" placeholder="Instructions for students"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Due date <span class="text-danger">*</span></label>
+                    <input type="datetime-local" id="assignment_ValidUntilDate" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Total marks <span class="text-danger">*</span></label>
+                    <input type="number" id="assignment_TotalMarks" class="form-control" min="1" step="0.5" value="100" />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Attachment (optional)</label>
+                    <input type="file" id="assignment_File" class="form-control" />
+                    <p class="small text-muted mb-0 mt-1">PDF, Word, PowerPoint, ZIP, TXT, PNG, or JPG. Max 15MB.</p>
+                </div>
+                <button type="button" id="create_assignment_btn" class="btn btn-outline-success w-100" onclick="createAssignment()">
+                    Post assignment
+                </button>
+            </div>
+        </div>
+    </div>
+</main>

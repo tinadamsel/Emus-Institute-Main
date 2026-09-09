@@ -1,0 +1,37 @@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string TabClass(string action) =>
+        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            ? "cbt-tab active"
+            : "cbt-tab";
+    int? testId = ViewBag.TestId as int?;
+}
+
+<div class="cbt-hub-banner mb-4">
+    <div class="cbt-hub-banner-inner">
+        <span class="cbt-hub-badge">Public Assessment</span>
+        <h2 class="cbt-hub-title">Scholarship CBT Assessment</h2>
+        <p class="cbt-hub-sub">Create a public assessment that visitors can take after paying £6.</p>
+    </div>
+</div>
+
+<nav class="cbt-tabs mb-4">
+    <a class="@TabClass("CreatePublicAssessment")" asp-controller="SuperAdmin" asp-action="CreatePublicAssessment">
+        <i class="bi bi-plus-circle"></i> Create Assessment
+    </a>
+    <a class="@TabClass("PublicAssessments")" asp-controller="SuperAdmin" asp-action="PublicAssessments">
+        <i class="bi bi-clipboard-check"></i> Manage Assessments
+    </a>
+    @if (testId.HasValue)
+    {
+        <a class="@TabClass("ManagePublicAssessmentQuestions")" asp-controller="SuperAdmin" asp-action="ManagePublicAssessmentQuestions" asp-route-id="@testId">
+            <i class="bi bi-list-check"></i> Manage Questions
+        </a>
+        <a class="@TabClass("PublicAssessmentAnalytics")" asp-controller="SuperAdmin" asp-action="PublicAssessmentAnalytics" asp-route-id="@testId">
+            <i class="bi bi-bar-chart"></i> Analytics
+        </a>
+        <a class="@TabClass("PublicAssessmentScores")" asp-controller="SuperAdmin" asp-action="PublicAssessmentScores" asp-route-id="@testId">
+            <i class="bi bi-mortarboard"></i> Scores
+        </a>
+    }
+</nav>

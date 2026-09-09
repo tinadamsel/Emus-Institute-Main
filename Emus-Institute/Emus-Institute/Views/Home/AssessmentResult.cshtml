@@ -1,0 +1,46 @@
+@model Core.ViewModels.CbtAttemptViewModel
+@{
+    ViewData["Title"] = "Assessment Result";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h6 class="section-title bg-white text-center text-primary px-3">Assessment</h6>
+            <h1>@Model.TestTitle</h1>
+        </div>
+
+        <div class="row justify-content-center g-4 mb-4">
+            <div class="col-md-4">
+                <div class="border rounded p-4 text-center">
+                    <p class="text-muted mb-1">Your Score</p>
+                    <h2>@Model.Score / @Model.TotalMarks</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="border rounded p-4 text-center">
+                    <p class="text-muted mb-1">Result</p>
+                    <h2>@(Model.Passed ? "Passed" : "Failed")</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="border rounded p-4 text-center">
+                    <p class="text-muted mb-1">Pass Mark</p>
+                    <h2>@Model.PassMark</h2>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.AutoSubmitted)
+        {
+            <div class="alert alert-info">This assessment was auto-submitted when the timer expired or the session ended.</div>
+        }
+
+        <div class="alert alert-warning">This attempt is complete. To take the assessment again, start afresh from the Assessment page and pay £6 again.</div>
+
+        <div class="text-center">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary py-3 px-5">Back to Home</a>
+        </div>
+    </div>
+</div>

@@ -198,6 +198,18 @@ namespace Logic.Helpers
                                 ". <br/> <br/> Please, click on the button below to log into the evaluation page and make the necessary payment of &euro;" + evaluationAmount + " " +
                                 "(which covers application, transcript review and certificate evaluation)" +
                                 "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + url + "' target='_blank'>" + "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button>" + "</a>" +
+
+                                "Completing your evaluation is a very important step for your application to be reviewed and accepted. It only takes a shortime to upload your documents and finish the process." +
+                                "<br/><br/>" +
+
+                                 "<br/> Please Note: If you have a Statement of Comparability, you no longer need to pay for the evaluation fee as this is required for all Staff seeking " +
+                                "to work in UK with any degree obtained outside UK. <br/>" +
+                                "A Statement of Comparability is a certificate that shows how international qualifications compare to the UK education systems. The UK's education systems include England, Scotland, Wales and Northern Ireland " +
+                                "The Statement gives international qualifications context when applying for jobs, studies or professional registration in the UK. <br/>" +
+                                "Show the Statement of Comparability with your original qualification to HR department by emailing the evidence to hr@emusinstitute.com. <br/>" +
+                                "Once comfirmed, your application will be accepted. <br/>" +
+                                "If you do not have it, request for an assistance from the HR. Your application will be approved but we shall pay for your Comparability Certificate on your behalf and deduct it from your first salary with us. <br/><br/>" +
+
                                 "<br/> <br/> Thank you  " +
                                 "<br/> <br/> Emus Institute Team";
                             _emailService.SendEmail(toEmail, subject, message);
@@ -626,8 +638,20 @@ namespace Logic.Helpers
                                 "<br/> <br/> Please complete your staff credential evaluation to proceed with your application." +
                                 "<br/> <br/> Click the button below to upload your documents and make the evaluation payment of &pound;100 " +
                                 "(which covers application, transcript review and certificate evaluation)" +
+
+                                "Completing your evaluation is a very important step for your application to be reviewed and accepted. It only takes a shortime to upload your documents and finish the process." +
+                                "<br/>" +
                                 "<br>" + "<a style:'border:2px; text-decoration: none;' href='" + evaluationUrl + "' target='_blank'>" +
                                 "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'> Evaluate Credentials </button></a>" +
+
+                                "<br/> Please Note: If you have a Statement of Comparability, you no longer need to pay for the evaluation fee as this is required for all Staff seeking " +
+                                "to work in UK with any degree obtained outside UK. <br/>" +
+                                "A Statement of Comparability is a certificate that shows how international qualifications compare to the UK education systems. The UK's education systems include England, Scotland, Wales and Northern Ireland " +
+                                "The Statement gives international qualifications context when applying for jobs, studies or professional registration in the UK. <br/>" +
+                                "Show the Statement of Comparability with your original qualification to HR department by emailing the evidence to hr@emusinstitute.com. <br/>" +
+                                "Once comfirmed, your application will be accepted. <br/>" +
+                                "If you do not have it, request for an assistance from the HR. Your application will be approved but we shall pay for your Comparability Certificate on your behalf and deduct it from your first salary with us. <br/><br/>" +
+
                                 "<br/> <br/> After payment, you can login with the following credentials:" +
                                 "<br> <b>Email:</b> " + user.Email +
                                 "<br> <b>Password:</b> " + staffPassword +

@@ -17,6 +17,7 @@ namespace e_college.Controllers
         private readonly ILiveSessionHelper _liveSessionHelper;
         private readonly ICbtHelper _cbtHelper;
         private readonly IAnnouncementHelper _announcementHelper;
+        private readonly IAssignmentHelper _assignmentHelper;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         public StudentController(
@@ -28,6 +29,7 @@ namespace e_college.Controllers
             ILiveSessionHelper liveSessionHelper,
             ICbtHelper cbtHelper,
             IAnnouncementHelper announcementHelper,
+            IAssignmentHelper assignmentHelper,
             IWebHostEnvironment webHostEnvironment)
         {
             _signInManager = signInManager;
@@ -38,6 +40,7 @@ namespace e_college.Controllers
             _liveSessionHelper = liveSessionHelper;
             _cbtHelper = cbtHelper;
             _announcementHelper = announcementHelper;
+            _assignmentHelper = assignmentHelper;
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -48,10 +51,12 @@ namespace e_college.Controllers
             var getStudentDetails = _userHelper.GetStudentDetails(userId);
             var textbooksCount = 0;
             var announcementCount = 0;
+            var assignmentCount = 0;
             if (!string.IsNullOrWhiteSpace(userId))
             {
                 textbooksCount = _textbookHelper.GetApprovedTextbooksForStudent(userId).Count;
                 announcementCount = _announcementHelper.GetActiveAnnouncementCountForStudent(userId);
+                assignmentCount = _assignmentHelper.GetStudentAssignmentCount(userId);
             }
             ViewBag.HasWholeStudentAnnouncement = _announcementHelper.GetActiveWholeStudentAnnouncementCount() > 0;
             var model = new ApplicationUserViewModel()
@@ -62,7 +67,8 @@ namespace e_college.Controllers
                 AcademicLevel = getStudentDetails.AcademicLevel,
                 DepartmentName = getStudentDetails?.Department?.Name,
                 TotalDepartmentTextbooks = textbooksCount,
-                TotalActiveAnnouncements = announcementCount
+                TotalActiveAnnouncements = announcementCount,
+                TotalAssignments = assignmentCount
             };
             return View(model);
         }
@@ -226,6 +232,114 @@ namespace e_college.Controllers
 
             var announcements = _announcementHelper.GetStudentAnnouncements(currentUser.Id);
             return View(announcements);
+        }
+
+        [HttpGet]
+        public IActionResult Assignments()
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            return View(_assignmentHelper.GetStudentAssignments(currentUser.Id));
+        }
+
+        [HttpGet]
+        public IActionResult SubmitAssignment(int id)
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var assignment = _assignmentHelper.GetStudentAssignment(id, currentUser.Id);
+            if (assignment == null)
+            {
+                return NotFound();
+            }
+
+            return View(assignment);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> SubmitAssignment(int assignmentId, string? comment, IFormFile? file)
+        {
+            try
+            {
+                var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+                if (currentUser == null)
+                {
+                    return Json(new { isError = true, msg = "Please login again." });
+                }
+
+                var result = await _assignmentHelper.SubmitAssignmentAsync(
+                    assignmentId, comment, file, currentUser.Id, _webHostEnvironment.WebRootPath).ConfigureAwait(false);
+                return Json(new { isError = !result.Success, msg = result.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult DownloadAssignmentFile(int id)
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var assignment = _assignmentHelper.GetAssignmentFileForDownload(id, currentUser.Id, isStaff: false);
+            if (assignment == null)
+            {
+                return NotFound();
+            }
+
+            return ServeUploadedFile(assignment.FilePath, assignment.Name);
+        }
+
+        [HttpGet]
+        public IActionResult DownloadMyAssignmentSubmission(int id)
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var submission = _assignmentHelper.GetSubmissionFileForDownload(id, currentUser.Id, isStaff: false);
+            if (submission == null)
+            {
+                return NotFound();
+            }
+
+            return ServeUploadedFile(submission.FilePath, submission.OriginalFileName);
+        }
+
+        private IActionResult ServeUploadedFile(string? relativePath, string? downloadName)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath))
+            {
+                return NotFound();
+            }
+
+            var absolutePath = Path.Combine(
+                _webHostEnvironment.WebRootPath,
+                relativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+            if (!System.IO.File.Exists(absolutePath))
+            {
+                return NotFound();
+            }
+
+            var fileName = string.IsNullOrWhiteSpace(downloadName)
+                ? Path.GetFileName(absolutePath)
+                : Path.GetFileName(downloadName);
+            return PhysicalFile(absolutePath, "application/octet-stream", fileName);
         }
     }
 

@@ -69,6 +69,61 @@ namespace Core.Migrations
                     b.ToTable("Announcements");
                 });
 
+            modelBuilder.Entity("Core.Models.AssessmentRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccessToken")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("AttemptId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CbtTestId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("HasOpenedQuiz")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ProgramType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScholarshipType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CbtTestId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.ToTable("AssessmentRegistrations");
+                });
+
             modelBuilder.Entity("Core.Models.Assignment", b =>
                 {
                     b.Property<int>("Id")
@@ -80,6 +135,9 @@ namespace Core.Migrations
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
 
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
@@ -90,20 +148,88 @@ namespace Core.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("FilePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool?>("IsSubmitted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("TotalMarks")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("ValidUntilDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedByUserId");
+
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("Assignments");
+                });
+
+            modelBuilder.Entity("Core.Models.AssignmentSubmission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("GradedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GradedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalFileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("Score")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("StudentUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GradedByUserId");
+
+                    b.HasIndex("StudentUserId");
+
+                    b.HasIndex("AssignmentId", "StudentUserId")
+                        .IsUnique();
+
+                    b.ToTable("AssignmentSubmissions");
                 });
 
             modelBuilder.Entity("Core.Models.CbtAttempt", b =>
@@ -113,6 +239,9 @@ namespace Core.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssessmentRegistrationId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("AutoSubmitted")
                         .HasColumnType("bit");
@@ -133,7 +262,6 @@ namespace Core.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("StudentUserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("SubmittedAt")
@@ -143,6 +271,8 @@ namespace Core.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssessmentRegistrationId");
 
                     b.HasIndex("CbtTestId");
 
@@ -263,7 +393,7 @@ namespace Core.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -277,6 +407,9 @@ namespace Core.Migrations
 
                     b.Property<string>("Instructions")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPublicAssessment")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
@@ -633,7 +766,7 @@ namespace Core.Migrations
                     b.Property<string>("ApprovedById")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Details")
@@ -767,6 +900,54 @@ namespace Core.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("StaffEvaluationDetails");
+                });
+
+            modelBuilder.Entity("Core.Models.StudyCenter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ApprovedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ContactPerson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DateApproved")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.ToTable("StudyCenters");
                 });
 
             modelBuilder.Entity("Core.Models.Suspension", b =>
@@ -1177,19 +1358,73 @@ namespace Core.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("Core.Models.AssessmentRegistration", b =>
+                {
+                    b.HasOne("Core.Models.CbtTest", "CbtTest")
+                        .WithMany()
+                        .HasForeignKey("CbtTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId");
+
+                    b.Navigation("CbtTest");
+
+                    b.Navigation("Payment");
+                });
+
             modelBuilder.Entity("Core.Models.Assignment", b =>
                 {
+                    b.HasOne("Core.Models.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Core.Models.Department", "Departments")
                         .WithMany()
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("CreatedBy");
+
                     b.Navigation("Departments");
+                });
+
+            modelBuilder.Entity("Core.Models.AssignmentSubmission", b =>
+                {
+                    b.HasOne("Core.Models.Assignment", "Assignment")
+                        .WithMany("Submissions")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.ApplicationUser", "GradedBy")
+                        .WithMany()
+                        .HasForeignKey("GradedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Core.Models.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+
+                    b.Navigation("GradedBy");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Core.Models.CbtAttempt", b =>
                 {
+                    b.HasOne("Core.Models.AssessmentRegistration", "AssessmentRegistration")
+                        .WithMany()
+                        .HasForeignKey("AssessmentRegistrationId");
+
                     b.HasOne("Core.Models.CbtTest", "CbtTest")
                         .WithMany("Attempts")
                         .HasForeignKey("CbtTestId")
@@ -1198,9 +1433,9 @@ namespace Core.Migrations
 
                     b.HasOne("Core.Models.ApplicationUser", "Student")
                         .WithMany()
-                        .HasForeignKey("StudentUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("StudentUserId");
+
+                    b.Navigation("AssessmentRegistration");
 
                     b.Navigation("CbtTest");
 
@@ -1247,9 +1482,7 @@ namespace Core.Migrations
 
                     b.HasOne("Core.Models.Department", "Department")
                         .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DepartmentId");
 
                     b.Navigation("CreatedBy");
 
@@ -1312,9 +1545,7 @@ namespace Core.Migrations
                 {
                     b.HasOne("Core.Models.Department", "Department")
                         .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DepartmentId");
 
                     b.HasOne("Core.Models.ApplicationUser", "User")
                         .WithMany()
@@ -1343,6 +1574,15 @@ namespace Core.Migrations
                         .IsRequired();
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Core.Models.StudyCenter", b =>
+                {
+                    b.HasOne("Core.Models.ApplicationUser", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId");
+
+                    b.Navigation("ApprovedBy");
                 });
 
             modelBuilder.Entity("Core.Models.Suspension", b =>
@@ -1429,6 +1669,11 @@ namespace Core.Migrations
                         .HasForeignKey("DepartmentId");
 
                     b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Core.Models.Assignment", b =>
+                {
+                    b.Navigation("Submissions");
                 });
 
             modelBuilder.Entity("Core.Models.CbtAttempt", b =>

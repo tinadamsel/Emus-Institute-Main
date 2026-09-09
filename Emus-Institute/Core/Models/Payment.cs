@@ -20,7 +20,7 @@ namespace Core.Models
         [ForeignKey("UserId")]
         public virtual ApplicationUser? User { get; set; }
         public PaymentStatus? Status { get; set; }
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         [ForeignKey("DepartmentId")]
         public virtual Department? Department { get; set; }
         public string? PaymentMethod { get; set; }

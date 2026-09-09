@@ -1,8 +1,10 @@
 ﻿@model IEnumerable<Core.ViewModels.StaffDocumentationViewModel>
+@using static Core.DB.ECollegeEnums
 
 @{
     ViewData["Title"] = "Approved Staff";
     Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
+    var departments = ViewBag.Departments as IEnumerable<Core.ViewModels.DepartmentViewModel>;
 }
 
 <main id="main" class="main">
@@ -97,6 +99,13 @@
                                             <a class="btn btn-outline-success rounded-pill" onclick="getRefBonus('@staff.Id')">
                                                 Referral Bonus
                                             </a>
+                                            <a class="btn btn-outline-primary rounded-pill reassign-role-btn"
+                                               data-staff-id="@staff.Id"
+                                               data-staff-position="@((int)staff.StaffPosition)"
+                                               data-department-id="@(staff.DepartmentId ?? 0)"
+                                               data-staff-name="@staff.Name">
+                                                Reassign Role
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -123,6 +132,49 @@
         </div>
     </div>
 </main><!-- End #main -->
+
+<!-- Reassign Role Modal -->
+<div class="modal fade sa-modal" id="reassign_staff_role_modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>Reassign Staff Role</b></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="reassign_staff_id" />
+                <p class="mb-3">Staff: <strong id="reassign_staff_name"></strong></p>
+                <div class="mb-3">
+                    <label for="reassign_staff_position" class="form-label">New Role</label>
+                    <select class="form-select" id="reassign_staff_position" onchange="toggleReassignDepartmentField()">
+                        @foreach (StaffPosition position in Enum.GetValues(typeof(StaffPosition)))
+                        {
+                            <option value="@((int)position)">@position</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3" id="reassign_department_group" style="display:none;">
+                    <label for="reassign_department_id" class="form-label">Department</label>
+                    <select class="form-select" id="reassign_department_id">
+                        <option value="">Select department</option>
+                        @if (departments != null)
+                        {
+                            foreach (var dept in departments)
+                            {
+                                <option value="@dept.Id">@dept.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="reassign_staff_role_btn" onclick="reassignStaffRole()">Save Role</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- cover letter modal -->
 <div class="modal fade sa-modal" id="coverLetter" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">

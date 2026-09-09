@@ -16,10 +16,12 @@
         }
 
         .live-session-shell {
+            height: 100vh;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 1rem;
+            box-sizing: border-box;
         }
 
         .live-session-topbar {
@@ -35,6 +37,15 @@
             text-decoration: none;
         }
 
+        .live-session-meta h4 {
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .live-session-meta p {
+            color: #fff;
+        }
+
         .live-session-body {
             flex: 1;
             min-height: 0;
@@ -43,11 +54,79 @@
         }
 
         .live-session-frame {
-            flex: 1;
-            min-height: calc(100vh - 140px);
+            flex: 1 1 auto;
+            position: relative;
+            width: 100%;
+            min-height: 560px;
+            height: calc(100vh - 150px);
             border-radius: 12px;
             overflow: hidden;
             background: #111827;
+        }
+
+        .live-session-frame iframe {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 560px;
+            border: 0;
+            background: #111827;
+        }
+
+        .live-session-join-card {
+            max-width: 520px;
+            margin: 3rem auto;
+            background: #1e293b;
+            color: #e5e7eb;
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .live-session-kicker {
+            color: #f97316;
+            letter-spacing: 0.08em;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .live-session-join-card h2 {
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+
+        .live-session-user {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .live-session-user span {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .live-session-status {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e5e7eb;
+            font-size: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .live-session-status.is-error {
+            color: #fecaca;
+            pointer-events: auto;
         }
     </style>
 </head>

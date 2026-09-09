@@ -1,0 +1,81 @@
+@model Core.ViewModels.AssignmentViewModel
+@{
+    ViewData["Title"] = Model.Name ?? "Assignment";
+    Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">@Model.Name</h1>
+            <p class="sa-page-sub">Due @Model.DueDateDisplay · @Model.TotalMarks marks</p>
+        </div>
+        <a asp-controller="Student" asp-action="Assignments" class="btn btn-outline-secondary">Back to assignments</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="sa-list-card p-4">
+                <h5 class="mb-3">Instructions</h5>
+                <p>@Model.Description</p>
+                @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                {
+                    <a asp-controller="Student" asp-action="DownloadAssignmentFile" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary">
+                        Download assignment file
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="sa-list-card p-4">
+                @if (Model.IsGraded)
+                {
+                    <h5 class="mb-3">Your result</h5>
+                    <p class="mb-2">Score: <strong>@Model.Score</strong> / @Model.TotalMarks</p>
+                    @if (!string.IsNullOrWhiteSpace(Model.Feedback))
+                    {
+                        <p class="mb-3"><strong>Feedback:</strong> @Model.Feedback</p>
+                    }
+                    @if (Model.SubmissionId.HasValue && !string.IsNullOrWhiteSpace(Model.SubmissionFilePath))
+                    {
+                        <a asp-controller="Student" asp-action="DownloadMyAssignmentSubmission" asp-route-id="@Model.SubmissionId"
+                           class="btn btn-sm btn-outline-secondary">Download your submission</a>
+                    }
+                }
+                else
+                {
+                    <h5 class="mb-1">@(Model.HasSubmitted ? "Update submission" : "Submit assignment")</h5>
+                    @if (Model.HasSubmitted)
+                    {
+                        <p class="small text-muted mb-3">Last submitted @Model.SubmittedAt?.ToString("MMM d, yyyy h:mm tt"). You can replace the file before the due date.</p>
+                    }
+                    else
+                    {
+                        <p class="small text-muted mb-3">Upload your work before the due date.</p>
+                    }
+
+                    @if (Model.CanSubmit)
+                    {
+                        <input type="hidden" id="assignment_Id" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label class="form-label">File @(Model.HasSubmitted ? "" : "*")</label>
+                            <input type="file" id="assignment_SubmissionFile" class="form-control" />
+                            <p class="small text-muted mb-0 mt-1">PDF, Word, PowerPoint, ZIP, TXT, PNG, or JPG. Max 15MB.</p>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Comment (optional)</label>
+                            <textarea id="assignment_Comment" class="form-control" rows="3">@Model.SubmissionComment</textarea>
+                        </div>
+                        <button type="button" id="submit_assignment_btn" class="btn btn-outline-success w-100" onclick="submitAssignment()">
+                            @(Model.HasSubmitted ? "Update submission" : "Submit assignment")
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning mb-0">This assignment is closed and can no longer be submitted.</div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</main>

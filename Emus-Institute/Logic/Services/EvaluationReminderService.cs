@@ -92,6 +92,15 @@ namespace Logic.Services
                     $"<a href='{evaluationUrl}' target='_blank'>" +
                     "<button style='color:white; background-color:#06BBCC; padding:12px; border:1px solid #06BBCC;'>Complete My Evaluation</button></a>" +
                     "<br/><br/>If you have already started, thank you — you may simply return to the page above to finish. " +
+
+                    "<br/> Please Note: If you have a Statement of Comparability, you no longer need to pay for the evaluation fee as this is required for all Staff seeking " +
+                    "to work in UK with any degree obtained outside UK. <br/>" +
+                    "A Statement of Comparability is a certificate that shows how international qualifications compare to the UK education systems. The UK's education systems include England, Scotland, Wales and Northern Ireland " +
+                    "The Statement gives international qualifications context when applying for jobs, studies or professional registration in the UK. <br/>" +
+                    "Show the Statement of Comparability with your original qualification to HR department by emailing the evidence to hr@emusinstitute.com. <br/>" +
+                    "Once comfirmed, your application will be accepted. <br/>" +
+                    "If you do not have it, request for an assistance from the HR. Your application will be approved but we shall pay for your Comparability Certificate on your behalf and deduct it from your first salary with us. <br/><br/>" +
+
                     "If you need help, our team will be happy to assist you.<br/><br/>" +
                     "Warm regards,<br/>Emus Institute Team";
 

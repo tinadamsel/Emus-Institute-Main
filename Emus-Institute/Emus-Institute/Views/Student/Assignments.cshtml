@@ -1,0 +1,56 @@
+@model IEnumerable<Core.ViewModels.AssignmentViewModel>
+@{
+    ViewData["Title"] = "Assignments";
+    Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Assignments</h1>
+            <p class="sa-page-sub">Assignments for your department. Submit your work before the due date.</p>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Error"]</div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                var badgeClass = item.IsGraded ? "bg-success" : item.HasSubmitted ? "bg-primary" : item.IsOverdue ? "bg-secondary" : "bg-warning text-dark";
+                <div class="col-lg-6">
+                    <div class="sa-list-card h-100 p-4 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="mb-0">@item.Name</h5>
+                            <span class="badge @badgeClass">@item.StatusLabel</span>
+                        </div>
+                        <p class="small text-muted mb-2">Due @item.DueDateDisplay · @item.TotalMarks marks</p>
+                        <p class="small flex-grow-1">@((item.Description ?? string.Empty).Length > 180 ? item.Description.Substring(0, 180) + "..." : item.Description)</p>
+                        @if (item.IsGraded)
+                        {
+                            <p class="mb-2">Score: <strong>@item.Score</strong> / @item.TotalMarks</p>
+                        }
+                        <a asp-controller="Student" asp-action="SubmitAssignment" asp-route-id="@item.Id" class="btn btn-outline-success w-100 mt-2">
+                            @(item.IsGraded ? "View result" : item.HasSubmitted ? "View / update submission" : "View & submit")
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="sa-list-card">
+            <div class="sa-empty-state py-5">
+                <i class="bi bi-journal-text"></i>
+                <h6>No assignments yet</h6>
+                <p>Assignments posted by your department lecturers will appear here.</p>
+            </div>
+        </div>
+    }
+</main>

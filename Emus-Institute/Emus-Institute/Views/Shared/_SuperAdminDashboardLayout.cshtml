@@ -212,6 +212,18 @@
         </a>
       </li>
       <li class="nav-item">
+        <a class="@NavClass("PendingStudyCenters")" asp-controller="SuperAdmin" asp-action="PendingStudyCenters">
+          <i class="bi bi-building"></i>
+          <span>Study Centers</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="@(ViewContext.RouteData.Values["action"]?.ToString()?.Contains("PublicAssessment") == true || ViewContext.RouteData.Values["action"]?.ToString() == "CreatePublicAssessment" || ViewContext.RouteData.Values["action"]?.ToString() == "ManagePublicAssessmentQuestions" ? "nav-link sa-nav-active" : "nav-link collapsed")" asp-controller="SuperAdmin" asp-action="PublicAssessments">
+          <i class="bi bi-clipboard-check"></i>
+          <span>Public Assessment</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="@NavClass("ApprovedStaff")" asp-controller="SuperAdmin" asp-action="ApprovedStaff">
           <i class="bi bi-people"></i>
           <span>All Staff</span>

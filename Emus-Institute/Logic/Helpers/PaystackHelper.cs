@@ -145,7 +145,11 @@ namespace Logic.Helpers
                     _context.SaveChanges();
                     if (_paystackEntity.PaymentId != Guid.Empty)
                     {
-                        var payment = _context.Payments.Where(x => x.Id == _paystackEntity.PaymentId && x.Status == PaymentStatus.Pending && x.Details != "Staff Evaluation Payment").FirstOrDefault();
+                        var payment = _context.Payments.Where(x =>
+                            x.Id == _paystackEntity.PaymentId &&
+                            x.Status == PaymentStatus.Pending &&
+                            x.Details != "Staff Evaluation Payment" &&
+                            x.Details != "Public Assessment Payment").FirstOrDefault();
                         if (payment != null)
                         {
                             payment.Status = PaymentStatus.Approved;
@@ -215,6 +219,158 @@ namespace Logic.Helpers
             {
                 throw exp;
             }
+        }
+
+        public PaystackResponse MakeAssessmentPayment(Payment payment, string email)
+        {
+            try
+            {
+                PaystackResponse PaystackResponse = null;
+                if (payment.Amount > 0 && !string.IsNullOrWhiteSpace(email))
+                {
+                    var callbackUrl = string.IsNullOrWhiteSpace(_generalConfiguration.AssessmentCallbackUrl)
+                        ? (_generalConfiguration.SiteBaseUrl?.TrimEnd('/') + "/Home/AssessmentPaystackResponse")
+                        : _generalConfiguration.AssessmentCallbackUrl;
+
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    ApiEndPoint = "/transaction/initialize";
+                    request = new RestRequest(ApiEndPoint, Method.Post);
+                    request.AddHeader("accept", "application/json");
+                    request.AddHeader("Authorization", "Bearer " + _generalConfiguration.PayStakApiKey);
+                    request.AddParameter("reference", payment.Reference);
+                    request.AddParameter("callback_url", callbackUrl);
+                    // Same currency as student/staff payments — this Paystack account is NGN.
+                    request.AddParameter("currency", "NGN");
+                    request.AddParameter("amount", ((payment.Amount ?? 0) * 100).ToString());
+                    request.AddParameter("email", email.Trim());
+
+                    List<PaystackCustomField> myCustomfields = new List<PaystackCustomField>
+                    {
+                        new PaystackCustomField
+                        {
+                            display_name = "Email",
+                            variable_name = "Email",
+                            value = email.Trim(),
+                        }
+                    };
+                    Dictionary<string, List<PaystackCustomField>> metadata = new Dictionary<string, List<PaystackCustomField>>();
+                    metadata.Add("custom_fields", myCustomfields);
+                    request.AddParameter("metadata", JsonConvert.SerializeObject(metadata));
+
+                    var result = client.ExecuteAsync(request).Result;
+                    if (result.StatusCode == HttpStatusCode.OK && !string.IsNullOrWhiteSpace(result.Content))
+                    {
+                        PaystackResponse = JsonConvert.DeserializeObject<PaystackResponse>(result.Content);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(result.Content))
+                    {
+                        // Surface Paystack error body (e.g. unsupported currency) instead of a silent null.
+                        PaystackResponse = JsonConvert.DeserializeObject<PaystackResponse>(result.Content)
+                            ?? new PaystackResponse { status = false, message = result.Content };
+                    }
+                }
+                return PaystackResponse;
+            }
+            catch (Exception exp)
+            {
+                throw exp;
+            }
+        }
+
+        public async Task<PaystackResponse> VerifyAssessmentPayment(PayStack payment)
+        {
+            PaystackResponse PaystackResponse = null;
+            try
+            {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                ApiEndPoint = "/transaction/verify/" + payment.Reference;
+                request = new RestRequest(ApiEndPoint, Method.Get);
+                request.AddHeader("accept", "application/json");
+                request.AddHeader("Authorization", "Bearer " + _generalConfiguration.PayStakApiKey);
+                var result = client.ExecuteAsync(request).Result;
+                if (result.StatusCode == HttpStatusCode.OK)
+                {
+                    PaystackResponse = JsonConvert.DeserializeObject<PaystackResponse>(result.Content);
+                    if (PaystackResponse != null)
+                    {
+                        if (PaystackResponse.data != null)
+                        {
+                            UpdateAssessmentPaymentResponse(PaystackResponse);
+                        }
+                        PaystackResponse.Paystacks = _context.PayStackpayments.FirstOrDefault(p => p.Reference == payment.Reference);
+                    }
+                }
+                return PaystackResponse;
+            }
+            catch (Exception exp)
+            {
+                throw exp;
+            }
+        }
+
+        private PayStack UpdateAssessmentPaymentResponse(PaystackResponse paystackResponse)
+        {
+            if (paystackResponse?.data == null)
+            {
+                return null;
+            }
+
+            PayStack _paystackEntity = _context.PayStackpayments.Where(p => p.Reference == paystackResponse.data.reference).FirstOrDefault();
+            if (_paystackEntity == null)
+            {
+                return null;
+            }
+
+            _paystackEntity.Bank = paystackResponse.data.authorization?.bank;
+            _paystackEntity.Brand = paystackResponse.data.authorization?.brand;
+            _paystackEntity.Card_type = paystackResponse.data.authorization?.card_type;
+            _paystackEntity.Channel = paystackResponse.data.channel;
+            _paystackEntity.Country_code = paystackResponse.data.authorization?.country_code;
+            _paystackEntity.Currency = paystackResponse.data.currency;
+            _paystackEntity.Domain = paystackResponse.data.domain;
+            _paystackEntity.Exp_month = paystackResponse.data.authorization?.exp_month;
+            _paystackEntity.Exp_year = paystackResponse.data.authorization?.exp_year;
+            _paystackEntity.Fees = paystackResponse.data.fees?.ToString();
+            _paystackEntity.Gateway_response = paystackResponse.data.gateway_response;
+            _paystackEntity.Ip_Address = paystackResponse.data.ip_address;
+            _paystackEntity.Last4 = paystackResponse.data.authorization?.last4;
+            _paystackEntity.Message = paystackResponse.message;
+            _paystackEntity.Reference = paystackResponse.data.reference;
+            _paystackEntity.Reusable = paystackResponse.data.authorization?.reusable;
+            _paystackEntity.Signature = paystackResponse.data.authorization?.signature;
+            _paystackEntity.Transaction_date = paystackResponse.data.transaction_date;
+            _context.Update(_paystackEntity);
+            _context.SaveChanges();
+
+            var isSuccessful = string.Equals(paystackResponse.data.status, "success", StringComparison.OrdinalIgnoreCase);
+            if (!isSuccessful)
+            {
+                return _paystackEntity;
+            }
+
+            var payment = _context.Payments.FirstOrDefault(x =>
+                x.Id == _paystackEntity.PaymentId &&
+                x.Status == PaymentStatus.Pending &&
+                x.Details == "Public Assessment Payment");
+
+            if (payment != null)
+            {
+                payment.Status = PaymentStatus.Approved;
+                payment.ApprovedById = "Admin";
+                _context.Update(payment);
+                _context.SaveChanges();
+
+                var registration = _context.AssessmentRegistrations.FirstOrDefault(x => x.PaymentId == payment.Id);
+                if (registration != null)
+                {
+                    registration.IsPaid = true;
+                    registration.PaidAt = DateTime.Now;
+                    _context.Update(registration);
+                    _context.SaveChanges();
+                }
+            }
+
+            return _paystackEntity;
         }
 
         public async Task<ApplicationUser> FindByIdAsync(string Id)

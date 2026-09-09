@@ -29,7 +29,7 @@ namespace Logic.Helpers
                 .Include(x => x.Department)
                 .Include(x => x.CreatedBy)
                 .Include(x => x.Questions)
-                .Where(x => x.Active && x.DepartmentId == staff.DepartmentId);
+                .Where(x => x.Active && !x.IsPublicAssessment && x.DepartmentId == staff.DepartmentId);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -112,6 +112,7 @@ namespace Logic.Helpers
                 ShuffleQuestions = model.ShuffleQuestions,
                 ShuffleOptions = model.ShuffleOptions,
                 IsPublished = model.IsPublished,
+                IsPublicAssessment = false,
                 BrowserCode = string.IsNullOrWhiteSpace(model.BrowserCode) ? null : model.BrowserCode.Trim(),
                 Instructions = string.IsNullOrWhiteSpace(model.Instructions) ? null : model.Instructions.Trim(),
                 Active = true,
@@ -402,7 +403,7 @@ namespace Logic.Helpers
                 .Include(x => x.Department)
                 .Include(x => x.Questions)
                 .Include(x => x.Attempts)
-                .Where(x => x.Active && x.IsPublished && x.DepartmentId == student.DepartmentId)
+                .Where(x => x.Active && x.IsPublished && !x.IsPublicAssessment && x.DepartmentId == student.DepartmentId)
                 .OrderByDescending(x => x.StartDateTime)
                 .AsEnumerable()
                 .Select(x => MapTest(x, student.Id, isStaff: false))
@@ -426,7 +427,7 @@ namespace Logic.Helpers
             var test = _context.CbtTests
                 .Include(x => x.Questions)
                 .Include(x => x.Attempts)
-                .FirstOrDefault(x => x.Id == testId && x.Active && x.IsPublished && x.DepartmentId == student.DepartmentId);
+                .FirstOrDefault(x => x.Id == testId && x.Active && x.IsPublished && !x.IsPublicAssessment && x.DepartmentId == student.DepartmentId);
 
             if (test == null)
             {
@@ -590,6 +591,522 @@ namespace Logic.Helpers
             return vm;
         }
 
+        public bool HasPublishedPublicAssessment()
+        {
+            return _context.CbtTests.Any(x =>
+                x.Active &&
+                x.IsPublicAssessment &&
+                x.IsPublished);
+        }
+
+        public CbtTestViewModel? GetPublishedPublicAssessment()
+        {
+            var now = DateTime.Now;
+            var test = _context.CbtTests
+                .Include(x => x.Questions)
+                .Include(x => x.CreatedBy)
+                .Where(x =>
+                    x.Active &&
+                    x.IsPublicAssessment &&
+                    x.IsPublished &&
+                    x.StartDateTime <= now &&
+                    x.EndDateTime >= now &&
+                    x.Questions.Any(q => q.Active))
+                .OrderByDescending(x => x.DateCreated)
+                .FirstOrDefault();
+
+            return test == null ? null : MapTest(test, string.Empty, isStaff: true);
+        }
+
+        public List<CbtTestViewModel> GetPublicAssessments(string? search = null, string? filter = null)
+        {
+            var query = _context.CbtTests
+                .Include(x => x.CreatedBy)
+                .Include(x => x.Questions)
+                .Where(x => x.Active && x.IsPublicAssessment);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x => x.Title.Contains(search));
+            }
+
+            var now = DateTime.Now;
+            if (filter == "published") query = query.Where(x => x.IsPublished);
+            else if (filter == "draft") query = query.Where(x => !x.IsPublished);
+            else if (filter == "active") query = query.Where(x => x.IsPublished && x.StartDateTime <= now && x.EndDateTime >= now);
+            else if (filter == "upcoming") query = query.Where(x => x.StartDateTime > now);
+            else if (filter == "ended") query = query.Where(x => x.EndDateTime < now);
+
+            return query
+                .OrderByDescending(x => x.DateCreated)
+                .AsEnumerable()
+                .Select(x => MapTest(x, string.Empty, isStaff: true))
+                .ToList();
+        }
+
+        public CbtTestViewModel? GetPublicAssessment(int testId)
+        {
+            var test = GetPublicTestEntity(testId, includeQuestions: true);
+            return test == null ? null : MapTest(test, string.Empty, isStaff: true);
+        }
+
+        public async Task<(bool Success, string Message, int? TestId)> CreatePublicAssessmentAsync(CbtTestViewModel model, string adminUserId)
+        {
+            var validation = ValidateTestModel(model);
+            if (!validation.Success)
+            {
+                return (false, validation.Message, null);
+            }
+
+            var test = new CbtTest
+            {
+                Title = model.Title.Trim(),
+                Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim(),
+                DepartmentId = null,
+                CreatedByUserId = adminUserId,
+                DurationMinutes = model.DurationMinutes,
+                StartDateTime = model.StartDateTime,
+                EndDateTime = model.EndDateTime,
+                TotalMarks = model.TotalMarks,
+                PassMark = model.PassMark,
+                MarkPerQuestion = model.MarkPerQuestion,
+                MaximumAttempts = 1,
+                ShuffleQuestions = model.ShuffleQuestions,
+                ShuffleOptions = model.ShuffleOptions,
+                IsPublished = model.IsPublished,
+                IsPublicAssessment = true,
+                BrowserCode = null,
+                Instructions = string.IsNullOrWhiteSpace(model.Instructions) ? null : model.Instructions.Trim(),
+                Active = true,
+                DateCreated = DateTime.Now
+            };
+
+            _context.CbtTests.Add(test);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return (true, "Public assessment created successfully.", test.Id);
+        }
+
+        public async Task<(bool Success, string Message)> UpdatePublicAssessmentAsync(CbtTestViewModel model, string adminUserId)
+        {
+            var test = GetPublicTestEntity(model.Id);
+            if (test == null)
+            {
+                return (false, "Assessment not found.");
+            }
+
+            if (!CanEditTest(test))
+            {
+                return (false, "This assessment has already started. Editing is no longer allowed.");
+            }
+
+            var validation = ValidateTestModel(model);
+            if (!validation.Success)
+            {
+                return (false, validation.Message);
+            }
+
+            test.Title = model.Title.Trim();
+            test.Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim();
+            test.DurationMinutes = model.DurationMinutes;
+            test.StartDateTime = model.StartDateTime;
+            test.EndDateTime = model.EndDateTime;
+            test.PassMark = model.PassMark;
+            test.MarkPerQuestion = model.MarkPerQuestion;
+            test.MaximumAttempts = 1;
+            test.ShuffleQuestions = model.ShuffleQuestions;
+            test.ShuffleOptions = model.ShuffleOptions;
+            test.IsPublished = model.IsPublished;
+            test.Instructions = string.IsNullOrWhiteSpace(model.Instructions) ? null : model.Instructions.Trim();
+
+            await RecalculateTotalMarksAsync(test.Id).ConfigureAwait(false);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return (true, "Assessment updated successfully.");
+        }
+
+        public (bool Success, string Message) DeletePublicAssessment(int testId)
+        {
+            var test = GetPublicTestEntity(testId);
+            if (test == null)
+            {
+                return (false, "Assessment not found.");
+            }
+
+            if (!CanEditTest(test))
+            {
+                return (false, "This assessment has already started. Deletion is no longer allowed.");
+            }
+
+            test.Active = false;
+            _context.SaveChanges();
+            return (true, "Assessment deleted successfully.");
+        }
+
+        public List<CbtQuestionViewModel> GetPublicQuestions(int testId)
+        {
+            var test = GetPublicTestEntity(testId, includeQuestions: true);
+            if (test == null)
+            {
+                return new List<CbtQuestionViewModel>();
+            }
+
+            return test.Questions
+                .Where(x => x.Active)
+                .OrderBy(x => x.SortOrder)
+                .Select(q => MapQuestion(q, CanEditTest(test), forTaking: false, test.ShuffleOptions, null))
+                .ToList();
+        }
+
+        public async Task<(bool Success, string Message)> SavePublicQuestionAsync(
+            CbtQuestionViewModel model,
+            IFormFile? imageFile,
+            string webRootPath,
+            int? questionId = null)
+        {
+            var test = GetPublicTestEntity(model.CbtTestId, includeQuestions: true);
+            if (test == null)
+            {
+                return (false, "Assessment not found.");
+            }
+
+            if (!CanEditTest(test))
+            {
+                return (false, "This assessment has already started. Questions cannot be modified.");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.QuestionText))
+            {
+                return (false, "Question text is required.");
+            }
+
+            if (!Enum.IsDefined(typeof(CbtQuestionType), model.QuestionType))
+            {
+                return (false, "Invalid question type.");
+            }
+
+            var normalizedAnswer = NormalizeAnswer(model.CorrectAnswer, model.QuestionType);
+            if (string.IsNullOrWhiteSpace(normalizedAnswer))
+            {
+                return (false, "Correct answer is required.");
+            }
+
+            CbtQuestion question;
+            if (questionId.HasValue && questionId.Value > 0)
+            {
+                question = test.Questions.FirstOrDefault(x => x.Id == questionId.Value && x.Active);
+                if (question == null)
+                {
+                    return (false, "Question not found.");
+                }
+            }
+            else
+            {
+                question = new CbtQuestion
+                {
+                    CbtTestId = test.Id,
+                    SortOrder = test.Questions.Count(x => x.Active) + 1,
+                    Active = true,
+                    DateCreated = DateTime.Now
+                };
+                _context.CbtQuestions.Add(question);
+            }
+
+            question.QuestionType = model.QuestionType;
+            question.QuestionText = model.QuestionText.Trim();
+            question.Marks = model.Marks > 0 ? model.Marks : test.MarkPerQuestion;
+            question.Explanation = string.IsNullOrWhiteSpace(model.Explanation) ? null : model.Explanation.Trim();
+            question.CorrectAnswer = normalizedAnswer;
+
+            if (model.QuestionType == CbtQuestionType.TrueFalse)
+            {
+                question.OptionA = "True";
+                question.OptionB = "False";
+                question.OptionC = null;
+                question.OptionD = null;
+            }
+            else
+            {
+                question.OptionA = model.OptionA?.Trim();
+                question.OptionB = model.OptionB?.Trim();
+                question.OptionC = model.OptionC?.Trim();
+                question.OptionD = model.OptionD?.Trim();
+            }
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var savedPath = await SaveQuestionImageAsync(imageFile, webRootPath).ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(savedPath))
+                {
+                    question.ImagePath = savedPath;
+                }
+            }
+
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            await RecalculateTotalMarksAsync(test.Id).ConfigureAwait(false);
+            return (true, questionId.HasValue ? "Question updated successfully." : "Question added successfully.");
+        }
+
+        public (bool Success, string Message) DeletePublicQuestion(int questionId)
+        {
+            var question = _context.CbtQuestions
+                .Include(x => x.CbtTest)
+                .FirstOrDefault(x => x.Id == questionId && x.Active);
+
+            if (question?.CbtTest == null || !question.CbtTest.IsPublicAssessment)
+            {
+                return (false, "Question not found.");
+            }
+
+            if (!CanEditTest(question.CbtTest))
+            {
+                return (false, "This assessment has already started. Questions cannot be modified.");
+            }
+
+            question.Active = false;
+            _context.SaveChanges();
+            RecalculateTotalMarksAsync(question.CbtTestId).GetAwaiter().GetResult();
+            return (true, "Question deleted successfully.");
+        }
+
+        public List<CbtAttemptViewModel> GetPublicTestScores(int testId)
+        {
+            if (GetPublicTestEntity(testId) == null)
+            {
+                return new List<CbtAttemptViewModel>();
+            }
+
+            return _context.CbtAttempts
+                .Include(x => x.CbtTest)
+                .Include(x => x.AssessmentRegistration)
+                .Where(x => x.CbtTestId == testId && x.IsSubmitted)
+                .OrderByDescending(x => x.SubmittedAt)
+                .AsEnumerable()
+                .Select(MapAttemptSummary)
+                .ToList();
+        }
+
+        public CbtAnalyticsViewModel? GetPublicTestAnalytics(int testId)
+        {
+            var test = GetPublicTestEntity(testId);
+            if (test == null)
+            {
+                return null;
+            }
+
+            var attempts = _context.CbtAttempts
+                .Include(x => x.AssessmentRegistration)
+                .Where(x => x.CbtTestId == testId && x.IsSubmitted)
+                .ToList();
+
+            var total = attempts.Count;
+            var passed = attempts.Count(x => x.Passed);
+            var failed = total - passed;
+
+            return new CbtAnalyticsViewModel
+            {
+                CbtTestId = test.Id,
+                TestTitle = test.Title,
+                TotalAttempts = total,
+                PassedCount = passed,
+                FailedCount = failed,
+                AverageScore = total == 0 ? 0 : Math.Round(attempts.Average(x => x.Score), 2),
+                PassRate = total == 0 ? 0 : Math.Round((decimal)passed / total * 100, 2),
+                FailRate = total == 0 ? 0 : Math.Round((decimal)failed / total * 100, 2),
+                TotalMarks = test.TotalMarks,
+                PassMark = test.PassMark,
+                Attempts = attempts.Select(MapAttemptSummary).ToList()
+            };
+        }
+
+        public (bool Success, string Message, int? AttemptId) StartPublicAttempt(int registrationId)
+        {
+            var registration = _context.AssessmentRegistrations
+                .Include(x => x.CbtTest)
+                .ThenInclude(x => x!.Questions)
+                .FirstOrDefault(x => x.Id == registrationId);
+
+            if (registration?.CbtTest == null || !registration.IsPaid)
+            {
+                return (false, "Payment has not been completed for this assessment.", null);
+            }
+
+            var test = registration.CbtTest;
+            var now = DateTime.Now;
+            if (!test.Active || !test.IsPublished || !test.IsPublicAssessment)
+            {
+                return (false, "This assessment is not available.", null);
+            }
+
+            if (now < test.StartDateTime || now > test.EndDateTime)
+            {
+                return (false, "This assessment is not available at the current time.", null);
+            }
+
+            if (!test.Questions.Any(x => x.Active))
+            {
+                return (false, "This assessment has no questions yet.", null);
+            }
+
+            if (registration.AttemptId.HasValue)
+            {
+                var existing = _context.CbtAttempts.FirstOrDefault(x => x.Id == registration.AttemptId.Value);
+                if (existing != null)
+                {
+                    if (existing.IsSubmitted)
+                    {
+                        return (false, "You have already completed this assessment. Please pay again to start a new attempt.", existing.Id);
+                    }
+
+                    if (IsAttemptExpired(existing, test))
+                    {
+                        SubmitAttemptInternal(existing, test, new List<CbtStudentAnswerViewModel>(), autoSubmitted: true);
+                        _context.SaveChanges();
+                        return (false, "Your assessment time has expired and cannot be retaken unless you pay again.", existing.Id);
+                    }
+
+                    return (true, "Resuming assessment.", existing.Id);
+                }
+            }
+
+            var attempt = new CbtAttempt
+            {
+                CbtTestId = test.Id,
+                StudentUserId = null,
+                AssessmentRegistrationId = registration.Id,
+                StartedAt = DateTime.Now,
+                TotalMarks = test.TotalMarks,
+                IsSubmitted = false,
+                AutoSubmitted = false
+            };
+
+            _context.CbtAttempts.Add(attempt);
+            _context.SaveChanges();
+
+            registration.AttemptId = attempt.Id;
+            registration.HasOpenedQuiz = true;
+            _context.SaveChanges();
+
+            return (true, "Assessment started.", attempt.Id);
+        }
+
+        public CbtAttemptViewModel? GetPublicAttemptForTaking(int attemptId, Guid accessToken)
+        {
+            var attempt = _context.CbtAttempts
+                .Include(x => x.CbtTest)
+                .ThenInclude(x => x!.Questions)
+                .Include(x => x.AssessmentRegistration)
+                .FirstOrDefault(x =>
+                    x.Id == attemptId &&
+                    x.AssessmentRegistration != null &&
+                    x.AssessmentRegistration.AccessToken == accessToken);
+
+            if (attempt?.CbtTest == null || attempt.IsSubmitted || attempt.AssessmentRegistration == null)
+            {
+                return null;
+            }
+
+            var test = attempt.CbtTest;
+            if (IsAttemptExpired(attempt, test))
+            {
+                SubmitAttemptInternal(attempt, test, new List<CbtStudentAnswerViewModel>(), autoSubmitted: true);
+                _context.SaveChanges();
+                return null;
+            }
+
+            var questions = test.Questions.Where(x => x.Active).OrderBy(x => x.SortOrder).ToList();
+            if (test.ShuffleQuestions)
+            {
+                var rng = new Random(attempt.Id);
+                questions = questions.OrderBy(_ => rng.Next()).ToList();
+            }
+
+            return new CbtAttemptViewModel
+            {
+                Id = attempt.Id,
+                CbtTestId = test.Id,
+                TestTitle = test.Title,
+                StartedAt = attempt.StartedAt,
+                DurationMinutes = test.DurationMinutes,
+                RemainingSeconds = GetRemainingSeconds(attempt, test),
+                Instructions = test.Instructions,
+                Questions = questions.Select(q => MapQuestion(q, false, true, test.ShuffleOptions, attempt.Id)).ToList()
+            };
+        }
+
+        public async Task<(bool Success, string Message, CbtAttemptViewModel? Result)> SubmitPublicAttemptAsync(
+            int attemptId,
+            Guid accessToken,
+            List<CbtStudentAnswerViewModel> answers,
+            bool autoSubmitted)
+        {
+            var attempt = await _context.CbtAttempts
+                .Include(x => x.CbtTest)
+                .ThenInclude(x => x!.Questions)
+                .Include(x => x.AssessmentRegistration)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == attemptId &&
+                    x.AssessmentRegistration != null &&
+                    x.AssessmentRegistration.AccessToken == accessToken)
+                .ConfigureAwait(false);
+
+            if (attempt?.CbtTest == null)
+            {
+                return (false, "Attempt not found.", null);
+            }
+
+            if (attempt.IsSubmitted)
+            {
+                return (false, "This attempt has already been submitted.", GetPublicAttemptResult(attemptId, accessToken));
+            }
+
+            SubmitAttemptInternal(attempt, attempt.CbtTest, answers ?? new List<CbtStudentAnswerViewModel>(), autoSubmitted);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return (true, autoSubmitted ? "Assessment auto-submitted." : "Assessment submitted successfully.", GetPublicAttemptResult(attemptId, accessToken));
+        }
+
+        public CbtAttemptViewModel? GetPublicAttemptResult(int attemptId, Guid accessToken)
+        {
+            var attempt = _context.CbtAttempts
+                .Include(x => x.CbtTest)
+                .Include(x => x.Answers)
+                .ThenInclude(x => x.CbtQuestion)
+                .Include(x => x.AssessmentRegistration)
+                .FirstOrDefault(x =>
+                    x.Id == attemptId &&
+                    x.IsSubmitted &&
+                    x.AssessmentRegistration != null &&
+                    x.AssessmentRegistration.AccessToken == accessToken);
+
+            if (attempt?.CbtTest == null)
+            {
+                return null;
+            }
+
+            var vm = MapAttemptSummary(attempt);
+            vm.PassMark = attempt.CbtTest.PassMark;
+            vm.Answers = attempt.Answers.Select(a => new CbtStudentAnswerViewModel
+            {
+                QuestionId = a.CbtQuestionId,
+                SelectedAnswer = a.SelectedAnswer,
+                IsCorrect = a.IsCorrect,
+                MarksAwarded = a.MarksAwarded,
+                CorrectAnswer = a.CbtQuestion?.CorrectAnswer,
+                Explanation = a.CbtQuestion?.Explanation
+            }).ToList();
+
+            return vm;
+        }
+
+        private CbtTest? GetPublicTestEntity(int testId, bool includeQuestions = false)
+        {
+            IQueryable<CbtTest> query = _context.CbtTests;
+            if (includeQuestions)
+            {
+                query = query.Include(x => x.Questions);
+            }
+
+            return query.FirstOrDefault(x => x.Id == testId && x.Active && x.IsPublicAssessment);
+        }
+
         private void SubmitAttemptInternal(CbtAttempt attempt, CbtTest test, List<CbtStudentAnswerViewModel> answers, bool autoSubmitted)
         {
             var questions = test.Questions.Where(x => x.Active).ToList();
@@ -740,6 +1257,7 @@ namespace Logic.Helpers
                 Description = test.Description,
                 DepartmentId = test.DepartmentId,
                 DepartmentName = test.Department?.Name,
+                IsPublicAssessment = test.IsPublicAssessment,
                 CreatedByUserId = test.CreatedByUserId,
                 StaffName = test.CreatedBy == null ? null : $"{test.CreatedBy.FirstName} {test.CreatedBy.LastName}".Trim(),
                 DurationMinutes = test.DurationMinutes,
@@ -828,8 +1346,10 @@ namespace Logic.Helpers
                 CbtTestId = attempt.CbtTestId,
                 TestTitle = attempt.CbtTest?.Title,
                 StudentUserId = attempt.StudentUserId,
-                StudentName = attempt.Student == null ? null : $"{attempt.Student.FirstName} {attempt.Student.LastName}".Trim(),
-                StudentEmail = attempt.Student?.Email,
+                StudentName = attempt.Student == null
+                    ? attempt.AssessmentRegistration?.Email
+                    : $"{attempt.Student.FirstName} {attempt.Student.LastName}".Trim(),
+                StudentEmail = attempt.Student?.Email ?? attempt.AssessmentRegistration?.Email,
                 StartedAt = attempt.StartedAt,
                 SubmittedAt = attempt.SubmittedAt,
                 Score = attempt.Score,
@@ -906,7 +1426,11 @@ namespace Logic.Helpers
                 query = query.Include(x => x.Questions);
             }
 
-            return query.FirstOrDefault(x => x.Id == testId && x.Active && x.DepartmentId == staff.DepartmentId);
+            return query.FirstOrDefault(x =>
+                x.Id == testId &&
+                x.Active &&
+                !x.IsPublicAssessment &&
+                x.DepartmentId == staff.DepartmentId);
         }
     }
 }

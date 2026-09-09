@@ -4,6 +4,7 @@ using Core.Models;
 using Core.ViewModels;
 using Logic.IHelpers;
 using Logic.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,12 +20,18 @@ namespace Logic.Helpers
         private readonly AppDbContext _context;
         private readonly IGeneralConfiguration _generalConfiguration;
         private readonly IEmailService _emailService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public SuperAdminHelper(AppDbContext context, IGeneralConfiguration generalConfiguration, IEmailService emailService)
+        public SuperAdminHelper(
+            AppDbContext context,
+            IGeneralConfiguration generalConfiguration,
+            IEmailService emailService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _generalConfiguration = generalConfiguration;
             _emailService = emailService;
+            _userManager = userManager;
         }
 
         public bool CheckExistingDeptName(string name)
@@ -659,7 +666,8 @@ namespace Logic.Helpers
                     Identification = x.Identification,
                     Resume = x.Resume,
                     Active = x.Active,
-                    DepartmentName = x.Users.Department.Name,
+                    DepartmentName = x.Users.Department != null ? x.Users.Department.Name : null,
+                    DepartmentId = x.Users.DepartmentId,
                 }).OrderByDescending(o => o.DateCreated).ToList();
                 foreach (var item in result)
                 {
@@ -810,6 +818,138 @@ namespace Logic.Helpers
                 }
             }
             return false;
+        }
+
+        public async Task<(bool Success, string Message)> ReassignStaffRoleAsync(int staffDocumentId,int newStaffPosition, int? departmentId)
+        {
+            if (staffDocumentId <= 0)
+            {
+                return (false, "Invalid staff record.");
+            }
+
+            if (!Enum.IsDefined(typeof(StaffPosition), newStaffPosition))
+            {
+                return (false, "Invalid staff role selected.");
+            }
+
+            var newPosition = (StaffPosition)newStaffPosition;
+            var staffDocument = await _context.StaffDocuments
+                .Include(x => x.Users)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == staffDocumentId &&
+                    x.Active &&
+                    x.StaffStatus == StaffStatus.Approved)
+                .ConfigureAwait(false);
+
+            if (staffDocument?.Users == null)
+            {
+                return (false, "Staff record not found.");
+            }
+
+            if (staffDocument.Users.IsStudent)
+            {
+                return (false, "Only staff accounts can be reassigned.");
+            }
+
+            if (newPosition == StaffPosition.AcademicStaff)
+            {
+                if (!departmentId.HasValue || departmentId.Value <= 0)
+                {
+                    return (false, "Please select a department for Academic Staff.");
+                }
+
+                var departmentExists = await _context.Departments
+                    .AnyAsync(x => x.Id == departmentId.Value && x.Active && !x.Deleted)
+                    .ConfigureAwait(false);
+
+                if (!departmentExists)
+                {
+                    return (false, "Selected department was not found.");
+                }
+            }
+
+            var user = await _userManager.FindByIdAsync(staffDocument.UserId!).ConfigureAwait(false);
+            if (user == null)
+            {
+                return (false, "Staff user account not found.");
+            }
+
+            var newRoleName = GetRoleNameForStaffPosition(newPosition);
+            if (string.IsNullOrWhiteSpace(newRoleName))
+            {
+                return (false, "Unable to map the selected role.");
+            }
+
+            var currentRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            if (currentRoles.Any(role => role.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase)))
+            {
+                return (false, "Super Admin accounts cannot be reassigned from this page.");
+            }
+
+            if (currentRoles.Count == 1 &&
+                currentRoles[0].Equals(newRoleName, StringComparison.OrdinalIgnoreCase) &&
+                staffDocument.StaffPosition == newPosition &&
+                user.DepartmentId == (newPosition == StaffPosition.AcademicStaff ? departmentId : null))
+            {
+                return (false, "Staff member already has this role.");
+            }
+
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles).ConfigureAwait(false);
+            if (!removeResult.Succeeded)
+            {
+                return (false, "Unable to remove the staff member's current role.");
+            }
+
+            var addResult = await _userManager.AddToRoleAsync(user, newRoleName).ConfigureAwait(false);
+            if (!addResult.Succeeded)
+            {
+                if (currentRoles.Count > 0)
+                {
+                    await _userManager.AddToRolesAsync(user, currentRoles).ConfigureAwait(false);
+                }
+
+                return (false, "Unable to assign the new role.");
+            }
+
+            user.StaffType = newPosition == StaffPosition.AcademicStaff
+                ? StaffType.AcademicStaff
+                : StaffType.NonAcademicStaff;
+            user.DepartmentId = newPosition == StaffPosition.AcademicStaff ? departmentId : null;
+            user.DateModified = DateTime.Now;
+            user.IsAdmin = true;
+            user.IsStudent = false;
+
+            staffDocument.StaffPosition = newPosition;
+
+            _context.StaffDocuments.Update(staffDocument);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+
+            var updateUserResult = await _userManager.UpdateAsync(user).ConfigureAwait(false);
+            if (!updateUserResult.Succeeded)
+            {
+                return (false, "Role was updated but staff profile could not be saved.");
+            }
+
+            return (true, "Staff role reassigned successfully.");
+        }
+
+        private static string? GetRoleNameForStaffPosition(StaffPosition position)
+        {
+            return position switch
+            {
+                StaffPosition.AcademicStaff => "AcademicStaff",
+                StaffPosition.HumanResource => "HumanResourceOfficer",
+                StaffPosition.ViceChancellorAcademics => "AcademicStaff",
+                StaffPosition.AdmissionOfficer => "AdmissionOfficer",
+                StaffPosition.LibrarianOfficer => "LibrarianOfficer",
+                StaffPosition.AccountOfficer => "AccountOfficer",
+                StaffPosition.MarketingOfficer => "MarketingOfficer",
+                StaffPosition.ExamsOfficer => "AcademicStaff",
+                StaffPosition.BusinessDevOfficer => "MarketingOfficer",
+                StaffPosition.PublicRelOfficer => "MarketingOfficer",
+                StaffPosition.ViceChancellorStudentAffairs => "HumanResourceOfficer",
+                _ => null
+            };
         }
 
         //public int GetTotalAcademicStaff()

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Models
 {
@@ -15,5 +10,11 @@ namespace Core.Models
         public int DepartmentId { get; set; }
         [ForeignKey("DepartmentId")]
         public virtual Department? Departments { get; set; }
+        public string? CreatedByUserId { get; set; }
+        [ForeignKey("CreatedByUserId")]
+        public virtual ApplicationUser? CreatedBy { get; set; }
+        public string? FilePath { get; set; }
+        public decimal TotalMarks { get; set; }
+        public virtual ICollection<AssignmentSubmission> Submissions { get; set; } = new List<AssignmentSubmission>();
     }
 }

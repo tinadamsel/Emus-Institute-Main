@@ -1,0 +1,80 @@
+@model IEnumerable<Core.ViewModels.StudyCenterViewModel>
+
+@{
+    ViewData["Title"] = "Pending Study Centers";
+    Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Pending Study Centers</h1>
+            <p class="sa-page-sub">Review and approve or decline submitted study centers.</p>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="sa-list-card sa-table-wrap table-responsive">
+                <table class="table table-hover table-striped custom-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Country</th>
+                            <th>Contact Person</th>
+                            <th>Date Submitted</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    @if (Model != null && Model.Any())
+                    {
+                        <tbody>
+                            @foreach (var center in Model)
+                            {
+                                <tr style="font-size:small;">
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(center.ImagePath))
+                                        {
+                                            <img src="@center.ImagePath" alt="@center.Name" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" />
+                                        }
+                                    </td>
+                                    <td>@center.Name</td>
+                                    <td>@center.Address</td>
+                                    <td>@center.Country</td>
+                                    <td>@center.ContactPerson</td>
+                                    <td>@center.DateCreated.ToString("D")</td>
+                                    <td class="text-center">
+                                        <div class="sa-row-actions my-2">
+                                            <a class="btn btn-outline-success rounded-pill mx-1" onclick="approveStudyCenter('@center.Id')">
+                                                Approve
+                                            </a>
+                                            <a class="btn btn-outline-danger rounded-pill" onclick="declineStudyCenter('@center.Id')">
+                                                Decline
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
+                    else
+                    {
+                        <tbody>
+                            <tr>
+                                <td colspan="7">
+                                    <div class="sa-empty-state">
+                                        <i class="bi bi-building"></i>
+                                        <h6>No pending study centers</h6>
+                                        <p>New submissions will appear here for review.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

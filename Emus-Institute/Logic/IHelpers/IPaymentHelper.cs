@@ -10,6 +10,7 @@ namespace Logic.IHelpers
     public interface IPaymentHelper
     {
         Task<PaystackResponse> CreateStudentPayment(string UserId, ApplicationUser user);
+        Task<PaystackResponse> CreateAssessmentPayment(AssessmentRegistration registration, decimal amountNgn);
     }
 }
     

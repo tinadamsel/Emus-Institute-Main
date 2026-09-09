@@ -5,8 +5,9 @@ namespace Core.ViewModels
         public int Id { get; set; }
         public string Title { get; set; }
         public string? Description { get; set; }
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         public string? DepartmentName { get; set; }
+        public bool IsPublicAssessment { get; set; }
         public string? CreatedByUserId { get; set; }
         public string? StaffName { get; set; }
         public int DurationMinutes { get; set; }

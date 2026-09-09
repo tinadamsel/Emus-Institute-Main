@@ -1,8 +1,10 @@
 ﻿@inject Logic.IHelpers.IUserHelper _userHelper
+@inject Logic.IHelpers.IPublicAssessmentHelper _publicAssessmentHelper
 
 @{ 
    var user = _userHelper.FindByUserName(User?.Identity?.Name); 
    var userRole = _userHelper.GetUserRole(user?.Id); 
+   var showAssessmentTab = _publicAssessmentHelper.HasPublishedPublicAssessment();
 } 
 
 <!DOCTYPE html>
@@ -142,6 +144,11 @@
                 <a asp-controller="Home" asp-action="Index" class="nav-item nav-link">Home</a>
                 <a asp-controller="Home" asp-action="About" class="nav-item nav-link">About</a>
                 <a asp-controller="Home" asp-action="Courses" class="nav-item nav-link">Courses</a>
+                <a asp-controller="Home" asp-action="StudyCenters" class="nav-item nav-link">Study Centers</a>
+                @if (showAssessmentTab)
+                {
+                    <a asp-controller="Home" asp-action="Assessment" class="nav-item nav-link">Take Assessment</a>
+                }
                 <a asp-controller="Account" asp-action="CohortRegistration" class="nav-item nav-link">Cohort</a>
                 <a asp-controller="Home" asp-action="Contact" class="nav-item nav-link">Contact</a>
                 <a asp-controller="Account" asp-action="Careers" class="nav-item nav-link">Careers</a>
@@ -232,7 +239,7 @@
                                 <i class="fa fa-phone me-3 mx-3"></i>
                             </div>
                             <div class="ms-2">
-                                <p class="mb-2 text-start"> +44 7466500360.</p>
+                                <p class="mb-2 text-start"> +44 7400947614.</p>
                             </div>
                         </div>
                         <div class="d-flex align-items-start">

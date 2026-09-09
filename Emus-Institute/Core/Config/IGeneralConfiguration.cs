@@ -18,5 +18,8 @@ namespace Core.Config
         public decimal StudentEvaluationAmountNgn { get; set; }
         public decimal CohortEvaluationAmountNgn { get; set; }
         public string SiteBaseUrl { get; set; }
+        public string AssessmentCallbackUrl { get; set; }
+        public decimal AssessmentAmountGbp { get; set; }
+        public decimal AssessmentAmountNgn { get; set; }
     }
 }

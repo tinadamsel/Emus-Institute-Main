@@ -22,6 +22,7 @@ namespace e_college.Controllers
         private readonly ILiveSessionHelper _liveSessionHelper;
         private readonly ICbtHelper _cbtHelper;
         private readonly IAnnouncementHelper _announcementHelper;
+        private readonly IAssignmentHelper _assignmentHelper;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         public AcademicStaffController(
@@ -35,6 +36,7 @@ namespace e_college.Controllers
             ILiveSessionHelper liveSessionHelper,
             ICbtHelper cbtHelper,
             IAnnouncementHelper announcementHelper,
+            IAssignmentHelper assignmentHelper,
             IWebHostEnvironment webHostEnvironment)
         {
             _signInManager = signInManager;
@@ -47,6 +49,7 @@ namespace e_college.Controllers
             _liveSessionHelper = liveSessionHelper;
             _cbtHelper = cbtHelper;
             _announcementHelper = announcementHelper;
+            _assignmentHelper = assignmentHelper;
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -61,6 +64,7 @@ namespace e_college.Controllers
                 model.TotalReferredStudents = referralStats.ReferredCount;
                 model.ReferralEarnings = referralStats.TotalEarnings;
                 model.TotalDepartmentTextbooks = _textbookHelper.GetStaffDepartmentTextbooks(currentUser.Id).Count;
+                model.TotalAssignments = _assignmentHelper.GetStaffAssignmentCount(currentUser.Id);
             }
             return View(model);
         }
@@ -630,6 +634,151 @@ namespace e_college.Controllers
             {
                 return Json(new { isError = true, msg = ex.Message });
             }
+        }
+
+        [HttpGet]
+        public IActionResult Assignments()
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            ViewBag.DepartmentName = currentUser.Department?.Name
+                ?? _context.Departments.FirstOrDefault(d => d.Id == currentUser.DepartmentId)?.Name
+                ?? "Your department";
+            return View(_assignmentHelper.GetStaffDepartmentAssignments(currentUser.Id));
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> CreateAssignment(string name, string description, string validUntilDate, decimal totalMarks, IFormFile? file)
+        {
+            try
+            {
+                var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+                if (currentUser == null)
+                {
+                    return Json(new { isError = true, msg = "Please login again." });
+                }
+
+                if (!DateTime.TryParse(validUntilDate, out var dueDate))
+                {
+                    return Json(new { isError = true, msg = "Please enter a valid due date." });
+                }
+
+                var model = new AssignmentViewModel
+                {
+                    Name = name,
+                    Description = description,
+                    ValidUntilDate = dueDate,
+                    TotalMarks = totalMarks
+                };
+
+                var result = await _assignmentHelper.CreateAssignmentAsync(
+                    model, file, currentUser.Id, _webHostEnvironment.WebRootPath).ConfigureAwait(false);
+                return Json(new { isError = !result.Success, msg = result.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult AssignmentSubmissions(int id)
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var page = _assignmentHelper.GetAssignmentSubmissions(id, currentUser.Id);
+            if (page == null)
+            {
+                return NotFound();
+            }
+
+            return View(page);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> GradeAssignment(int submissionId, decimal score, string? feedback)
+        {
+            try
+            {
+                var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+                if (currentUser == null)
+                {
+                    return Json(new { isError = true, msg = "Please login again." });
+                }
+
+                var result = await _assignmentHelper.GradeSubmissionAsync(
+                    submissionId, score, feedback, currentUser.Id).ConfigureAwait(false);
+                return Json(new { isError = !result.Success, msg = result.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult DownloadAssignmentFile(int id)
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var assignment = _assignmentHelper.GetAssignmentFileForDownload(id, currentUser.Id, isStaff: true);
+            if (assignment == null)
+            {
+                return NotFound();
+            }
+
+            return ServeUploadedFile(assignment.FilePath, assignment.Name);
+        }
+
+        [HttpGet]
+        public IActionResult DownloadAssignmentSubmission(int id)
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var submission = _assignmentHelper.GetSubmissionFileForDownload(id, currentUser.Id, isStaff: true);
+            if (submission == null)
+            {
+                return NotFound();
+            }
+
+            return ServeUploadedFile(submission.FilePath, submission.OriginalFileName);
+        }
+
+        private IActionResult ServeUploadedFile(string? relativePath, string? downloadName)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath))
+            {
+                return NotFound();
+            }
+
+            var absolutePath = Path.Combine(
+                _webHostEnvironment.WebRootPath,
+                relativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+            if (!System.IO.File.Exists(absolutePath))
+            {
+                return NotFound();
+            }
+
+            var fileName = string.IsNullOrWhiteSpace(downloadName)
+                ? Path.GetFileName(absolutePath)
+                : Path.GetFileName(downloadName);
+            return PhysicalFile(absolutePath, "application/octet-stream", fileName);
         }
     }
 }

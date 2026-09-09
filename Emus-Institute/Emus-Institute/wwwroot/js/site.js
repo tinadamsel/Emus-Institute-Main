@@ -1634,3 +1634,593 @@ function createAnnouncement() {
     });
 }
 
+function showStudyCenterDetails(card) {
+    var name = card.getAttribute('data-name') || '';
+    var address = card.getAttribute('data-address') || '';
+    var country = card.getAttribute('data-country') || '';
+    var contact = card.getAttribute('data-contact') || '';
+    var image = card.getAttribute('data-image') || '/assets/img/about.jpg';
+
+    document.getElementById('studyCenterModalName').textContent = name;
+    document.getElementById('studyCenterModalAddress').textContent = address;
+    document.getElementById('studyCenterModalCountry').textContent = country;
+    document.getElementById('studyCenterModalContact').textContent = contact;
+    document.getElementById('studyCenterModalImage').src = image;
+    document.getElementById('studyCenterModalImage').alt = name;
+}
+
+function submitStudyCenter() {
+    var defaultBtnValue = $('#submit_study_center_btn').html();
+    $('#submit_study_center_btn').html("Please wait...");
+    $('#submit_study_center_btn').attr("disabled", true);
+
+    var name = $('#studyCenter_Name').val();
+    var address = $('#studyCenter_Address').val();
+    var country = $('#studyCenter_Country').val();
+    var contactPerson = $('#studyCenter_ContactPerson').val();
+    var imageFile = $('#studyCenter_Image')[0].files[0];
+
+    if (!name || !address || !country || !contactPerson) {
+        $('#submit_study_center_btn').html(defaultBtnValue);
+        $('#submit_study_center_btn').attr("disabled", false);
+        errorAlert("Please fill in all required fields.");
+        return;
+    }
+
+    if (!imageFile) {
+        $('#submit_study_center_btn').html(defaultBtnValue);
+        $('#submit_study_center_btn').attr("disabled", false);
+        errorAlert("Please upload an image for the study center.");
+        return;
+    }
+
+    var formData = new FormData();
+    formData.append("name", name);
+    formData.append("address", address);
+    formData.append("country", country);
+    formData.append("contactPerson", contactPerson);
+    formData.append("imageFile", imageFile);
+
+    $.ajax({
+        type: 'POST',
+        url: '/Home/SubmitStudyCenter',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            if (!result.isError) {
+                successAlertWithRedirect(result.msg, '/Home/StudyCenters');
+            } else {
+                $('#submit_study_center_btn').html(defaultBtnValue);
+                $('#submit_study_center_btn').attr("disabled", false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            $('#submit_study_center_btn').html(defaultBtnValue);
+            $('#submit_study_center_btn').attr("disabled", false);
+            errorAlert("Unable to submit study center. Please try again.");
+        }
+    });
+}
+
+function approveStudyCenter(id) {
+    $.ajax({
+        type: 'POST',
+        url: '/SuperAdmin/ApproveStudyCenter',
+        dataType: 'json',
+        data: { id: id },
+        success: function (result) {
+            if (!result.isError) {
+                successAlertWithRedirect(result.msg, '/SuperAdmin/PendingStudyCenters');
+            } else {
+                errorAlert(result.msg);
+            }
+        },
+        error: function (ex) {
+            errorAlert("Something went wrong, contact support - " + ex);
+        }
+    });
+}
+
+function declineStudyCenter(id) {
+    $.ajax({
+        type: 'POST',
+        url: '/SuperAdmin/DeclineStudyCenter',
+        dataType: 'json',
+        data: { id: id },
+        success: function (result) {
+            if (!result.isError) {
+                successAlertWithRedirect(result.msg, '/SuperAdmin/PendingStudyCenters');
+            } else {
+                errorAlert(result.msg);
+            }
+        },
+        error: function (ex) {
+            errorAlert("Please contact support - " + ex);
+        }
+    });
+}
+
+function submitContactMessage() {
+    var defaultBtnValue = $('#submit_contact_btn').html();
+    $('#submit_contact_btn').html("Please wait...");
+    $('#submit_contact_btn').attr("disabled", true);
+
+    var name = $('#contact_name').val();
+    var email = $('#contact_email').val();
+    var subject = $('#contact_subject').val();
+    var message = $('#contact_message').val();
+
+    if (!name || !email || !subject || !message) {
+        $('#submit_contact_btn').html(defaultBtnValue);
+        $('#submit_contact_btn').attr("disabled", false);
+        errorAlert("Please fill in all fields.");
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/Home/SubmitContactMessage',
+        dataType: 'json',
+        data: {
+            name: name,
+            email: email,
+            subject: subject,
+            message: message
+        },
+        success: function (result) {
+            $('#submit_contact_btn').html(defaultBtnValue);
+            $('#submit_contact_btn').attr("disabled", false);
+
+            if (!result.isError) {
+                successAlert(result.msg);
+                $('#contact_name').val('');
+                $('#contact_email').val('');
+                $('#contact_subject').val('');
+                $('#contact_message').val('');
+            } else {
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            $('#submit_contact_btn').html(defaultBtnValue);
+            $('#submit_contact_btn').attr("disabled", false);
+            errorAlert("Unable to send your message. Please try again.");
+        }
+    });
+}
+
+var academicStaffPositionValue = 11;
+
+$(document).on('click', '.reassign-role-btn', function () {
+    openReassignStaffRoleModal(
+        $(this).data('staff-id'),
+        $(this).data('staff-position'),
+        $(this).data('department-id'),
+        $(this).data('staff-name')
+    );
+});
+
+function openReassignStaffRoleModal(staffId, currentPosition, departmentId, staffName) {
+    $('#reassign_staff_id').val(staffId);
+    $('#reassign_staff_name').text(staffName || '');
+    $('#reassign_staff_position').val(currentPosition);
+    $('#reassign_department_id').val(departmentId > 0 ? departmentId : '');
+    toggleReassignDepartmentField();
+    $('#reassign_staff_role_modal').modal('show');
+}
+
+function toggleReassignDepartmentField() {
+    var position = $('#reassign_staff_position').val();
+    if (position == academicStaffPositionValue) {
+        $('#reassign_department_group').show();
+    } else {
+        $('#reassign_department_group').hide();
+        $('#reassign_department_id').val('');
+    }
+}
+
+function reassignStaffRole() {
+    var defaultBtnValue = $('#reassign_staff_role_btn').html();
+    $('#reassign_staff_role_btn').html("Please wait...");
+    $('#reassign_staff_role_btn').attr("disabled", true);
+
+    var staffDocumentId = $('#reassign_staff_id').val();
+    var newStaffPosition = $('#reassign_staff_position').val();
+    var departmentId = $('#reassign_department_id').val();
+
+    if (!staffDocumentId || !newStaffPosition) {
+        $('#reassign_staff_role_btn').html(defaultBtnValue);
+        $('#reassign_staff_role_btn').attr("disabled", false);
+        errorAlert("Please select a role.");
+        return;
+    }
+
+    if (newStaffPosition == academicStaffPositionValue && !departmentId) {
+        $('#reassign_staff_role_btn').html(defaultBtnValue);
+        $('#reassign_staff_role_btn').attr("disabled", false);
+        errorAlert("Please select a department for Academic Staff.");
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/SuperAdmin/ReassignStaffRole',
+        dataType: 'json',
+        data: {
+            staffDocumentId: staffDocumentId,
+            newStaffPosition: newStaffPosition,
+            departmentId: departmentId || null
+        },
+        success: function (result) {
+            $('#reassign_staff_role_btn').html(defaultBtnValue);
+            $('#reassign_staff_role_btn').attr("disabled", false);
+
+            if (!result.isError) {
+                $('#reassign_staff_role_modal').modal('hide');
+                successAlertWithRedirect(result.msg, '/SuperAdmin/ApprovedStaff');
+            } else {
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            $('#reassign_staff_role_btn').html(defaultBtnValue);
+            $('#reassign_staff_role_btn').attr("disabled", false);
+            errorAlert("Unable to reassign staff role. Please try again.");
+        }
+    });
+}
+
+function savePublicAssessment(isUpdate) {
+    var btn = isUpdate ? $('#update_public_cbt_btn') : $('#create_public_cbt_btn');
+    var defaultBtnValue = btn.html();
+    btn.html('Please wait...').attr('disabled', true);
+
+    var payload = {
+        id: parseInt($('#cbt_Id').val(), 10) || 0,
+        title: $('#cbt_Title').val(),
+        description: $('#cbt_Description').val(),
+        durationMinutes: $('#cbt_Duration').val(),
+        startDateTime: $('#cbt_Start').val(),
+        endDateTime: $('#cbt_End').val(),
+        passMark: $('#cbt_PassMark').val(),
+        markPerQuestion: $('#cbt_MarkPerQuestion').val(),
+        shuffleQuestions: $('#cbt_ShuffleQuestions').is(':checked'),
+        shuffleOptions: $('#cbt_ShuffleOptions').is(':checked'),
+        isPublished: $('#cbt_Published').is(':checked'),
+        instructions: $('#cbt_Instructions').val()
+    };
+
+    if (!payload.title) {
+        btn.html(defaultBtnValue).attr('disabled', false);
+        errorAlert('Please enter an assessment title');
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: isUpdate ? '/SuperAdmin/UpdatePublicAssessment' : '/SuperAdmin/CreatePublicAssessment',
+        dataType: 'json',
+        data: payload,
+        success: function (result) {
+            if (!result.isError) {
+                var redirect = isUpdate
+                    ? '/SuperAdmin/EditPublicAssessment?id=' + payload.id
+                    : '/SuperAdmin/ManagePublicAssessmentQuestions?id=' + (result.testId || payload.id);
+                successAlertWithRedirect(result.msg, redirect);
+            } else {
+                btn.html(defaultBtnValue).attr('disabled', false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            btn.html(defaultBtnValue).attr('disabled', false);
+            errorAlert('Unable to save assessment. Please try again.');
+        }
+    });
+}
+
+function deletePublicAssessment(id) {
+    Swal.fire({
+        title: 'Delete assessment?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Delete'
+    }).then(function (res) {
+        if (!res.isConfirmed) return;
+        $.ajax({
+            type: 'POST',
+            url: '/SuperAdmin/DeletePublicAssessment',
+            dataType: 'json',
+            data: { id: id },
+            success: function (result) {
+                if (!result.isError) successAlertWithRedirect(result.msg, '/SuperAdmin/PublicAssessments');
+                else errorAlert(result.msg);
+            },
+            error: function () { errorAlert('Unable to delete assessment.'); }
+        });
+    });
+}
+
+function savePublicCbtQuestion() {
+    var btn = $('#save_question_btn');
+    var defaultBtnValue = btn.html();
+    btn.html('Please wait...').attr('disabled', true);
+
+    var formData = new FormData();
+    formData.append('cbtTestId', $('#q_TestId').val());
+    formData.append('questionId', $('#q_Id').val() || 0);
+    formData.append('questionType', $('#q_Type').val());
+    formData.append('questionText', $('#q_Text').val());
+    formData.append('optionA', $('#q_OptionA').val());
+    formData.append('optionB', $('#q_OptionB').val());
+    formData.append('optionC', $('#q_OptionC').val());
+    formData.append('optionD', $('#q_OptionD').val());
+    formData.append('correctAnswer', $('#q_Correct').val());
+    formData.append('marks', $('#q_Marks').val());
+    formData.append('explanation', $('#q_Explanation').val());
+    var imageFile = $('#q_Image')[0].files[0];
+    if (imageFile) formData.append('imageFile', imageFile);
+
+    if (!$('#q_Text').val()) {
+        btn.html(defaultBtnValue).attr('disabled', false);
+        errorAlert('Question text is required');
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/SuperAdmin/SavePublicCbtQuestion',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            if (!result.isError) {
+                successAlertWithRedirect(result.msg, window.location.pathname + window.location.search);
+            } else {
+                btn.html(defaultBtnValue).attr('disabled', false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            btn.html(defaultBtnValue).attr('disabled', false);
+            errorAlert('Unable to save question.');
+        }
+    });
+}
+
+function deletePublicCbtQuestion(id) {
+    Swal.fire({
+        title: 'Delete question?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Delete'
+    }).then(function (res) {
+        if (!res.isConfirmed) return;
+        $.ajax({
+            type: 'POST',
+            url: '/SuperAdmin/DeletePublicCbtQuestion',
+            dataType: 'json',
+            data: { id: id },
+            success: function (result) {
+                if (!result.isError) successAlertWithRedirect(result.msg, window.location.pathname + window.location.search);
+                else errorAlert(result.msg);
+            }
+        });
+    });
+}
+
+function submitAssessmentRegistration() {
+    var defaultBtnValue = $('#submit_assessment_btn').html();
+    $('#submit_assessment_btn').html('Please wait...').attr('disabled', true);
+
+    var email = $('#assessment_email').val();
+    var programType = $('#assessment_programType').val();
+    var country = $('#assessment_country').val();
+    var scholarshipType = $('#assessment_scholarshipType').val();
+
+    if (!email || !programType || !country || !scholarshipType) {
+        $('#submit_assessment_btn').html(defaultBtnValue).attr('disabled', false);
+        errorAlert('Please fill in all fields.');
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/Home/SubmitAssessmentRegistration',
+        dataType: 'json',
+        data: {
+            email: email,
+            programType: programType,
+            country: country,
+            scholarshipType: scholarshipType
+        },
+        success: function (result) {
+            if (!result.isError && result.data) {
+                successAlertWithRedirect(result.msg, result.data);
+            } else {
+                $('#submit_assessment_btn').html(defaultBtnValue).attr('disabled', false);
+                errorAlert(result.msg || 'Unable to start payment.');
+            }
+        },
+        error: function () {
+            $('#submit_assessment_btn').html(defaultBtnValue).attr('disabled', false);
+            errorAlert('Unable to submit the form. Please try again.');
+        }
+    });
+}
+
+function submitPublicCbtTest(autoSubmitted) {
+    if (window.__publicCbtSubmitted) return;
+    window.__publicCbtSubmitted = true;
+    var btn = $('#submit_cbt_btn');
+    if (btn.length) btn.prop('disabled', true);
+
+    var attemptId = parseInt($('#cbtAttemptId').val(), 10);
+    var token = $('#cbtAccessToken').val();
+    $.ajax({
+        type: 'POST',
+        url: '/Home/SubmitPublicAssessment?attemptId=' + attemptId + '&token=' + encodeURIComponent(token),
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({ answers: collectCbtAnswers(), autoSubmitted: autoSubmitted }),
+        success: function (result) {
+            if (!result.isError && result.attemptId) {
+                window.onbeforeunload = null;
+                window.location.href = '/Home/AssessmentResult?id=' + result.attemptId + '&token=' + encodeURIComponent(token);
+            } else {
+                window.__publicCbtSubmitted = false;
+                if (btn.length) btn.prop('disabled', false);
+                errorAlert(result.msg || 'Unable to submit assessment.');
+            }
+        },
+        error: function () {
+            window.__publicCbtSubmitted = false;
+            if (btn.length) btn.prop('disabled', false);
+            errorAlert('Unable to submit assessment.');
+        }
+    });
+}
+
+function createAssignment() {
+    var defaultBtnValue = $('#create_assignment_btn').html();
+    $('#create_assignment_btn').html("Please wait...");
+    $('#create_assignment_btn').attr("disabled", true);
+
+    var name = $('#assignment_Name').val();
+    var description = $('#assignment_Description').val();
+    var validUntilDate = $('#assignment_ValidUntilDate').val();
+    var totalMarks = $('#assignment_TotalMarks').val();
+    var fileInput = $('#assignment_File')[0];
+    var file = fileInput && fileInput.files.length ? fileInput.files[0] : null;
+
+    if (!name) {
+        $('#create_assignment_btn').html(defaultBtnValue);
+        $('#create_assignment_btn').attr("disabled", false);
+        errorAlert("Please enter an assignment title");
+        return;
+    }
+    if (!description) {
+        $('#create_assignment_btn').html(defaultBtnValue);
+        $('#create_assignment_btn').attr("disabled", false);
+        errorAlert("Please enter the assignment description");
+        return;
+    }
+    if (!validUntilDate) {
+        $('#create_assignment_btn').html(defaultBtnValue);
+        $('#create_assignment_btn').attr("disabled", false);
+        errorAlert("Please select a due date");
+        return;
+    }
+    if (!totalMarks || parseFloat(totalMarks) <= 0) {
+        $('#create_assignment_btn').html(defaultBtnValue);
+        $('#create_assignment_btn').attr("disabled", false);
+        errorAlert("Please enter total marks");
+        return;
+    }
+
+    var formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("validUntilDate", validUntilDate);
+    formData.append("totalMarks", totalMarks);
+    if (file) {
+        formData.append("file", file);
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/AcademicStaff/CreateAssignment',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            if (!result.isError) {
+                successAlertWithRedirect(result.msg, '/AcademicStaff/Assignments');
+            } else {
+                $('#create_assignment_btn').html(defaultBtnValue);
+                $('#create_assignment_btn').attr("disabled", false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            $('#create_assignment_btn').html(defaultBtnValue);
+            $('#create_assignment_btn').attr("disabled", false);
+            errorAlert("Unable to create assignment. Please try again.");
+        }
+    });
+}
+
+function submitAssignment() {
+    var defaultBtnValue = $('#submit_assignment_btn').html();
+    $('#submit_assignment_btn').html("Please wait...");
+    $('#submit_assignment_btn').attr("disabled", true);
+
+    var assignmentId = $('#assignment_Id').val();
+    var comment = $('#assignment_Comment').val();
+    var fileInput = $('#assignment_SubmissionFile')[0];
+    var file = fileInput && fileInput.files.length ? fileInput.files[0] : null;
+
+    var formData = new FormData();
+    formData.append("assignmentId", assignmentId);
+    formData.append("comment", comment || "");
+    if (file) {
+        formData.append("file", file);
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/Student/SubmitAssignment',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            if (!result.isError) {
+                successAlertWithRedirect(result.msg, '/Student/Assignments');
+            } else {
+                $('#submit_assignment_btn').html(defaultBtnValue);
+                $('#submit_assignment_btn').attr("disabled", false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            $('#submit_assignment_btn').html(defaultBtnValue);
+            $('#submit_assignment_btn').attr("disabled", false);
+            errorAlert("Unable to submit assignment. Please try again.");
+        }
+    });
+}
+
+function gradeAssignment(submissionId) {
+    var score = $('#grade_score_' + submissionId).val();
+    var feedback = $('#grade_feedback_' + submissionId).val();
+
+    if (score === "" || score === null) {
+        errorAlert("Please enter a score");
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/AcademicStaff/GradeAssignment',
+        dataType: 'json',
+        data: {
+            submissionId: submissionId,
+            score: score,
+            feedback: feedback
+        },
+        success: function (result) {
+            if (!result.isError) {
+                successAlertWithRedirect(result.msg, window.location.href);
+            } else {
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            errorAlert("Unable to save the grade. Please try again.");
+        }
+    });
+}
+

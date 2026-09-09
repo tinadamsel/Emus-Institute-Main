@@ -1,0 +1,107 @@
+@using static Core.DB.ECollegeEnums
+@{
+    ViewData["Title"] = "Take Assessment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var hasAssessment = ViewBag.HasAssessment as bool? == true;
+}
+
+<div class="container-fluid bg-primary py-5 mb-5 page-header">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <h1 class="display-3 text-white animated slideInDown">Take Assessment</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item"><a class="text-white" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item text-white active" aria-current="page">Assessment</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-xxl py-5">
+    <div class="container">
+        @if (TempData["AssessmentError"] != null)
+        {
+            <div class="alert alert-danger">@TempData["AssessmentError"]</div>
+        }
+
+        @if (!hasAssessment)
+        {
+            <div class="text-center py-5">
+                <h5>No assessment is available at the moment</h5>
+                <p class="text-muted">Please check back later.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="alert alert-warning">
+                        <h5 class="alert-heading">Important instructions</h5>
+                        <ul class="mb-0">
+                            <li>Use a <strong>stable internet connection</strong> throughout this process.</li>
+                            <li>The assessment fee is <strong>£6</strong>, paid via Paystack after you submit this form.</li>
+                            <li>You can take the quiz <strong>only once immediately after payment</strong>.</li>
+                            <li>If you close the test or complete it, you cannot retake it unless you start afresh and pay again.</li>
+                            <li>Keep this browser tab open until you finish. A timer will count down on the quiz page.</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <h6 class="section-title bg-white text-center text-primary px-3">Scholarship Assessment</h6>
+                        <h1 class="mb-3">@(ViewBag.TestTitle ?? "Take Assessment")</h1>
+                        @if (ViewBag.DurationMinutes != null && (int)ViewBag.DurationMinutes > 0)
+                        {
+                            <p class="text-muted">Duration: @ViewBag.DurationMinutes minutes</p>
+                        }
+                    </div>
+
+                    <form id="assessmentRegistrationForm" onsubmit="return false;">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" id="assessment_email" placeholder="Email" required />
+                                    <label for="assessment_email">Email Address</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="assessment_programType" required>
+                                        <option value="">Select program</option>
+                                        <option value="@((int)AssessmentProgramType.Undergraduate)">Undergraduate</option>
+                                        <option value="@((int)AssessmentProgramType.Graduate)">Graduate</option>
+                                    </select>
+                                    <label for="assessment_programType">Undergraduate or Graduate Program</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="assessment_country" placeholder="Country" required />
+                                    <label for="assessment_country">Country</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <select class="form-select" id="assessment_scholarshipType" required>
+                                        <option value="">Select scholarship type</option>
+                                        <option value="@((int)AssessmentScholarshipType.Partial)">Partial Scholarship</option>
+                                        <option value="@((int)AssessmentScholarshipType.Full)">Full Scholarship</option>
+                                    </select>
+                                    <label for="assessment_scholarshipType">Partial or Full Scholarship</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="button" id="submit_assessment_btn" class="btn btn-primary w-100 py-3" onclick="submitAssessmentRegistration()">
+                                    Pay £6 and Continue to Assessment
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

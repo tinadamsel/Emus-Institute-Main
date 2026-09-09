@@ -41,5 +41,6 @@ namespace Logic.IHelpers
         bool DeactivateUser(string userId);
         bool RemoveSuspension(int id);
         int GetTotalSuspendedUsers();
+        Task<(bool Success, string Message)> ReassignStaffRoleAsync(int staffDocumentId, int newStaffPosition, int? departmentId);
     }
 }

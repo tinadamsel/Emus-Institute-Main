@@ -7,9 +7,10 @@ namespace Core.Models
         public int Id { get; set; }
         public string Title { get; set; }
         public string? Description { get; set; }
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         [ForeignKey("DepartmentId")]
         public virtual Department? Department { get; set; }
+        public bool IsPublicAssessment { get; set; }
         public string CreatedByUserId { get; set; }
         [ForeignKey("CreatedByUserId")]
         public virtual ApplicationUser? CreatedBy { get; set; }

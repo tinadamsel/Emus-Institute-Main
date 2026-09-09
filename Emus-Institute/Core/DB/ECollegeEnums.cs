@@ -120,6 +120,32 @@ namespace Core.DB
             [Description("Department")]
             Department = 2,
         }
+
+        public enum StudyCenterApprovalStatus
+        {
+            [Description("Pending")]
+            Pending = 1,
+            [Description("Approved")]
+            Approved = 2,
+            [Description("Declined")]
+            Declined = 3,
+        }
+
+        public enum AssessmentProgramType
+        {
+            [Description("Undergraduate")]
+            Undergraduate = 1,
+            [Description("Graduate")]
+            Graduate = 2,
+        }
+
+        public enum AssessmentScholarshipType
+        {
+            [Description("Partial Scholarship")]
+            Partial = 1,
+            [Description("Full Scholarship")]
+            Full = 2,
+        }
         public enum PaymentStatus
         {
             [Description("For Pending")]

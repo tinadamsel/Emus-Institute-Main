@@ -34,6 +34,15 @@
             <p class="sa-stat-hint">Learning resources</p>
         </a>
 
+        <a asp-controller="AcademicStaff" asp-action="Assignments" class="sa-stat-card" data-accent="teal">
+            <p class="sa-stat-label">Assignments</p>
+            <div class="sa-stat-row">
+                <span class="sa-stat-icon"><i class="bi bi-journal-text"></i></span>
+                <p class="sa-stat-value">@Model.TotalAssignments</p>
+            </div>
+            <p class="sa-stat-hint">Create and grade student work</p>
+        </a>
+
         <a asp-controller="AcademicStaff" asp-action="EvaluateCredentials" class="sa-stat-card" data-accent="amber">
             <p class="sa-stat-label">Credential evaluation</p>
             <div class="sa-stat-row">

@@ -52,6 +52,7 @@ namespace Core.ViewModels
         public int TotalNonAcademicStaff { get; set; }
         public int TotalDepartmentTextbooks { get; set; }
         public int TotalActiveAnnouncements { get; set; }
+        public int TotalAssignments { get; set; }
         public int TotalComplains { get; set; }
         public int TotalReferredStudents { get; set; }
         public decimal ReferralEarnings { get; set; }

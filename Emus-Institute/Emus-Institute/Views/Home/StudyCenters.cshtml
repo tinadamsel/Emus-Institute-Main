@@ -1,0 +1,110 @@
+@model IEnumerable<Core.ViewModels.StudyCenterViewModel>
+
+@{
+    ViewData["Title"] = "Study Centers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid bg-primary py-5 mb-5 page-header">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <h1 class="display-3 text-white animated slideInDown">Study Centers</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item"><a class="text-white" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item text-white active" aria-current="page">Study Centers</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+            <h6 class="section-title bg-white text-center text-primary px-3">Our Network</h6>
+            <h1 class="mb-4">Approved Study Centers</h1>
+            <p class="mb-5">Explore study centers across our network. Click a center to view full details.</p>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row g-4">
+                @foreach (var center in Model)
+                {
+                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="course-item bg-light h-100 study-center-card"
+                             role="button"
+                             data-bs-toggle="modal"
+                             data-bs-target="#studyCenterModal"
+                             onclick="showStudyCenterDetails(this)"
+                             data-name="@center.Name"
+                             data-address="@center.Address"
+                             data-country="@center.Country"
+                             data-contact="@center.ContactPerson"
+                             data-image="@center.ImagePath">
+                            <div class="position-relative overflow-hidden">
+                                @if (!string.IsNullOrWhiteSpace(center.ImagePath))
+                                {
+                                    <img class="img-fluid w-100" src="@center.ImagePath" alt="@center.Name" style="height: 220px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <img class="img-fluid w-100" src="~/assets/img/about.jpg" alt="@center.Name" style="height: 220px; object-fit: cover;" />
+                                }
+                            </div>
+                            <div class="text-center p-4">
+                                <h5 class="mb-2">@center.Name</h5>
+                                <p class="mb-1 text-muted"><i class="fa fa-map-marker-alt text-primary me-2"></i>@center.Country</p>
+                                <small class="text-primary">Click to view details</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fa fa-building fa-3x text-primary mb-3"></i>
+                <h5>No approved study centers yet</h5>
+                <p class="text-muted mb-4">Check back soon or submit your center for approval.</p>
+                <a asp-controller="Home" asp-action="SubmitStudyCenter" class="btn btn-primary py-3 px-5">
+                    Submit Study Center for Approval
+                </a>
+            </div>
+        }
+
+        <div class="text-center mt-5">
+            <a asp-controller="Home" asp-action="SubmitStudyCenter" class="btn btn-outline-primary py-3 px-5">
+                Submit Study Center for Approval
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="studyCenterModal" tabindex="-1" aria-labelledby="studyCenterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studyCenterModalLabel">Study Center Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <img id="studyCenterModalImage" class="img-fluid rounded w-100" src="" alt="Study center" style="min-height: 200px; object-fit: cover;" />
+                    </div>
+                    <div class="col-md-7">
+                        <h4 id="studyCenterModalName" class="mb-3"></h4>
+                        <p class="mb-2"><strong>Address:</strong> <span id="studyCenterModalAddress"></span></p>
+                        <p class="mb-2"><strong>Country:</strong> <span id="studyCenterModalCountry"></span></p>
+                        <p class="mb-0"><strong>Contact Person:</strong> <span id="studyCenterModalContact"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

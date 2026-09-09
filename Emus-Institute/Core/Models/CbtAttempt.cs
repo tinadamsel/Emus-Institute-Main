@@ -8,9 +8,12 @@ namespace Core.Models
         public int CbtTestId { get; set; }
         [ForeignKey("CbtTestId")]
         public virtual CbtTest? CbtTest { get; set; }
-        public string StudentUserId { get; set; }
+        public string? StudentUserId { get; set; }
         [ForeignKey("StudentUserId")]
         public virtual ApplicationUser? Student { get; set; }
+        public int? AssessmentRegistrationId { get; set; }
+        [ForeignKey("AssessmentRegistrationId")]
+        public virtual AssessmentRegistration? AssessmentRegistration { get; set; }
         public DateTime StartedAt { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public decimal Score { get; set; }

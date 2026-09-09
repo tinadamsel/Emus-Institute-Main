@@ -1,0 +1,91 @@
+@model Core.ViewModels.AssignmentSubmissionsPageViewModel
+@{
+    ViewData["Title"] = "Assignment Submissions";
+    Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
+    var assignment = Model.Assignment;
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">@assignment.Name</h1>
+            <p class="sa-page-sub">Due @assignment.DueDateDisplay · @assignment.TotalMarks marks · @assignment.DepartmentName</p>
+        </div>
+        <a asp-controller="AcademicStaff" asp-action="Assignments" class="btn btn-outline-secondary">Back to assignments</a>
+    </div>
+
+    <div class="sa-list-card p-4 mb-4">
+        <p class="mb-2">@assignment.Description</p>
+        @if (!string.IsNullOrWhiteSpace(assignment.FilePath))
+        {
+            <a asp-controller="AcademicStaff" asp-action="DownloadAssignmentFile" asp-route-id="@assignment.Id" class="btn btn-sm btn-outline-primary">
+                Download brief
+            </a>
+        }
+    </div>
+
+    @if (Model.Submissions != null && Model.Submissions.Any())
+    {
+        <div class="sa-list-card sa-table-wrap">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Submitted</th>
+                        <th>File</th>
+                        <th>Score</th>
+                        <th>Feedback</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var submission in Model.Submissions)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@submission.StudentName</strong>
+                                <div class="small text-muted">@submission.StudentIdNumber</div>
+                            </td>
+                            <td class="small">@submission.SubmittedAt.ToString("MMM d, yyyy h:mm tt")</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(submission.FilePath))
+                                {
+                                    <a asp-controller="AcademicStaff" asp-action="DownloadAssignmentSubmission" asp-route-id="@submission.Id">
+                                        @(submission.OriginalFileName ?? "Download")
+                                    </a>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(submission.Comment))
+                                {
+                                    <div class="small text-muted">@submission.Comment</div>
+                                }
+                            </td>
+                            <td style="min-width:110px;">
+                                <input type="number" class="form-control form-control-sm" id="grade_score_@submission.Id"
+                                       min="0" max="@assignment.TotalMarks" step="0.5" value="@submission.Score" />
+                                <div class="small text-muted">/ @assignment.TotalMarks</div>
+                            </td>
+                            <td style="min-width:180px;">
+                                <textarea class="form-control form-control-sm" id="grade_feedback_@submission.Id" rows="2">@submission.Feedback</textarea>
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="gradeAssignment(@submission.Id)">
+                                    @(submission.IsGraded ? "Update grade" : "Grade")
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="sa-list-card">
+            <div class="sa-empty-state py-5">
+                <i class="bi bi-inbox"></i>
+                <h6>No submissions yet</h6>
+                <p>Student work will appear here after they submit on the platform.</p>
+            </div>
+        </div>
+    }
+</main>

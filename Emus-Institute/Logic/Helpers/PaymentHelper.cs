@@ -132,6 +132,48 @@ namespace Logic.Helpers
             }
         }
 
+        public async Task<PaystackResponse> CreateAssessmentPayment(AssessmentRegistration registration, decimal amountNgn)
+        {
+            var payment = new Payment
+            {
+                PaymentDate = DateTime.Now,
+                Status = PaymentStatus.Pending,
+                PaymentMethod = "Paystack",
+                UserId = null,
+                DepartmentId = null,
+                Amount = amountNgn,
+                Reference = "EmusAssessment_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                Details = "Public Assessment Payment"
+            };
+
+            var newPayment = await _context.AddAsync(payment);
+            await _context.SaveChangesAsync();
+
+            var paystackResponse = _paystackHelper.MakeAssessmentPayment(newPayment.Entity, registration.Email);
+            if (paystackResponse?.data?.authorization_url == null)
+            {
+                return paystackResponse;
+            }
+
+            registration.PaymentId = newPayment.Entity.Id;
+            _context.Update(registration);
+
+            var paystack = new PayStack
+            {
+                PaymentId = newPayment.Entity.Id,
+                Payment = newPayment.Entity,
+                Authorization_url = paystackResponse.data.authorization_url,
+                Access_code = paystackResponse.data.access_code,
+                Amount = paystackResponse.data.amount,
+                Reference = paystackResponse.data.reference,
+                Transaction_date = DateTime.Now,
+                Currency = paystackResponse.data.currency ?? "NGN"
+            };
+            _context.PayStackpayments.Add(paystack);
+            await _context.SaveChangesAsync();
+            return paystackResponse;
+        }
+
         private string GenerateNumber()
         {
             return "Emusinstitute_" + DateTime.Now.ToString().ToLower().Replace("am", "").Replace("pm", " ").Replace(":", "").Replace("/", "").Replace(" ", "");
