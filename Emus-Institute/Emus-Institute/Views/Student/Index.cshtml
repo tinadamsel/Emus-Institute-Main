@@ -4,7 +4,7 @@
     ViewData["Title"] = "Student Dashboard";
     Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
     var fullName = $"{Model.FirstName} {Model.LastName}".Trim();
-    var greeting = DateTime.Now.Hour switch
+    var greeting = AppTime.Now.Hour switch
     {
         < 12 => "Good morning",
         < 17 => "Good afternoon",
@@ -30,7 +30,7 @@
             <p class="sa-hero-sub">Learn with confidence and track your student journey at Emus Institute.</p>
         </div>
         <div class="sa-hero-meta">
-            <p class="sa-hero-date">@DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+            <p class="sa-hero-date">@AppTime.Now.ToString("dddd, MMMM d, yyyy")</p>
             <p class="sa-hero-institute">@Model.CurrentSession - @Model.DepartmentName</p>
         </div>
     </section>

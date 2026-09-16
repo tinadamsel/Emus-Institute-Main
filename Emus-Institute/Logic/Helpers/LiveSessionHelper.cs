@@ -54,7 +54,7 @@ namespace Logic.Helpers
                 .Where(x => x.Active
                     && x.Status != LiveSessionStatus.Cancelled
                     && x.DepartmentId == student.DepartmentId
-                    && x.EndDateTime >= DateTime.Now.AddDays(-1))
+                    && x.EndDateTime >= AppTime.Now.AddDays(-1))
                 .OrderBy(x => x.StartDateTime)
                 .AsEnumerable()
                 .Select(x => MapSession(x, student.Id, isStaff: false))
@@ -129,7 +129,7 @@ namespace Logic.Helpers
                 return (false, "Duration must be greater than zero.");
             }
 
-            if (model.StartDateTime <= DateTime.Now)
+            if (model.StartDateTime <= AppTime.Now)
             {
                 return (false, "Start time must be in the future.");
             }
@@ -162,7 +162,7 @@ namespace Logic.Helpers
                 RoomCode = "pending",
                 Status = LiveSessionStatus.Scheduled,
                 Active = true,
-                DateCreated = DateTime.Now
+                DateCreated = AppTime.Now
             };
 
             _context.LiveSessions.Add(session);
@@ -262,7 +262,7 @@ namespace Logic.Helpers
 
         private LiveSessionViewModel MapSession(LiveSession session, string userId, bool isStaff)
         {
-            var now = DateTime.Now;
+            var now = AppTime.Now;
             var isActiveNow = now >= session.StartDateTime && now <= session.EndDateTime;
             var isUpcoming = now < session.StartDateTime;
             var isCompleted = now > session.EndDateTime;

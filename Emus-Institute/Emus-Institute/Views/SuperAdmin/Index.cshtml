@@ -4,7 +4,7 @@
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
     var displayName = User?.Identity?.Name ?? "Administrator";
-    var greeting = DateTime.Now.Hour switch
+    var greeting = AppTime.Now.Hour switch
     {
         < 12 => "Good morning",
         < 17 => "Good afternoon",
@@ -21,7 +21,7 @@
             <p class="sa-hero-sub">Manage departments, students, staff, and access from one place.</p>
         </div>
         <div class="sa-hero-meta">
-            <p class="sa-hero-date">@DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+            <p class="sa-hero-date">@AppTime.Now.ToString("dddd, MMMM d, yyyy")</p>
             <p class="sa-hero-institute">Emus Institute</p>
         </div>
     </section>

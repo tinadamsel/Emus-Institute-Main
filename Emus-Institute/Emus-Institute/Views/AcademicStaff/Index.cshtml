@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Staff Dashboard";
     Layout = "~/Views/Shared/_StaffDashboardLayout.cshtml";
-    var greeting = DateTime.Now.Hour switch
+    var greeting = AppTime.Now.Hour switch
     {
         < 12 => "Good morning",
         < 17 => "Good afternoon",
@@ -19,7 +19,7 @@
             <p class="sa-hero-sub">Manage your referrals, credentials, and teaching resources in one workspace.</p>
         </div>
         <div class="sa-hero-meta">
-            <p class="sa-hero-date">@DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+            <p class="sa-hero-date">@AppTime.Now.ToString("dddd, MMMM d, yyyy")</p>
             <p class="sa-hero-institute">Emus Institute</p>
         </div>
     </section>
