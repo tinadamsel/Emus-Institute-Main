@@ -180,10 +180,12 @@
             @*     { *@
             @*         <a asp-controller="Student" asp-action="Index" class="btn btn-primary py-4 px-lg-5 d-sm-block d-lg-block">Dashboard</a> *@
             @*     } *@
-            @*     @if (userRole.ToLower().Contains("tertiary")) *@
-            @*     { *@
-            @*         <a asp-controller="Student" asp-action="Index" class="btn btn-primary py-4 px-lg-5 d-sm-block d-lg-block">Dashboard</a> *@
-            @*     } *@
+
+                @if (userRole.ToLower().Contains("tertiarystudent"))
+                { 
+                  <a asp-controller="Student" asp-action="Index" class="btn btn-primary py-4 px-lg-5 d-sm-block d-lg-block">Dashboard</a>
+                }
+
             @*     @if (userRole.ToLower().Contains("humanresource")) *@
             @*     { *@
             @*         <a asp-controller="HumanResource" asp-action="Index" class="btn btn-primary py-4 px-lg-5 d-sm-block d-lg-block">Dashboard</a> *@
