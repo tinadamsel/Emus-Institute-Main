@@ -11,7 +11,9 @@ namespace Logic.IHelpers
     {
         PaystackResponse MakePayment(Payment payment);
         PaystackResponse MakeAssessmentPayment(Payment payment, string email);
+        PaystackResponse MakeIntakeTextbookPayment(Payment payment, string email);
         Task<PaystackResponse> VerifyPayment(PayStack payment);
         Task<PaystackResponse> VerifyAssessmentPayment(PayStack payment);
+        Task<PaystackResponse> VerifyIntakeTextbookPayment(PayStack payment);
     }
 }

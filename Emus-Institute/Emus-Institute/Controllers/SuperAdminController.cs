@@ -167,6 +167,16 @@ namespace e_college.Controllers
 
         }
 
+        public IActionResult IntakeStudents()
+        {
+            return View(_superAdminHelper.GetIntakeStudents());
+        }
+
+        public IActionResult PaidIntakeStudents()
+        {
+            return View(_superAdminHelper.GetPaidIntakeTextbookPayments());
+        }
+
         public IActionResult ScholarshipStudents()
         {
             var scholarshipStudents = _superAdminHelper.GetScholarshipStudents();

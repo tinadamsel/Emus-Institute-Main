@@ -24,6 +24,8 @@ namespace Logic.IHelpers
         List<ApplicationUserViewModel> GetAllApprovedStudents();
         int GetTotalPaidStudents();
         List<ApplicationUserViewModel> GetAllPaidStudents();
+        List<ApplicationUserViewModel> GetIntakeStudents();
+        List<IntakeTextbookPaymentViewModel> GetPaidIntakeTextbookPayments();
         List<ApplicationUserViewModel> GetScholarshipStudents();
         List<ApplicationUserViewModel> GetApprovedScholarshipStudents();
         bool CheckIfScholarshipStudentIsApproved(string userId);

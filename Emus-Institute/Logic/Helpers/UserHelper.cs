@@ -182,6 +182,7 @@ namespace Logic.Helpers
                     user.StudentId = studentId;
                     user.RefLink = refLink != null ? refLink : null;
                     user.IsCohort = userDetails.IsCohort == true ? true : null;
+                    user.IsIntake = false;
                     var createUser = await _userManager.CreateAsync(user, userDetails.Password).ConfigureAwait(false);
                     if (createUser.Succeeded)
                     {
@@ -226,19 +227,6 @@ namespace Logic.Helpers
                             return true;
                         }
 
-                        //if (user.Email != null)
-                        //{
-                        //    string toEmail = user.Email;
-                        //    string subject = "Student Application Submission";
-                        //    string message = "Hello," + "<b>" + user?.FirstName + " " + user?.LastName + ",</b> " +
-                        //        "<br> Your application into Emus Institute was successful and you Student ID is " + "<b>" + user?.StudentId + ".</b>" +
-                        //        "<br/> You will receive a notification from the school with further details when your application has been approved." +
-                        //        "<br/> <br/> Once again, Congratulations! " +
-                        //        "<br/> <br/> Thank you " +
-                        //        "<br/> <br/> Emus Institute Team";
-                        //    _emailService.SendEmail(toEmail, subject, message);
-                        //    return true;
-                        //}
                         return true;
                     }
                 }
@@ -248,6 +236,100 @@ namespace Logic.Helpers
             {
                 throw ex;
             }
+        }
+
+        public async Task<bool> RegisterIntakeStudent(ApplicationUserViewModel userDetails, string refLink)
+        {
+            try
+            {
+                if (userDetails == null)
+                {
+                    return false;
+                }
+
+                var studentId = GenerateStudentID();
+                var user = new ApplicationUser
+                {
+                    UserName = userDetails.Email,
+                    Email = userDetails.Email,
+                    FirstName = userDetails.FirstName,
+                    LastName = userDetails.LastName,
+                    PhoneNumber = userDetails.Phonenumber,
+                    DateRegistered = DateTime.Now,
+                    Deactivated = false,
+                    Address = userDetails.Address,
+                    Country = userDetails.Country,
+                    State = userDetails.State,
+                    DOB = userDetails.DOB,
+                    OtherName = userDetails.OtherName,
+                    Password = userDetails.Password,
+                    IsStudent = true,
+                    IsAdmin = false,
+                    Paid = false,
+                    IsIntake = true,
+                    IsCohort = null,
+                    AcademicLevel = AcademicLevel.Tertiary,
+                    CurrentSession = CurrentSession.YearOne,
+                    DepartmentId = userDetails.DepartmentId,
+                    StudentId = studentId,
+                    RefLink = string.IsNullOrWhiteSpace(refLink) ? null : refLink,
+                    DateOfApproval = DateTime.Now,
+                    DateModified = DateTime.Now
+                };
+
+                var createUser = await _userManager.CreateAsync(user, userDetails.Password).ConfigureAwait(false);
+                if (!createUser.Succeeded || user.Email == null)
+                {
+                    return false;
+                }
+
+                await _userManager.AddToRoleAsync(user, "TertiaryStudent").ConfigureAwait(false);
+
+                string toEmail = user.Email;
+                string subject = "Intake Hub Registration Successful";
+                string message =
+                    "Hello, <b>" + user.FirstName + " " + user.LastName + "</b>,<br/><br/>" +
+                    "Your registration at Emus Institute was successful. Your Student ID is <b>" + user.StudentId + "</b>.<br/><br/>" +
+                    "You can log in to the Emus Institute student portal now.<br/><br/>" +
+                    "To access virtual classes, textbooks, CBT tests, and assignments, please complete the textbook and mobile data payment (&#8358;12,000) from your student dashboard.<br/><br/>" +
+                    "You can view announcements immediately after login.<br/><br/>" +
+
+                    "Thank you<br/><br/>Emus Institute Team";
+                _emailService.SendEmail(toEmail, subject, message);
+
+                var adminEmail = "nwachukwuarinze00@gmail.com";
+                string adminSubject = "New Intake Hub Registration";
+                string adminMessage =
+                    "Hello SuperAdmin,<br/>An intake student has registered: <b>" + user.FirstName + " " + user.LastName + "</b> on " +
+                    user.DateRegistered + ".<br/>Student ID: <b>" + user.StudentId + "</b>.<br/>They are approved and can log in immediately.<br/>Thank you!!!";
+                _emailService.SendEmail(adminEmail, adminSubject, adminMessage);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool HasPaidIntakeTextbook(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return false;
+            }
+
+            return _context.IntakeTextbookPayments.Any(x => x.UserId == userId && x.IsPaid);
+        }
+
+        public bool IsIntakeStudent(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return false;
+            }
+
+            return _context.ApplicationUser.Any(x => x.Id == userId && x.IsIntake && !x.Deactivated);
         }
 
         public async Task<bool> RegisterScholarshipStudent(ApplicationUserViewModel userDetails, string refLink)

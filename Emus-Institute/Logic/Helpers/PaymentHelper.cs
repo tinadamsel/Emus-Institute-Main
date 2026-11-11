@@ -132,6 +132,87 @@ namespace Logic.Helpers
             }
         }
 
+        public async Task<(bool Success, string Message, string? AuthorizationUrl)> CreateIntakeTextbookPayment(string userId, string dataPhoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(dataPhoneNumber))
+            {
+                return (false, "Please enter a valid mobile number for data.", null);
+            }
+
+            var user = _context.ApplicationUser.FirstOrDefault(x =>
+                x.Id == userId && x.IsIntake && x.IsStudent && !x.Deactivated && !x.IsAdmin);
+            if (user == null)
+            {
+                return (false, "Only intake students can make this payment.", null);
+            }
+
+            if (_context.IntakeTextbookPayments.Any(x => x.UserId == userId && x.IsPaid))
+            {
+                return (false, "You have already paid for textbook and data.", null);
+            }
+
+            var amount = _generalConfiguration.IntakeTextbookAmountNgn > 0
+                ? _generalConfiguration.IntakeTextbookAmountNgn
+                : 12000m;
+
+            var payment = new Payment
+            {
+                PaymentDate = DateTime.Now,
+                Status = PaymentStatus.Pending,
+                PaymentMethod = "Paystack",
+                UserId = userId,
+                DepartmentId = user.DepartmentId,
+                Amount = amount,
+                Reference = "EmusIntake_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                Details = "Intake Textbook and Data Payment"
+            };
+
+            var newPayment = await _context.AddAsync(payment);
+            await _context.SaveChangesAsync();
+
+            var paystackResponse = _paystackHelper.MakeIntakeTextbookPayment(newPayment.Entity, user.Email);
+            if (paystackResponse?.data?.authorization_url == null)
+            {
+                var paystackMsg = paystackResponse?.message;
+                return (false, string.IsNullOrWhiteSpace(paystackMsg)
+                    ? "Unable to start payment. Please try again or contact admin."
+                    : $"Unable to start payment: {paystackMsg}", null);
+            }
+
+            var intakeRecord = _context.IntakeTextbookPayments.FirstOrDefault(x => x.UserId == userId && !x.IsPaid);
+            if (intakeRecord == null)
+            {
+                intakeRecord = new IntakeTextbookPayment
+                {
+                    UserId = userId,
+                    DateCreated = DateTime.Now
+                };
+                _context.IntakeTextbookPayments.Add(intakeRecord);
+            }
+
+            intakeRecord.DataPhoneNumber = dataPhoneNumber.Trim();
+            intakeRecord.PaymentId = newPayment.Entity.Id;
+            intakeRecord.Amount = amount;
+            intakeRecord.IsPaid = false;
+            intakeRecord.PaidAt = null;
+
+            var paystack = new PayStack
+            {
+                PaymentId = newPayment.Entity.Id,
+                Payment = newPayment.Entity,
+                Authorization_url = paystackResponse.data.authorization_url,
+                Access_code = paystackResponse.data.access_code,
+                Amount = paystackResponse.data.amount,
+                Reference = paystackResponse.data.reference,
+                Transaction_date = DateTime.Now,
+                Currency = paystackResponse.data.currency ?? "NGN"
+            };
+            _context.PayStackpayments.Add(paystack);
+            await _context.SaveChangesAsync();
+
+            return (true, "Redirecting to Paystack to complete your textbook and data payment.", paystackResponse.data.authorization_url);
+        }
+
         public async Task<PaystackResponse> CreateAssessmentPayment(AssessmentRegistration registration, decimal amountNgn)
         {
             var payment = new Payment

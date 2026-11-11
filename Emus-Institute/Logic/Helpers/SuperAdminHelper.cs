@@ -88,7 +88,7 @@ namespace Logic.Helpers
         {
             return _context.ApplicationUser
                 .Include(x => x.Department)
-                .Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == true
+                .Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == true && !a.IsIntake
                     && (a.Department == null || !a.Department.IsUnderScholarship))
                 .Count();
         }
@@ -102,7 +102,7 @@ namespace Logic.Helpers
         }
         public int GetTotalPaidStudents()
         {
-            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == true && a.Paid).Count();
+            return _context.ApplicationUser.Where(a => a.Id != null && a.StudentId != null && !a.IsAdmin && !a.Deactivated && a.IsStudent == true && a.Paid && !a.IsIntake).Count();
         }
         
         public int GetTotalDepartments()
@@ -203,7 +203,7 @@ namespace Logic.Helpers
         {
             var result = new List<ApplicationUserViewModel>();
             var appUserViewModel = _context.ApplicationUser
-                .Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated
+                .Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated && !x.IsIntake
                     && (x.Department == null || !x.Department.IsUnderScholarship))
                 .Include(x => x.Department);
             if (appUserViewModel.Any())
@@ -242,7 +242,7 @@ namespace Logic.Helpers
         public List<ApplicationUserViewModel> GetAllPaidStudents()
         {
             var appUserViewModel = new List<ApplicationUserViewModel>();
-            appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated && x.Paid).Include(x => x.Department)
+            appUserViewModel = _context.ApplicationUser.Where(x => x.Id != null && x.StudentId != null && x.IsStudent && !x.IsAdmin && !x.Deactivated && x.Paid && !x.IsIntake).Include(x => x.Department)
                 .Select(x => new ApplicationUserViewModel()
                 {
                     Id = x.Id,
@@ -265,6 +265,73 @@ namespace Logic.Helpers
                     Paid = x.Paid,
                 }).ToList();
             return appUserViewModel;
+        }
+
+        public List<ApplicationUserViewModel> GetIntakeStudents()
+        {
+            var result = _context.ApplicationUser
+                .Include(x => x.Department)
+                .Where(x => x.IsIntake && x.IsStudent && !x.IsAdmin && !x.Deactivated)
+                .OrderByDescending(x => x.DateRegistered)
+                .AsEnumerable()
+                .Select(x => new ApplicationUserViewModel
+                {
+                    Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    OtherName = x.OtherName,
+                    DepartmentId = x.DepartmentId,
+                    DepartmentName = x.Department?.Name,
+                    FullName = $"{x.FirstName} {x.LastName}".Trim(),
+                    DateRegistered = x.DateRegistered,
+                    DOB = x.DOB,
+                    Address = x.Address,
+                    Country = x.Country,
+                    Email = x.Email,
+                    Password = x.Password,
+                    State = x.State,
+                    StudentId = x.StudentId,
+                    CurrentSession = x.CurrentSession,
+                    AcademicLevel = x.AcademicLevel,
+                    Phonenumber = x.PhoneNumber,
+                    IsIntake = true,
+                    HasPaidIntakeTextbook = _context.IntakeTextbookPayments.Any(p => p.UserId == x.Id && p.IsPaid)
+                })
+                .ToList();
+
+            foreach (var item in result)
+            {
+                item.IsSuspended = GetUserSuspensionStatus(item.Id);
+            }
+
+            return result;
+        }
+
+        public List<IntakeTextbookPaymentViewModel> GetPaidIntakeTextbookPayments()
+        {
+            return _context.IntakeTextbookPayments
+                .Include(x => x.User)
+                .ThenInclude(u => u.Department)
+                .Include(x => x.Payment)
+                .Where(x => x.IsPaid)
+                .OrderByDescending(x => x.PaidAt)
+                .AsEnumerable()
+                .Select(x => new IntakeTextbookPaymentViewModel
+                {
+                    Id = x.Id,
+                    UserId = x.UserId,
+                    FullName = x.User == null ? null : $"{x.User.FirstName} {x.User.LastName}".Trim(),
+                    Email = x.User?.Email,
+                    StudentId = x.User?.StudentId,
+                    DepartmentName = x.User?.Department?.Name,
+                    DataPhoneNumber = x.DataPhoneNumber,
+                    IsPaid = x.IsPaid,
+                    Amount = x.Amount,
+                    DateCreated = x.DateCreated,
+                    PaidAt = x.PaidAt,
+                    PaymentReference = x.Payment?.Reference
+                })
+                .ToList();
         }
 
         public List<ApplicationUserViewModel> GetScholarshipStudents()

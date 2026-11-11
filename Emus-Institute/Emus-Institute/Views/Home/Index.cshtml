@@ -18,7 +18,8 @@
                             <h1 class="display-3 text-white animated slideInDown">The Best Online Learning Platform</h1>
                             <p class="fs-5 text-white mb-4 pb-2">Welcome to Emus-Institute where you get to learn from the very best in the world.</p>
                             <a asp-action="StudentRegistration" asp-controller="Account" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Join Now</a>
-                            <a asp-action="CohortRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 animated slideInLeft">Cohort</a>
+                            <a asp-action="CohortRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 me-2 animated slideInLeft">Cohort</a>
+                            <a asp-action="IntakeRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 animated slideInLeft">Intake Pod</a>
                         </div>
                     </div>
                 </div>
@@ -34,7 +35,8 @@
                             <h1 class="display-3 text-white animated slideInDown">Get Educated Online from your home </h1>
                             <p class="fs-5 text-white mb-4 pb-2"> We will help you build from scratch, stage by stage until you can stand alone.</p>
                             <a asp-action="StudentRegistration" asp-controller="Account" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Join Now</a>
-                            <a asp-action="CohortRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 animated slideInLeft">Cohort</a>                        </div>
+                            <a asp-action="CohortRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 me-2 animated slideInLeft">Cohort</a>
+                            <a asp-action="IntakeRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 animated slideInLeft">Intake Pod</a>                        </div>
                     </div>
                 </div>
             </div>
@@ -49,7 +51,8 @@
                             <h1 class="display-3 text-white animated slideInDown">The Best Online Learning Platform</h1>
                             <p class="fs-5 text-white mb-4 pb-2">Welcome to Emus-Institute where you get to learn from the very best in the world.</p>
                             <a asp-action="StudentRegistration" asp-controller="Account" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Join Now</a>
-                            <a asp-action="CohortRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 animated slideInLeft">Cohort</a>
+                            <a asp-action="CohortRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 me-2 animated slideInLeft">Cohort</a>
+                            <a asp-action="IntakeRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 animated slideInLeft">Intake Pod</a>
                         </div>
                     </div>
                 </div>
@@ -65,7 +68,8 @@
                             <h1 class="display-3 text-white animated slideInDown">Get Educated Online from your home </h1>
                             <p class="fs-5 text-white mb-4 pb-2"> We will help you build from scratch, stage by stage until you can stand alone.</p>
                             <a asp-action="StudentRegistration" asp-controller="Account" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Join Now</a>
-                            <a asp-action="CohortRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 animated slideInLeft">Cohort</a>                        </div>
+                            <a asp-action="CohortRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 me-2 animated slideInLeft">Cohort</a>
+                            <a asp-action="IntakeRegistration" asp-controller="Account" class="btn btn-outline-light py-md-3 px-md-5 animated slideInLeft">Intake Pod</a>                        </div>
                     </div>
                 </div>
             </div>
@@ -135,6 +139,25 @@
     </div>
 </div>
 <!-- Study Centers CTA End -->
+<!-- Intake Hub CTA Start -->
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8 wow fadeInUp" data-wow-delay="0.1s">
+                <h6 class="section-title bg-white text-start text-primary pe-3">Intake Pod</h6>
+                <h2 class="mb-3">Register Through Intake Pod</h2>
+                <p class="mb-0">
+                    Join via Intake Hub with no evaluation fee and no approval wait. After registration you can log in immediately.
+                    To unlock virtual classes, complete the textbook and mobile data payment from your dashboard.
+                </p>
+            </div>
+            <div class="col-lg-4 wow fadeInUp text-lg-end" data-wow-delay="0.3s">
+                <a asp-controller="Account" asp-action="IntakeRegistration" class="btn btn-primary py-3 px-5">Open Intake Pod</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Intake Hub CTA End -->
 @inject Logic.IHelpers.IPublicAssessmentHelper AssessmentHelper
 @if (AssessmentHelper.HasPublishedPublicAssessment())
 {

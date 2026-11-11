@@ -167,6 +167,119 @@ function RegisterScholarshipStudent() {
     })
 }
 
+function RegisterIntakeStudent() {
+    var defaultBtnValue = $('#submit_btn').html();
+    $('#submit_btn').html("Please wait...");
+    $('#submit_btn').attr("disabled", true);
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var refLink = urlParams.get('rl');
+
+    var data = {};
+    data.DepartmentId = $('#deptId').val();
+    data.FirstName = $('#firstname').val();
+    data.LastName = $('#lastname').val();
+    data.OtherName = $('#othername').val();
+    data.Phonenumber = $('#phonenumber').val();
+    data.Email = $('#email').val();
+    data.Password = $('#password').val();
+    data.ConfirmPassword = $('#confirmPassword').val();
+    data.State = $('#state').val();
+    data.Country = $('#country').val();
+    data.Address = $('#address').val();
+    data.DOB = $('#dateOfBirth').val();
+    data.IsIntake = true;
+    if (data.DOB == "") {
+        data.DOB = "0001-01-01T00:00:00"
+    };
+
+    if (data.Phonenumber == "" || data.Phonenumber == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in the phonenumber");
+        return;
+    }
+    if (data.State == "" || data.State == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in the State of Residence");
+        return;
+    }
+    if (data.Country == "" || data.Country == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in the Country of Residence");
+        return;
+    }
+    if (data.Address == "" || data.Address == undefined) {
+        $('#submit_btn').html(defaultBtnValue);
+        $('#submit_btn').attr("disabled", false);
+        errorAlert("Please fill in the Residential Address");
+        return;
+    }
+
+    let userDetails = JSON.stringify(data);
+    $.ajax({
+        type: 'Post',
+        url: '/Account/IntakeRegistration',
+        dataType: 'json',
+        data: {
+            userDetails: userDetails,
+            refLink: refLink,
+        },
+        success: function (result) {
+            if (!result.isError) {
+                successAlertWithRedirect(result.msg, '/Account/Login');
+                $('#submit_btn').html(defaultBtnValue);
+            } else {
+                $('#submit_btn').html(defaultBtnValue);
+                $('#submit_btn').attr("disabled", false);
+                errorAlert(result.msg);
+            }
+        },
+        error: function () {
+            $('#submit_btn').html(defaultBtnValue);
+            $('#submit_btn').attr("disabled", false);
+            errorAlert("Please check and try again. Contact Admin if issue persists..");
+        },
+    });
+}
+
+function payIntakeTextbook() {
+    var defaultBtnValue = $('#intake_pay_btn').html();
+    $('#intake_pay_btn').html("Please wait...");
+    $('#intake_pay_btn').attr("disabled", true);
+
+    var dataPhoneNumber = $('#intake_DataPhoneNumber').val();
+    if (!dataPhoneNumber) {
+        $('#intake_pay_btn').html(defaultBtnValue);
+        $('#intake_pay_btn').attr("disabled", false);
+        errorAlert("Please enter the mobile number for data");
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/Student/PayIntakeTextbook',
+        dataType: 'json',
+        data: { dataPhoneNumber: dataPhoneNumber },
+        success: function (result) {
+            if (!result.isError && result.data) {
+                window.location.href = result.data;
+            } else {
+                $('#intake_pay_btn').html(defaultBtnValue);
+                $('#intake_pay_btn').attr("disabled", false);
+                errorAlert(result.msg || "Unable to start payment.");
+            }
+        },
+        error: function () {
+            $('#intake_pay_btn').html(defaultBtnValue);
+            $('#intake_pay_btn').attr("disabled", false);
+            errorAlert("Unable to start payment. Please try again.");
+        }
+    });
+}
+
 function RegisterCohortStudent() {
     var defaultBtnValue = $('#submit_btn').html();
     $('#submit_btn').html("Please wait...");

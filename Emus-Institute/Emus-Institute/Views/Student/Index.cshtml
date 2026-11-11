@@ -35,25 +35,18 @@
         </div>
     </section>
 
+    @if (Model.IsIntake && !Model.HasPaidIntakeTextbook)
+    {
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="bi bi-wallet2 me-2"></i>
+            <div>
+                Complete your textbook and mobile data payment (&#8358;12,000) to unlock virtual classes and learning tools.
+                <a asp-controller="Student" asp-action="IntakeTextbookPayment" class="alert-link">Pay now</a>.
+            </div>
+        </div>
+    }
+
     <section class="sa-stats-grid" aria-label="Student overview">
-        <a asp-controller="Student" asp-action="Textbooks" class="sa-stat-card" data-accent="cyan">
-            <p class="sa-stat-label">Department textbooks</p>
-            <div class="sa-stat-row">
-                <span class="sa-stat-icon"><i class="bi bi-book"></i></span>
-                <p class="sa-stat-value">@Model.TotalDepartmentTextbooks</p>
-            </div>
-            <p class="sa-stat-hint">Learning resources</p>
-        </a>
-
-        <a asp-controller="Student" asp-action="Assignments" class="sa-stat-card" data-accent="amber">
-            <p class="sa-stat-label">Assignments</p>
-            <div class="sa-stat-row">
-                <span class="sa-stat-icon"><i class="bi bi-journal-text"></i></span>
-                <p class="sa-stat-value">@Model.TotalAssignments</p>
-            </div>
-            <p class="sa-stat-hint">View and submit your work</p>
-        </a>
-
         <a asp-controller="Student" asp-action="Announcements" class="sa-stat-card" data-accent="teal">
             <p class="sa-stat-label">Announcements</p>
             <div class="sa-stat-row">
@@ -70,13 +63,37 @@
             }
         </a>
 
-        <a class="sa-stat-card" data-accent="amber">
-            <p class="sa-stat-label">Support tickets</p>
-            <div class="sa-stat-row">
-                <span class="sa-stat-icon"><i class="bi bi-exclamation-triangle"></i></span>
-                <p class="sa-stat-value">0</p>
-            </div>
-            <p class="sa-stat-hint">Academic help and complaints</p>
-        </a>
+        @if (Model.IsIntake)
+        {
+            <a asp-controller="Student" asp-action="IntakeTextbookPayment" class="sa-stat-card" data-accent="amber">
+                <p class="sa-stat-label">Textbook &amp; Data</p>
+                <div class="sa-stat-row">
+                    <span class="sa-stat-icon"><i class="bi bi-wallet2"></i></span>
+                    <p class="sa-stat-value">@(Model.HasPaidIntakeTextbook ? "Paid" : "Pay")</p>
+                </div>
+                <p class="sa-stat-hint">@(Model.HasPaidIntakeTextbook ? "Access unlocked" : "Required for virtual class")</p>
+            </a>
+        }
+
+        @if (!Model.IsIntake || Model.HasPaidIntakeTextbook)
+        {
+            <a asp-controller="Student" asp-action="Textbooks" class="sa-stat-card" data-accent="cyan">
+                <p class="sa-stat-label">Department textbooks</p>
+                <div class="sa-stat-row">
+                    <span class="sa-stat-icon"><i class="bi bi-book"></i></span>
+                    <p class="sa-stat-value">@Model.TotalDepartmentTextbooks</p>
+                </div>
+                <p class="sa-stat-hint">Learning resources</p>
+            </a>
+
+            <a asp-controller="Student" asp-action="Assignments" class="sa-stat-card" data-accent="amber">
+                <p class="sa-stat-label">Assignments</p>
+                <div class="sa-stat-row">
+                    <span class="sa-stat-icon"><i class="bi bi-journal-text"></i></span>
+                    <p class="sa-stat-value">@Model.TotalAssignments</p>
+                </div>
+                <p class="sa-stat-hint">View and submit your work</p>
+            </a>
+        }
     </section>
 </main>

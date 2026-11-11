@@ -11,6 +11,7 @@ namespace Logic.IHelpers
     {
         Task<PaystackResponse> CreateStudentPayment(string UserId, ApplicationUser user);
         Task<PaystackResponse> CreateAssessmentPayment(AssessmentRegistration registration, decimal amountNgn);
+        Task<(bool Success, string Message, string? AuthorizationUrl)> CreateIntakeTextbookPayment(string userId, string dataPhoneNumber);
     }
 }
     

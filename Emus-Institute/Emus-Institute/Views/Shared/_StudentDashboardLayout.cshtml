@@ -1,10 +1,15 @@
-﻿@{
+﻿@inject Logic.IHelpers.IUserHelper _userHelper
+@{
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var currentUser = _userHelper.FindByUserName(User?.Identity?.Name);
+    var isIntake = currentUser?.IsIntake == true;
+    var intakeUnlocked = !isIntake || _userHelper.HasPaidIntakeTextbook(currentUser?.Id);
     string NavClass(string action) =>
         (string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
             || (action == "VirtualClass" && string.Equals(currentAction, "JoinLiveSession", StringComparison.OrdinalIgnoreCase))
             || (action == "MyCbtTests" && (string.Equals(currentAction, "TakeCbtTest", StringComparison.OrdinalIgnoreCase) || string.Equals(currentAction, "CbtTestResult", StringComparison.OrdinalIgnoreCase)))
             || (action == "Assignments" && string.Equals(currentAction, "SubmitAssignment", StringComparison.OrdinalIgnoreCase))
+            || (action == "IntakeTextbookPayment" && string.Equals(currentAction, "IntakeTextbookPayment", StringComparison.OrdinalIgnoreCase))
             || (action == "Announcements" && string.Equals(currentAction, "Announcements", StringComparison.OrdinalIgnoreCase)))
             ? "nav-link sa-nav-active"
             : "nav-link collapsed";
@@ -137,30 +142,41 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="@NavClass("Textbooks")" asp-controller="Student" asp-action="Textbooks">
-                    <i class="bi bi-book"></i><span>Textbooks</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="@NavClass("VirtualClass")" asp-controller="Student" asp-action="VirtualClass">
-                    <i class="bi bi-camera-video"></i><span>Virtual Class</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="@NavClass("MyCbtTests")" asp-controller="Student" asp-action="MyCbtTests">
-                    <i class="bi bi-clipboard-check"></i><span>My CBT Tests</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="@NavClass("Assignments")" asp-controller="Student" asp-action="Assignments">
-                    <i class="bi bi-journal-text"></i><span>Assignments</span>
-                </a>
-            </li>
-            <li class="nav-item">
                 <a class="@NavClass("Announcements")" asp-controller="Student" asp-action="Announcements">
                     <i class="bi bi-megaphone"></i><span>Announcements</span>
                 </a>
             </li>
+            @if (isIntake)
+            {
+                <li class="nav-item">
+                    <a class="@NavClass("IntakeTextbookPayment")" asp-controller="Student" asp-action="IntakeTextbookPayment">
+                        <i class="bi bi-wallet2"></i><span>Textbook &amp; Data</span>
+                    </a>
+                </li>
+            }
+            @if (intakeUnlocked)
+            {
+                <li class="nav-item">
+                    <a class="@NavClass("Textbooks")" asp-controller="Student" asp-action="Textbooks">
+                        <i class="bi bi-book"></i><span>Textbooks</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="@NavClass("VirtualClass")" asp-controller="Student" asp-action="VirtualClass">
+                        <i class="bi bi-camera-video"></i><span>Virtual Class</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="@NavClass("MyCbtTests")" asp-controller="Student" asp-action="MyCbtTests">
+                        <i class="bi bi-clipboard-check"></i><span>My CBT Tests</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="@NavClass("Assignments")" asp-controller="Student" asp-action="Assignments">
+                        <i class="bi bi-journal-text"></i><span>Assignments</span>
+                    </a>
+                </li>
+            }
         </ul>
     </aside>
 

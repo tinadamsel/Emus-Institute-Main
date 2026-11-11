@@ -1,0 +1,68 @@
+@model Core.ViewModels.ApplicationUserViewModel
+@{
+    ViewData["Title"] = "Textbook & Data Payment";
+    Layout = "~/Views/Shared/_StudentDashboardLayout.cshtml";
+    var amount = ViewBag.Amount as decimal? ?? 12000m;
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Textbook &amp; Data Payment</h1>
+            <p class="sa-page-sub">Required for intake students before accessing virtual classes.</p>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="sa-list-card p-4">
+                <h5 class="mb-3">Instructions</h5>
+                <p>
+                    As an Intake Hub student, you must pay for both <strong>department textbooks</strong> and
+                    <strong>mobile data</strong> before you can join virtual classes.
+                </p>
+                <ul>
+                    <li>Department: <strong>@Model.DepartmentName</strong></li>
+                    <li>Payment amount: <strong>&#8358;@amount.ToString("N0")</strong></li>
+                    <li>Enter the mobile number that should receive the data.</li>
+                    <li>After successful payment, Virtual Class and other learning tools will unlock.</li>
+                    <li>Announcements remain available even before this payment.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="sa-list-card p-4">
+                @if (Model.HasPaidIntakeTextbook)
+                {
+                    <h5 class="mb-3">Payment complete</h5>
+                    <p class="mb-2">You have already paid for textbooks and data.</p>
+                    <p class="mb-0"><strong>Data number:</strong> @Model.IntakeDataPhoneNumber</p>
+                    @if (Model.IntakePaidAt.HasValue)
+                    {
+                        <p class="small text-muted mt-2 mb-0">Paid on @Model.IntakePaidAt.Value.ToString("D")</p>
+                    }
+                }
+                else
+                {
+                    <h5 class="mb-3">Pay &#8358;@amount.ToString("N0")</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Mobile number for data <span class="text-danger">*</span></label>
+                        <input type="text" id="intake_DataPhoneNumber" class="form-control" placeholder="e.g. 08012345678" />
+                    </div>
+                    <button type="button" id="intake_pay_btn" class="btn btn-outline-success w-100" onclick="payIntakeTextbook()">
+                        Pay &#8358;@amount.ToString("N0") and Continue
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</main>

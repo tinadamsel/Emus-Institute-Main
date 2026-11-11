@@ -59,5 +59,9 @@ namespace Core.ViewModels
         public string? RefLink { get; set; }
         public int TotalSuspendedUsers { get; set; }
         public bool? IsCohort { get; set; }
+        public bool IsIntake { get; set; }
+        public bool HasPaidIntakeTextbook { get; set; }
+        public string? IntakeDataPhoneNumber { get; set; }
+        public DateTime? IntakePaidAt { get; set; }
     }
 }

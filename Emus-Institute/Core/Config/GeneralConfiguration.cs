@@ -21,5 +21,7 @@ namespace Core.Config
         public string AssessmentCallbackUrl { get; set; }
         public decimal AssessmentAmountGbp { get; set; } = 6m;
         public decimal AssessmentAmountNgn { get; set; } = 12000m;
+        public string IntakeTextbookCallbackUrl { get; set; }
+        public decimal IntakeTextbookAmountNgn { get; set; } = 12000m;
     }
 }

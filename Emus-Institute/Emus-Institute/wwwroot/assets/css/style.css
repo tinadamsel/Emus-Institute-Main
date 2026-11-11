@@ -87,10 +87,12 @@
 }
 
 .navbar-light .navbar-nav .nav-link {
-    margin-right: 30px;
+    margin-right: 10px;
     padding: 25px 0;
     color: #FFFFFF;
-    font-size: 15px;
+    font-size: 13px;
+    letter-spacing: 0;
+    white-space: nowrap;
     text-transform: uppercase;
     outline: none;
 }
@@ -116,9 +118,41 @@
     height: 75px;
 }
 
+.navbar-light .navbar-brand h2 {
+    font-size: 1.35rem;
+}
+
+.navbar-light a.btn {
+    font-size: 13px;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
 .navbar-light .navbar-nav .nav-link {
     color: var(--dark);
     font-weight: 500;
+}
+
+@media (min-width: 992px) and (max-width: 1399.98px) {
+    .navbar-light .navbar-nav .nav-link {
+        font-size: 12px;
+        margin-right: 8px;
+    }
+
+    .navbar-light .navbar-brand {
+        padding-left: 0.75rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .navbar-light .navbar-brand h2 {
+        font-size: 1.2rem;
+    }
+
+    .navbar-light a.btn {
+        font-size: 13px;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }
 
 .navbar-light.sticky-top {

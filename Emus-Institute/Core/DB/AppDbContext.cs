@@ -39,6 +39,18 @@ namespace Core.DB
             builder.Entity<AssignmentSubmission>()
                 .HasIndex(x => new { x.AssignmentId, x.StudentUserId })
                 .IsUnique();
+
+            builder.Entity<IntakeTextbookPayment>()
+                .HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<IntakeTextbookPayment>()
+                .HasOne(x => x.Payment)
+                .WithMany()
+                .HasForeignKey(x => x.PaymentId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
         public DbSet<CommonDropdowns> CommonDropdowns { get; set; }
         public DbSet<ApplicationUser> ApplicationUser { get; set; }
@@ -62,6 +74,7 @@ namespace Core.DB
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<StudyCenter> StudyCenters { get; set; }
         public DbSet<AssessmentRegistration> AssessmentRegistrations { get; set; }
+        public DbSet<IntakeTextbookPayment> IntakeTextbookPayments { get; set; }
 
 
         //public DbSet<PaymentForm> PaymentForms { get; set; }

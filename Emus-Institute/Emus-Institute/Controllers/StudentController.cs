@@ -1,4 +1,5 @@
-﻿using Core.DB;
+﻿using Core.Config;
+using Core.DB;
 using Core.Models;
 using Core.ViewModels;
 using Logic.IHelpers;
@@ -18,6 +19,9 @@ namespace e_college.Controllers
         private readonly ICbtHelper _cbtHelper;
         private readonly IAnnouncementHelper _announcementHelper;
         private readonly IAssignmentHelper _assignmentHelper;
+        private readonly IPaymentHelper _paymentHelper;
+        private readonly IPaystackHelper _paystackHelper;
+        private readonly IGeneralConfiguration _generalConfiguration;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         public StudentController(
@@ -30,6 +34,9 @@ namespace e_college.Controllers
             ICbtHelper cbtHelper,
             IAnnouncementHelper announcementHelper,
             IAssignmentHelper assignmentHelper,
+            IPaymentHelper paymentHelper,
+            IPaystackHelper paystackHelper,
+            IGeneralConfiguration generalConfiguration,
             IWebHostEnvironment webHostEnvironment)
         {
             _signInManager = signInManager;
@@ -41,7 +48,26 @@ namespace e_college.Controllers
             _cbtHelper = cbtHelper;
             _announcementHelper = announcementHelper;
             _assignmentHelper = assignmentHelper;
+            _paymentHelper = paymentHelper;
+            _paystackHelper = paystackHelper;
+            _generalConfiguration = generalConfiguration;
             _webHostEnvironment = webHostEnvironment;
+        }
+
+        private IActionResult? GateIntakeAccessIfNeeded(ApplicationUser? currentUser)
+        {
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (currentUser.IsIntake && !_userHelper.HasPaidIntakeTextbook(currentUser.Id))
+            {
+                TempData["Error"] = "Pay for textbooks and mobile data to unlock this area.";
+                return RedirectToAction(nameof(IntakeTextbookPayment));
+            }
+
+            return null;
         }
 
         [HttpGet]
@@ -52,11 +78,15 @@ namespace e_college.Controllers
             var textbooksCount = 0;
             var announcementCount = 0;
             var assignmentCount = 0;
+            var hasPaidIntake = false;
+            var isIntake = false;
             if (!string.IsNullOrWhiteSpace(userId))
             {
                 textbooksCount = _textbookHelper.GetApprovedTextbooksForStudent(userId).Count;
                 announcementCount = _announcementHelper.GetActiveAnnouncementCountForStudent(userId);
                 assignmentCount = _assignmentHelper.GetStudentAssignmentCount(userId);
+                isIntake = _userHelper.IsIntakeStudent(userId);
+                hasPaidIntake = _userHelper.HasPaidIntakeTextbook(userId);
             }
             ViewBag.HasWholeStudentAnnouncement = _announcementHelper.GetActiveWholeStudentAnnouncementCount() > 0;
             var model = new ApplicationUserViewModel()
@@ -68,7 +98,9 @@ namespace e_college.Controllers
                 DepartmentName = getStudentDetails?.Department?.Name,
                 TotalDepartmentTextbooks = textbooksCount,
                 TotalActiveAnnouncements = announcementCount,
-                TotalAssignments = assignmentCount
+                TotalAssignments = assignmentCount,
+                IsIntake = isIntake,
+                HasPaidIntakeTextbook = hasPaidIntake
             };
             return View(model);
         }
@@ -77,12 +109,10 @@ namespace e_college.Controllers
         public IActionResult Textbooks()
         {
             var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
-            if (currentUser == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            var gate = GateIntakeAccessIfNeeded(currentUser);
+            if (gate != null) return gate;
 
-            var textbooks = _textbookHelper.GetApprovedTextbooksForStudent(currentUser.Id);
+            var textbooks = _textbookHelper.GetApprovedTextbooksForStudent(currentUser!.Id);
             return View(textbooks);
         }
 
@@ -115,12 +145,10 @@ namespace e_college.Controllers
         public IActionResult VirtualClass()
         {
             var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
-            if (currentUser == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            var gate = GateIntakeAccessIfNeeded(currentUser);
+            if (gate != null) return gate;
 
-            var sessions = _liveSessionHelper.GetStudentLiveSessions(currentUser.Id);
+            var sessions = _liveSessionHelper.GetStudentLiveSessions(currentUser!.Id);
             return View(sessions);
         }
 
@@ -128,12 +156,10 @@ namespace e_college.Controllers
         public IActionResult JoinLiveSession(int id)
         {
             var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
-            if (currentUser == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            var gate = GateIntakeAccessIfNeeded(currentUser);
+            if (gate != null) return gate;
 
-            var session = _liveSessionHelper.GetLiveSessionForJoin(id, currentUser.Id, isStaff: false);
+            var session = _liveSessionHelper.GetLiveSessionForJoin(id, currentUser!.Id, isStaff: false);
             if (session == null)
             {
                 return NotFound();
@@ -154,8 +180,9 @@ namespace e_college.Controllers
         public IActionResult MyCbtTests()
         {
             var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
-            if (currentUser == null) return RedirectToAction("Login", "Account");
-            return View(_cbtHelper.GetStudentCbtTests(currentUser.Id));
+            var gate = GateIntakeAccessIfNeeded(currentUser);
+            if (gate != null) return gate;
+            return View(_cbtHelper.GetStudentCbtTests(currentUser!.Id));
         }
 
         [HttpPost]
@@ -238,16 +265,14 @@ namespace e_college.Controllers
         public IActionResult Assignments()
         {
             var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
-            if (currentUser == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            var gate = GateIntakeAccessIfNeeded(currentUser);
+            if (gate != null) return gate;
 
-            return View(_assignmentHelper.GetStudentAssignments(currentUser.Id));
+            return View(_assignmentHelper.GetStudentAssignments(currentUser!.Id));
         }
 
         [HttpGet]
-        public IActionResult SubmitAssignment(int id)
+        public IActionResult IntakeTextbookPayment()
         {
             var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
             if (currentUser == null)
@@ -255,7 +280,81 @@ namespace e_college.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var assignment = _assignmentHelper.GetStudentAssignment(id, currentUser.Id);
+            if (!currentUser.IsIntake)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var paidRecord = _context.IntakeTextbookPayments
+                .FirstOrDefault(x => x.UserId == currentUser.Id && x.IsPaid);
+
+            ViewBag.Amount = _generalConfiguration.IntakeTextbookAmountNgn > 0
+                ? _generalConfiguration.IntakeTextbookAmountNgn
+                : 12000m;
+
+            return View(new ApplicationUserViewModel
+            {
+                FirstName = currentUser.FirstName,
+                LastName = currentUser.LastName,
+                DepartmentName = currentUser.Department?.Name
+                    ?? _context.Departments.FirstOrDefault(d => d.Id == currentUser.DepartmentId)?.Name,
+                IsIntake = true,
+                HasPaidIntakeTextbook = paidRecord != null,
+                IntakeDataPhoneNumber = paidRecord?.DataPhoneNumber,
+                IntakePaidAt = paidRecord?.PaidAt
+            });
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> PayIntakeTextbook(string dataPhoneNumber)
+        {
+            try
+            {
+                var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+                if (currentUser == null)
+                {
+                    return Json(new { isError = true, msg = "Please login again." });
+                }
+
+                var result = await _paymentHelper.CreateIntakeTextbookPayment(currentUser.Id, dataPhoneNumber).ConfigureAwait(false);
+                if (result.Success)
+                {
+                    return Json(new { isError = false, msg = result.Message, data = result.AuthorizationUrl });
+                }
+
+                return Json(new { isError = true, msg = result.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isError = true, msg = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> IntakeTextbookPaystackResponse(PayStack paystack)
+        {
+            var response = await _paystackHelper.VerifyIntakeTextbookPayment(paystack).ConfigureAwait(false);
+            if (response?.data != null &&
+                string.Equals(response.data.status, "success", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Success"] = "Textbook and data payment successful. Virtual classes are now unlocked.";
+            }
+            else
+            {
+                TempData["Error"] = "Unable to verify payment. If you were charged, contact admin.";
+            }
+
+            return RedirectToAction(nameof(IntakeTextbookPayment));
+        }
+
+        [HttpGet]
+        public IActionResult SubmitAssignment(int id)
+        {
+            var currentUser = _userHelper.FindByUserName(User.Identity?.Name);
+            var gate = GateIntakeAccessIfNeeded(currentUser);
+            if (gate != null) return gate;
+
+            var assignment = _assignmentHelper.GetStudentAssignment(id, currentUser!.Id);
             if (assignment == null)
             {
                 return NotFound();

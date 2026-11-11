@@ -124,6 +124,46 @@ namespace Core.Migrations
                     b.ToTable("AssessmentRegistrations");
                 });
 
+            modelBuilder.Entity("Core.Models.IntakeTextbookPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("DataPhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("IntakeTextbookPayments");
+                });
+
             modelBuilder.Entity("Core.Models.Assignment", b =>
                 {
                     b.Property<int>("Id")
@@ -1307,6 +1347,9 @@ namespace Core.Migrations
                     b.Property<bool?>("IsCohort")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsIntake")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsStudent")
                         .HasColumnType("bit");
 
@@ -1373,6 +1416,24 @@ namespace Core.Migrations
                     b.Navigation("CbtTest");
 
                     b.Navigation("Payment");
+                });
+
+            modelBuilder.Entity("Core.Models.IntakeTextbookPayment", b =>
+                {
+                    b.HasOne("Core.Models.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Core.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Payment");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Core.Models.Assignment", b =>

@@ -43,6 +43,7 @@ namespace Core.Models
         public string? RefLink { get; set; }
         public int EvaluationReminderSentCount { get; set; }
         public bool? IsCohort { get; set; }
+        public bool IsIntake { get; set; }
     }
 
 }

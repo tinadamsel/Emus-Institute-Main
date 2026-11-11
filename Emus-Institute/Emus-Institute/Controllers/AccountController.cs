@@ -150,6 +150,61 @@ namespace e_college.Controllers
         }
 
         [HttpGet]
+        public IActionResult IntakeRegistration()
+        {
+            ViewBag.Departments = _dropdownHelper.DropdownOfDepartments(excludeScholarship: true);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> IntakeRegistration(string userDetails, string refLink)
+        {
+            if (userDetails != null)
+            {
+                var appUserViewModel = JsonConvert.DeserializeObject<ApplicationUserViewModel>(userDetails);
+                if (appUserViewModel != null)
+                {
+                    var checkEmail = await _userHelper.FindByEmailAsync(appUserViewModel.Email).ConfigureAwait(false);
+                    if (checkEmail != null)
+                    {
+                        return Json(new { isError = true, msg = "Email Already Exists" });
+                    }
+                    if (appUserViewModel.DepartmentId == 0)
+                    {
+                        return Json(new { isError = true, msg = "Please select a department" });
+                    }
+                    var selectedDepartment = _context.Departments.FirstOrDefault(d => d.Id == appUserViewModel.DepartmentId && d.Active && !d.Deleted);
+                    if (selectedDepartment == null)
+                    {
+                        return Json(new { isError = true, msg = "Please select a valid department" });
+                    }
+                    if (selectedDepartment.IsUnderScholarship)
+                    {
+                        return Json(new { isError = true, msg = "This department is only available through the scholarship program" });
+                    }
+                    if (appUserViewModel.Password != appUserViewModel.ConfirmPassword)
+                    {
+                        return Json(new { isError = true, msg = "Password and Confirm password do not match" });
+                    }
+                    if (appUserViewModel.Password.Length < 8)
+                    {
+                        return Json(new { isError = true, msg = "Password must be from 8 characters" });
+                    }
+
+                    appUserViewModel.IsIntake = true;
+                    appUserViewModel.IsCohort = false;
+                    var createStudent = await _userHelper.RegisterIntakeStudent(appUserViewModel, refLink).ConfigureAwait(false);
+                    if (createStudent)
+                    {
+                        return Json(new { isError = false, msg = "Intake registration successful. Your account is approved — you can log in now." });
+                    }
+                    return Json(new { isError = true, msg = "Unable to register" });
+                }
+            }
+            return Json(new { isError = true, msg = "Network Error" });
+        }
+
+        [HttpGet]
         public IActionResult ScholarshipRegistration()
         {
             ViewBag.Departments = _dropdownHelper.DropdownOfScholarshipDepartments();

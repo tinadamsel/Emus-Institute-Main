@@ -1,0 +1,70 @@
+@model IEnumerable<Core.ViewModels.IntakeTextbookPaymentViewModel>
+
+@{
+    ViewData["Title"] = "Paid Intake Students";
+    Layout = "~/Views/Shared/_SuperAdminDashboardLayout.cshtml";
+}
+
+<main id="main" class="main">
+    <div class="sa-page-header">
+        <div>
+            <h1 class="sa-page-title">Paid Intake Students</h1>
+            <p class="sa-page-sub">Intake students who have paid &#8358;12,000 for textbooks and mobile data, with the phone numbers they submitted.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sa-list-card sa-table-wrap table-responsive">
+                <table class="table table-hover table-striped custom-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Name</th>
+                            <th>Student ID</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Data Number</th>
+                            <th>Amount</th>
+                            <th>Paid At</th>
+                            <th>Reference</th>
+                        </tr>
+                    </thead>
+                    @if (Model != null && Model.Any())
+                    {
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td></td>
+                                    <td>@item.FullName</td>
+                                    <td>@item.StudentId</td>
+                                    <td>@item.Email</td>
+                                    <td>@item.DepartmentName</td>
+                                    <td>@item.DataPhoneNumber</td>
+                                    <td>&#8358;@item.Amount.ToString("N0")</td>
+                                    <td>@(item.PaidAt?.ToString("D") ?? "-")</td>
+                                    <td>@item.PaymentReference</td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
+                    else
+                    {
+                        <tbody>
+                            <tr>
+                                <td colspan="9">
+                                    <div class="sa-empty-state">
+                                        <i class="bi bi-credit-card"></i>
+                                        <h6>No paid intake students yet</h6>
+                                        <p>Completed textbook and data payments will show up here.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
